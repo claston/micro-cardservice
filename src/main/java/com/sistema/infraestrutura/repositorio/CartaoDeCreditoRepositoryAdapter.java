@@ -8,7 +8,7 @@ import com.sistema.dominio.repository.CartaoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-
+import java.util.UUID;
 
 @ApplicationScoped
 public class CartaoDeCreditoRepositoryAdapter implements CartaoRepository, PanacheRepository<CartaoDeCreditoEntity> {
@@ -20,6 +20,11 @@ public class CartaoDeCreditoRepositoryAdapter implements CartaoRepository, Panac
         CartaoDeCreditoEntity entity = cartaoMapper.toEntity(cartao);
         persist(entity);
         getEntityManager().flush();
+        return cartaoMapper.toDomain(entity);
+    }
+
+    public CartaoDeCredito findById(UUID id) {
+        CartaoDeCreditoEntity entity = find("id", id).firstResult();
         return cartaoMapper.toDomain(entity);
     }
 }
