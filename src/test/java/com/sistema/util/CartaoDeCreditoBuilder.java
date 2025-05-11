@@ -4,9 +4,7 @@ import com.sistema.dominio.entidade.CartaoDeCredito;
 import com.sistema.dominio.entidade.Cliente;
 import com.sistema.dominio.servico.CartaoDeCreditoService;
 import com.sistema.dominio.servico.GeradorNumeroCartao;
-import com.sistema.infraestrutura.entidade.ClienteEntity;
-import com.sistema.infraestrutura.mapper.ClienteMapper;
-import com.sistema.infraestrutura.repositorio.ClienteRepository;
+import com.sistema.dominio.repository.CustomerRepository;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -23,10 +21,7 @@ public class CartaoDeCreditoBuilder {
     private UUID cartaoId;
 
     @Inject
-    private ClienteMapper clienteMapper;
-
-    @Inject
-    private ClienteRepository clienteRepository;
+    private CustomerRepository customerRepository;
 
     public CartaoDeCreditoBuilder comID(UUID cartaoId){
         this.cartaoId = cartaoId;
@@ -47,10 +42,7 @@ public class CartaoDeCreditoBuilder {
     public CartaoDeCredito build() {
 
         if (persistirCliente && cliente != null) {
-            ClienteEntity entity = clienteMapper.toEntity(cliente);
-            clienteRepository.persist(entity);
-          //  clienteRepository.getEntityManager().flush();
-            this.cliente = clienteMapper.toDomain(entity);
+            this.cliente = customerRepository.save(cliente);
         }
 
         CartaoDeCreditoService cartaoDeCreditoService = new CartaoDeCreditoService(new GeradorNumeroCartao());

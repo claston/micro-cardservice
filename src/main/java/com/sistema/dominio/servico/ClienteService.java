@@ -1,9 +1,7 @@
 package com.sistema.dominio.servico;
 
 import com.sistema.dominio.entidade.Cliente;
-import com.sistema.infraestrutura.entidade.ClienteEntity;
-import com.sistema.infraestrutura.mapper.ClienteMapper;
-import com.sistema.infraestrutura.repositorio.ClienteRepository;
+import com.sistema.dominio.repository.CustomerRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import java.util.UUID;
@@ -11,24 +9,19 @@ import java.util.UUID;
 @ApplicationScoped
 public class ClienteService {
 
-    private final ClienteRepository clienteRepository;
-    private final ClienteMapper clienteMapper;
+    private final CustomerRepository customerRepository;
 
-    public ClienteService(ClienteRepository clienteRepository, ClienteMapper clienteMapper) {
-        this.clienteRepository = clienteRepository;
-        this.clienteMapper = clienteMapper;
+    public ClienteService(CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
     }
 
     @Transactional
     public void salvarCliente(Cliente cliente){
-
-        ClienteEntity entity = clienteMapper.toEntity(cliente);
-        clienteRepository.persist(entity);
+        customerRepository.save(cliente);
     }
 
     public Cliente buscarCliente (UUID id) {
-        ClienteEntity entity = clienteRepository.findById(id);
-        return clienteMapper.toDomain(entity);
+        return customerRepository.findById(id);
 
     }
 

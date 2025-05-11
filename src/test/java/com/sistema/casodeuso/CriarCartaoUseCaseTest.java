@@ -4,12 +4,8 @@ import com.sistema.adaptadores.dto.CartaoDeCreditoDTO;
 import com.sistema.dominio.entidade.CartaoDeCredito;
 import com.sistema.dominio.entidade.Cliente;
 import com.sistema.dominio.servico.CartaoDeCreditoService;
-import com.sistema.infraestrutura.entidade.CartaoDeCreditoEntity;
-import com.sistema.infraestrutura.entidade.ClienteEntity;
-import com.sistema.infraestrutura.mapper.CartaoDeCreditoMapper;
-import com.sistema.infraestrutura.repositorio.CartaoDeCreditoRepository;
-import com.sistema.infraestrutura.repositorio.ClienteRepository;
-import com.sistema.infraestrutura.mapper.ClienteMapper;
+import com.sistema.dominio.repository.CartaoRepository;
+import com.sistema.dominio.repository.CustomerRepository;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -29,16 +25,10 @@ import static org.mockito.Mockito.*;
 public class CriarCartaoUseCaseTest {
 
     @InjectMock
-    ClienteRepository clienteRepository;
+    CustomerRepository customerRepository;
 
     @InjectMock
-    CartaoDeCreditoRepository cartaoDeCreditoRepository;
-
-    @InjectMock
-    private ClienteMapper clienteMapper;
-
-    @InjectMock
-    private CartaoDeCreditoMapper cartaoDeCreditoMapper;
+    CartaoRepository cartaoDeCreditoRepository;
 
     @InjectMock
     CartaoDeCreditoService cartaoDeCreditoService;
@@ -50,19 +40,15 @@ public class CriarCartaoUseCaseTest {
     @Test
     public void testCriarCartaoDeCreditoValidocomCliente(){
 
-        //mock um clienteEntity
+        //Arrange
         UUID clienteId = UUID.randomUUID();
-        ClienteEntity clienteEntity = new ClienteEntity();
-        clienteEntity.setId(clienteId);
-        clienteEntity.setNome("João Silva");
-        when(clienteRepository.findById(clienteId)).thenReturn(clienteEntity);
-
-        // Mock do ClienteMapper para converter ClienteEntity para Cliente (domínio)
         Cliente cliente = new Cliente("João Silva", "1234567890");
         cliente.setId(clienteId);
-        when(clienteMapper.toDomain(clienteEntity)).thenReturn(cliente);
 
-        //mock cartao de credito
+        // Mock do cliente
+        when(customerRepository.findById(clienteId)).thenReturn(cliente);
+
+        // Mock do cartão retornado pelo service
         UUID cartaoId = UUID.randomUUID();
         CartaoDeCredito cartaoMock = new CartaoDeCredito(
                 "1234567890123456",
@@ -72,9 +58,11 @@ public class CriarCartaoUseCaseTest {
                 "123",
                 new BigDecimal("1000.00"),
                 new BigDecimal("1000.00"));
+        cartaoMock.setId(UUID.randomUUID());
 
         System.out.println("Recebido bandeira Mock: " + cartaoMock.getBandeira());
 
+        // Mock do service
         when(cartaoDeCreditoService.criarCartao(
                 eq("Mastercard"),
                 eq("João Silva"),
@@ -84,43 +72,33 @@ public class CriarCartaoUseCaseTest {
                 eq( new BigDecimal("1000.00")),
                 eq(cliente))).thenReturn(cartaoMock);
 
-        when(cartaoDeCreditoService.criarCartao(
-                eq("Mastercard"),
-                eq("João Silva"),
-                argThat(date -> date.isAfter(LocalDate.now().plusYears(4))),
-                eq("123"),
-                eq( new BigDecimal("1000.00")),
-                eq( new BigDecimal("1000.00")))).thenReturn(cartaoMock);
+        // Mock Repository
+        when(cartaoDeCreditoRepository.save(any(CartaoDeCredito.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Mock do CartaoDeCreditoMapper para converter o cartão de domínio para Entity
-        CartaoDeCreditoEntity cartaoEntity = new CartaoDeCreditoEntity();
-        cartaoEntity.setId(UUID.randomUUID());
-        cartaoEntity.setNumero("1111222233334444");
-        cartaoEntity.setNomeTitular("João Silva");
-        cartaoEntity.setLimiteTotal(new BigDecimal("1000.00"));
-        cartaoEntity.setLimiteDisponivel(new BigDecimal("1000.00"));
-        cartaoEntity.setDataValidade(LocalDate.now().plusYears(5));
-
-        when(cartaoDeCreditoMapper.toEntity(cartaoMock)).thenReturn(cartaoEntity);
-        when(cartaoDeCreditoMapper.toDomain(cartaoEntity)).thenReturn(cartaoMock);
-
-        doNothing().when(cartaoDeCreditoRepository).persist(cartaoEntity);
-
-        //criar um dto do cartao
+        // Preparar DTO de entrada
         CartaoDeCreditoDTO dto = new CartaoDeCreditoDTO();
         dto.setClienteId(cliente.getId().toString());
         dto.setBandeira("Mastercard");
         dto.setNomeTitular(cliente.getNome());
         dto.setCvv("123");
 
-        //passar o dto do do cartao para o caso de uso
-        CartaoDeCredito cartaoAValidar = criarCartaoUseCase.executar(dto);
+        //Act
+        CartaoDeCredito resultado = criarCartaoUseCase.executar(dto);
 
-        //verificar se criou o cartao de credito da forma esperada
-        assertNotNull(cartaoAValidar);
-        verify(clienteRepository, times(1)).findById(clienteId);
-        verify(clienteMapper, times(1)).toDomain(clienteEntity);
-        verify(cartaoDeCreditoRepository, times(1)).persist(cartaoEntity);
-        
+        //Assert
+        assertNotNull(resultado);
+        assertEquals("Mastercard", resultado.getBandeira());
+        verify(customerRepository, times(1)).findById(clienteId);
+        verify(cartaoDeCreditoService, times(1))
+                .criarCartao(
+                    eq("Mastercard"),
+                    eq("João Silva"),
+                    argThat(date -> date.isAfter(LocalDate.now().plusYears(4))),
+                    eq("123"),
+                    eq( new BigDecimal("1000.00")),
+                    eq( new BigDecimal("1000.00")),
+                    eq(cliente));
+        verify(cartaoDeCreditoRepository, times(1)).save(any(CartaoDeCredito.class));
     }
 }
