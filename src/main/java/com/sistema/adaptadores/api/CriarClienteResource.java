@@ -5,10 +5,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sistema.casodeuso.CriarClienteUseCase;
 import com.sistema.dominio.entidade.Cliente;
 import com.sistema.adaptadores.dto.ClienteDTO;
-import com.sistema.infraestrutura.entidade.ClienteEntity;
 import com.sistema.infraestrutura.mapper.ClienteMapper;
 
-import com.sistema.infraestrutura.repositorio.ClienteRepository;
+import com.sistema.dominio.repository.CustomerRepository;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -28,12 +27,12 @@ public class CriarClienteResource {
     ClienteMapper clienteMapper;
 
     @Inject
-    ClienteRepository clienteRepository;
+    CustomerRepository customerRepository;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllClientes(){
-        List<ClienteEntity> clientes = clienteRepository.findAllAsList();
+        List<Cliente> clientes = customerRepository.findAllAsList();
 
         if(clientes.isEmpty()){
             return Response.status(Response.Status.NO_CONTENT).build();

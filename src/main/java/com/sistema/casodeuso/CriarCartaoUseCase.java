@@ -9,7 +9,7 @@ import com.sistema.infraestrutura.mapper.CartaoDeCreditoMapper;
 import com.sistema.infraestrutura.mapper.ClienteMapper;
 import com.sistema.infraestrutura.repositorio.CartaoDeCreditoRepository;
 
-import com.sistema.infraestrutura.repositorio.ClienteRepository;
+import com.sistema.dominio.repository.CustomerRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -28,7 +28,7 @@ public class CriarCartaoUseCase {
     CartaoDeCreditoRepository cartaoDeCreditoRepository;
 
     @Inject
-    ClienteRepository clienteRepository;
+    CustomerRepository customerRepository;
 
     @Inject
     ClienteMapper clienteMapper;
@@ -41,15 +41,13 @@ public class CriarCartaoUseCase {
 
         System.out.println("Recebido DTO bandeira: " + cartaoDTO.getBandeira());
 
-        ClienteEntity clienteEntity = clienteRepository.findById((UUID.fromString(cartaoDTO.getClienteId())));
+        Cliente cliente = customerRepository.findById((UUID.fromString(cartaoDTO.getClienteId())));
 
-        if (clienteEntity == null) {
+        if (cliente == null) {
 
             throw new IllegalArgumentException("Cliente não Encontrado:" + cartaoDTO.getClienteId());
 
         }
-
-        Cliente cliente = clienteMapper.toDomain(clienteEntity);
 
         System.out.println("Recebido clienteMapper bandeira: " + cliente.getNome());
 

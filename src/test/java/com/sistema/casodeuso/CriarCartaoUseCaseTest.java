@@ -8,7 +8,7 @@ import com.sistema.infraestrutura.entidade.CartaoDeCreditoEntity;
 import com.sistema.infraestrutura.entidade.ClienteEntity;
 import com.sistema.infraestrutura.mapper.CartaoDeCreditoMapper;
 import com.sistema.infraestrutura.repositorio.CartaoDeCreditoRepository;
-import com.sistema.infraestrutura.repositorio.ClienteRepository;
+import com.sistema.dominio.repository.CustomerRepository;
 import com.sistema.infraestrutura.mapper.ClienteMapper;
 
 import io.quarkus.test.InjectMock;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 public class CriarCartaoUseCaseTest {
 
     @InjectMock
-    ClienteRepository clienteRepository;
+    CustomerRepository customerRepository;
 
     @InjectMock
     CartaoDeCreditoRepository cartaoDeCreditoRepository;
@@ -50,17 +50,11 @@ public class CriarCartaoUseCaseTest {
     @Test
     public void testCriarCartaoDeCreditoValidocomCliente(){
 
-        //mock um clienteEntity
+        //mock Cliente
         UUID clienteId = UUID.randomUUID();
-        ClienteEntity clienteEntity = new ClienteEntity();
-        clienteEntity.setId(clienteId);
-        clienteEntity.setNome("João Silva");
-        when(clienteRepository.findById(clienteId)).thenReturn(clienteEntity);
-
-        // Mock do ClienteMapper para converter ClienteEntity para Cliente (domínio)
         Cliente cliente = new Cliente("João Silva", "1234567890");
         cliente.setId(clienteId);
-        when(clienteMapper.toDomain(clienteEntity)).thenReturn(cliente);
+        when(customerRepository.findById(clienteId)).thenReturn(cliente);
 
         //mock cartao de credito
         UUID cartaoId = UUID.randomUUID();
@@ -118,8 +112,7 @@ public class CriarCartaoUseCaseTest {
 
         //verificar se criou o cartao de credito da forma esperada
         assertNotNull(cartaoAValidar);
-        verify(clienteRepository, times(1)).findById(clienteId);
-        verify(clienteMapper, times(1)).toDomain(clienteEntity);
+        verify(customerRepository, times(1)).findById(clienteId);
         verify(cartaoDeCreditoRepository, times(1)).persist(cartaoEntity);
         
     }
