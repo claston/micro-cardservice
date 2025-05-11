@@ -1,0 +1,46 @@
+package com.sistema.dominio.entidade;
+
+import com.sistema.dominio.servico.CartaoDeCreditoService;
+import com.sistema.dominio.servico.GeradorNumeroCartao;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.UUID;
+
+public class CartaoDeCreditoTestFactory {
+
+        public static CartaoDeCredito criaCartaoValido(){
+
+            Cliente cliente = new Cliente();
+            cliente.setNome("João Silva");
+
+            CartaoDeCreditoService cartaoDeCreditoService = new CartaoDeCreditoService(new GeradorNumeroCartao());
+
+            return cartaoDeCreditoService.criarCartao(
+                    "Mastercard",
+                    "João da Silva",
+                    LocalDate.now().plusYears(5),
+                    "123",
+                    new BigDecimal("1000.00"),
+                    new BigDecimal("1000.00"),
+                    cliente);
+        }
+
+    public static CartaoDeCredito criaCartaoValido(UUID cartaoId){
+
+        Cliente cliente = new Cliente();
+        cliente.setNome("João Silva");
+
+        CartaoDeCreditoService cartaoDeCreditoService = new CartaoDeCreditoService(new GeradorNumeroCartao());
+
+        return cartaoDeCreditoService.criarCartao(
+                cartaoId,
+                "Mastercard",
+                "João da Silva",
+                LocalDate.now().plusYears(5),
+                "123",
+                new BigDecimal("1000.00"),
+                new BigDecimal("1000.00")
+        );
+    }
+}
