@@ -11,8 +11,8 @@ public class CartaoDeCreditoTestFactory {
 
         public static CartaoDeCredito criaCartaoValido(){
 
-            Cliente cliente = new Cliente();
-            cliente.setNome("João Silva");
+            Customer customer = new Customer();
+            customer.setNome("João Silva");
 
             CartaoDeCreditoService cartaoDeCreditoService = new CartaoDeCreditoService(new GeradorNumeroCartao());
 
@@ -23,13 +23,13 @@ public class CartaoDeCreditoTestFactory {
                     "123",
                     new BigDecimal("1000.00"),
                     new BigDecimal("1000.00"),
-                    cliente);
+                    customer);
         }
 
     public static CartaoDeCredito criaCartaoValido(UUID cartaoId){
 
-        Cliente cliente = new Cliente();
-        cliente.setNome("João Silva");
+        Customer customer = new Customer();
+        customer.setNome("João Silva");
 
         CartaoDeCreditoService cartaoDeCreditoService = new CartaoDeCreditoService(new GeradorNumeroCartao());
 

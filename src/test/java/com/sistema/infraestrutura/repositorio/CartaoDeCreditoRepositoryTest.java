@@ -1,7 +1,7 @@
 package com.sistema.infraestrutura.repositorio;
 
 import com.sistema.infraestrutura.entidade.CartaoDeCreditoEntity;
-import com.sistema.infraestrutura.entidade.ClienteEntity;
+import com.sistema.infraestrutura.entidade.CustomerEntity;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -27,11 +27,11 @@ class CartaoDeCreditoRepositoryTest {
     public void testCriarCartaoDeCreditoValidoNaBaseComCliente(){
 
         // criar um cliente entity
-        ClienteEntity clienteEntity = new ClienteEntity();
-        clienteEntity.setNome("João Silva");
-        clienteEntity.setAtivo(true);
-        clienteEntity.setDataCadastro(LocalDate.now());
-        clienteRepository.persist(clienteEntity);
+        CustomerEntity customerEntity = new CustomerEntity();
+        customerEntity.setNome("João Silva");
+        customerEntity.setAtivo(true);
+        customerEntity.setDataCadastro(LocalDate.now());
+        clienteRepository.persist(customerEntity);
 
         //criar um cartao de credito entity
         CartaoDeCreditoEntity cartaoEntity = new CartaoDeCreditoEntity();
@@ -42,7 +42,7 @@ class CartaoDeCreditoRepositoryTest {
         cartaoEntity.setLimiteTotal(new BigDecimal("1000.00"));
         cartaoEntity.setLimiteDisponivel(new BigDecimal("1000.00"));
         cartaoEntity.setDataValidade(LocalDate.now().plusYears(5));
-        cartaoEntity.setCliente(clienteEntity);
+        cartaoEntity.setCliente(customerEntity);
 
         // chamar o repository para persistir
         cartaoDeCreditoRepository.persist(cartaoEntity);

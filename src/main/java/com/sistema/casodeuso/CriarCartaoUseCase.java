@@ -2,10 +2,10 @@ package com.sistema.casodeuso;
 
 import com.sistema.adaptadores.dto.CartaoDeCreditoDTO;
 import com.sistema.dominio.entidade.CartaoDeCredito;
-import com.sistema.dominio.entidade.Cliente;
+import com.sistema.dominio.entidade.Customer;
 import com.sistema.dominio.servico.CartaoDeCreditoService;
 import com.sistema.infraestrutura.mapper.CartaoDeCreditoMapper;
-import com.sistema.infraestrutura.mapper.ClienteMapper;
+import com.sistema.infraestrutura.mapper.CustomerMapper;
 import com.sistema.dominio.repository.CartaoRepository;
 
 import com.sistema.dominio.repository.CustomerRepository;
@@ -30,7 +30,7 @@ public class CriarCartaoUseCase {
     CustomerRepository customerRepository;
 
     @Inject
-    ClienteMapper clienteMapper;
+    CustomerMapper customerMapper;
 
     @Inject
     CartaoDeCreditoMapper cartaoDeCreditoMapper;
@@ -40,9 +40,9 @@ public class CriarCartaoUseCase {
 
         System.out.println("Recebido DTO bandeira: " + cartaoDTO.getBandeira());
 
-        Cliente cliente = customerRepository.findById((UUID.fromString(cartaoDTO.getClienteId())));
+        Customer customer = customerRepository.findById((UUID.fromString(cartaoDTO.getClienteId())));
 
-        if (cliente == null) {
+        if (customer == null) {
             throw new IllegalArgumentException("Cliente não Encontrado:" + cartaoDTO.getClienteId());
         }
 
@@ -53,7 +53,7 @@ public class CriarCartaoUseCase {
                 cartaoDTO.getCvv(),
                 new BigDecimal("1000.00"),
                 new BigDecimal("1000.00"),
-                cliente
+                    customer
         );
 
         System.out.println("Recebido cartaoCriado bandeira: " + cartaoCriado.getBandeira());

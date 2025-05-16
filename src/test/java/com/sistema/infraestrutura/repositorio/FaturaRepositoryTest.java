@@ -1,7 +1,7 @@
 package com.sistema.infraestrutura.repositorio;
 
 import com.sistema.infraestrutura.entidade.CartaoDeCreditoEntity;
-import com.sistema.infraestrutura.entidade.ClienteEntity;
+import com.sistema.infraestrutura.entidade.CustomerEntity;
 import com.sistema.infraestrutura.entidade.FaturaEntity;
 import com.sistema.infraestrutura.entidade.TransacaoEntity;
 import io.quarkus.test.junit.QuarkusTest;
@@ -73,7 +73,7 @@ public class FaturaRepositoryTest {
 
         // Cria um cliente para o cartão;
 
-        ClienteEntity cliente = new ClienteEntity();
+        CustomerEntity cliente = new CustomerEntity();
         cliente.setNome("João da Silva");
         cliente.setAtivo(true);
         cliente.setDataCadastro(LocalDate.now());

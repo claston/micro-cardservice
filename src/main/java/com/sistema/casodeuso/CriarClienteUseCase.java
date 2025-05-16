@@ -1,9 +1,7 @@
 package com.sistema.casodeuso;
 
-import com.sistema.dominio.entidade.Cliente;
-import com.sistema.infraestrutura.entidade.ClienteEntity;
+import com.sistema.dominio.entidade.Customer;
 import com.sistema.dominio.repository.CustomerRepository;
-import com.sistema.infraestrutura.mapper.ClienteMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 
@@ -19,11 +17,11 @@ public class CriarClienteUseCase {
     }
 
     @Transactional
-    public Cliente executar (Cliente cliente){
-        return customerRepository.save(cliente);
+    public Customer executar (Customer customer){
+        return customerRepository.save(customer);
     }
 
-    public Cliente findById (UUID id){
+    public Customer findById (UUID id){
         return customerRepository.findById(id);
     }
 }

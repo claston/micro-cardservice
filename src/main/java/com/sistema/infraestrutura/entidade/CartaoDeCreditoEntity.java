@@ -28,7 +28,7 @@ public class CartaoDeCreditoEntity {
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "cliente_id", nullable = false)
-    private ClienteEntity cliente;
+    private CustomerEntity cliente;
 
     public UUID getId() {
         return id;
@@ -118,11 +118,11 @@ public class CartaoDeCreditoEntity {
         this.bloqueadoPorPerdaOuRoubo = bloqueadoPorPerdaOuRoubo;
     }
 
-    public ClienteEntity getCliente() {
+    public CustomerEntity getCliente() {
         return cliente;
     }
 
-    public void setCliente(ClienteEntity cliente) {
+    public void setCliente(CustomerEntity cliente) {
         this.cliente = cliente;
     }
 }

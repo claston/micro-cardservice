@@ -1,7 +1,7 @@
 package com.sistema.dominio.servico;
 
 import com.sistema.dominio.entidade.CartaoDeCredito;
-import com.sistema.dominio.entidade.Cliente;
+import com.sistema.dominio.entidade.Customer;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -30,7 +30,7 @@ public class CartaoDeCreditoServiceTest {
         when(geradorNumeroCartao.gerarNumero()).thenReturn("1111222233334444");
 
         // Configura o cliente
-        Cliente cliente = new Cliente("João Silva", "12345678990");
+        Customer customer = new Customer("João Silva", "12345678990");
         CartaoDeCredito cartaoDeCredito = cartaoDeCreditoService.criarCartao(
                 "MasterCard",
                 "João Silva",
@@ -38,7 +38,7 @@ public class CartaoDeCreditoServiceTest {
                 "123",
                 new BigDecimal("1000.00"),
                 new BigDecimal("1000.00"),
-                cliente);
+                customer);
 
         assertNotNull(cartaoDeCredito);
         assertEquals("1111222233334444", cartaoDeCredito.getNumero());
@@ -54,7 +54,7 @@ public class CartaoDeCreditoServiceTest {
     public void testCriarCartaoComLimiteInvalido() {
         when(geradorNumeroCartao.gerarNumero()).thenReturn("1111222233334444");
 
-        Cliente cliente = new Cliente("João Silva", "12345678990");
+        Customer customer = new Customer("João Silva", "12345678990");
 
         // Valida o lançamento de exceção
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
@@ -65,7 +65,7 @@ public class CartaoDeCreditoServiceTest {
                         "123",
                         BigDecimal.ZERO,
                         new BigDecimal("1000.00"),
-                        cliente)
+                        customer)
         );
 
         assertEquals("O limite deve ser maior que zero.", exception.getMessage());

@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-public class ClienteEntity {
+public class CustomerEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -29,7 +29,7 @@ public class ClienteEntity {
 
     //private List<CartaoDeCredito> cartoes = new ArrayList<>();
 
-    public ClienteEntity() {}
+    public CustomerEntity() {}
 
     public UUID getId() {
         return id;

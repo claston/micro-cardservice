@@ -78,11 +78,11 @@ public class FaturaEntityRepositoryAdapterTest {
         fatura.setPaga(false);
 
         // Cria um cliente para o cartão de crédito
-        Cliente cliente = new Cliente();
-        cliente.setNome("João Silva");
+        Customer customer = new Customer();
+        customer.setNome("João Silva");
 
         CartaoDeCredito cartao = cartaoDeCreditoBuilder
-                .comCliente(cliente)
+                .comCliente(customer)
                 .persistindoCliente()
                 .build();
 
@@ -129,11 +129,11 @@ public class FaturaEntityRepositoryAdapterTest {
         fatura.setPaga(false);
 
         // Cria um cliente para o cartão de crédito
-        Cliente cliente = new Cliente();
-        cliente.setNome("João Silva");
+        Customer customer = new Customer();
+        customer.setNome("João Silva");
 
         CartaoDeCredito cartao = cartaoDeCreditoBuilder
-                .comCliente(cliente)
+                .comCliente(customer)
                 .persistindoCliente()
                 .build();
 
