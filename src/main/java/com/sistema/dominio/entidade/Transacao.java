@@ -9,10 +9,10 @@ public class Transacao {
     private String descricao;
     private BigDecimal valor;
     private LocalDateTime dataHora;
-    private CartaoDeCredito cartao;
+    private CreditCard cartao;
     private Fatura fatura;
 
-    public Transacao(String descricao, BigDecimal valor, CartaoDeCredito cartao, LocalDateTime dataHora){
+    public Transacao(String descricao, BigDecimal valor, CreditCard cartao, LocalDateTime dataHora){
 
         if(descricao == null || descricao.isEmpty()){
             throw new IllegalArgumentException(("Descrição da transação não pode ser nula ou vazia"));
@@ -64,11 +64,11 @@ public class Transacao {
         this.dataHora = dataHora;
     }
 
-    public CartaoDeCredito getCartao() {
+    public CreditCard getCartao() {
         return cartao;
     }
 
-    public void setCartao(CartaoDeCredito cartao) {
+    public void setCartao(CreditCard cartao) {
         this.cartao = cartao;
     }
 

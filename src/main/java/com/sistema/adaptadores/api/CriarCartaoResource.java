@@ -1,8 +1,8 @@
 package com.sistema.adaptadores.api;
 
-import com.sistema.adaptadores.dto.CartaoDeCreditoDTO;
+import com.sistema.adaptadores.dto.CreditCardDTO;
 import com.sistema.casodeuso.CriarCartaoUseCase;
-import com.sistema.dominio.entidade.CartaoDeCredito;
+import com.sistema.dominio.entidade.CreditCard;
 
 import com.sistema.infraestrutura.mapper.CartaoDeCreditoMapper;
 import jakarta.inject.Inject;
@@ -22,9 +22,9 @@ public class CriarCartaoResource {
     CartaoDeCreditoMapper cartaoDeCreditoMapper;
 
     @POST
-    public Response criarCartao(CartaoDeCreditoDTO dto){
+    public Response criarCartao(CreditCardDTO dto){
 
-        CartaoDeCredito cartaoCriado = criarCartaoDeCredito.executar(dto);
+        CreditCard cartaoCriado = criarCartaoDeCredito.executar(dto);
 
         return Response.status(Response.Status.CREATED)
                 .entity(cartaoCriado)

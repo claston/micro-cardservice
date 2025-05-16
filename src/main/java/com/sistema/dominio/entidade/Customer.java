@@ -1,44 +1,71 @@
 package com.sistema.dominio.entidade;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 
-public class Cliente {
+public class Customer {
 
     private UUID id;
     private String cpf;
     private String cnpj;
 
-    private String nome;
+    private String name;
     private LocalDate dataNascimento;
 
     private String email;
-    private String telefone;
+    private String foneNumber;
 
     private boolean ativo;
     private LocalDate dataCadastro;
 
    //private List<CartaoDeCredito> cartoes = new ArrayList<>();
 
-    public Cliente() {
+    public Customer() {
         this.ativo = true;
         this.dataCadastro = LocalDate.now();
     }
 
-    public Cliente (String cpf, String nome, String email ) {
+    public Customer(String cpf, String name, String email ) {
         this.cpf = cpf;
-        this.nome = nome;
+        this.name = name;
         this.email = email;
         this.ativo = true;
         this.dataCadastro = LocalDate.now();
     }
 
-    public Cliente(String nome, String cpf) {
+    public Customer(String name, String cpf) {
         this.cpf = cpf;
-        this.nome = nome;
+        this.name = name;
         this.ativo = true;
         this.dataCadastro = LocalDate.now();
     }
+
+    // Static factory method with validation
+    public static Customer createValidCustomer(String name, String email, LocalDate registrationDate) {
+        Objects.requireNonNull(name, "Name cannot be null");
+        Objects.requireNonNull(email, "Email cannot be null");
+        Objects.requireNonNull(registrationDate, "Registration Date cannot be null");
+
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("Name cannot be blank");
+        }
+
+        if (!isValidEmail(email)) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+
+        return new Customer(
+                "12345678890",
+                name.trim(),
+                email.toLowerCase().trim()
+        );
+    }
+
+    private static boolean isValidEmail(String email) {
+        return email.matches("^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,4}$");
+    }
+
 
     public UUID getId() {
         return id;
@@ -64,12 +91,12 @@ public class Cliente {
         this.cnpj = cnpj;
     }
 
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -80,12 +107,12 @@ public class Cliente {
         this.email = email;
     }
 
-    public String getTelefone() {
-        return telefone;
+    public String getFoneNumber() {
+        return foneNumber;
     }
 
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
+    public void setFoneNumber(String foneNumber) {
+        this.foneNumber = foneNumber;
     }
 
     public boolean isAtivo() {

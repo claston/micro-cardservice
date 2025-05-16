@@ -15,7 +15,7 @@ public class TransacaoDomainTest {
     public void testTransacaoValida(){
         System.out.println("=== Teste: Criação de transação válida ===");
 
-        CartaoDeCredito cartao = CartaoDeCreditoTestFactory.criaCartaoValido();
+        CreditCard cartao = CartaoDeCreditoTestFactory.criaCartaoValido();
 
 
         Transacao transacao = new Transacao(
@@ -33,7 +33,7 @@ public class TransacaoDomainTest {
     @Test
     public void testCriarTransacaoComValorNegativo(){
         System.out.println("=== Teste: Criação de Transação com valor negativo ===");
-        CartaoDeCredito cartao = CartaoDeCreditoTestFactory.criaCartaoValido();
+        CreditCard cartao = CartaoDeCreditoTestFactory.criaCartaoValido();
 
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 new Transacao(
@@ -47,7 +47,7 @@ public class TransacaoDomainTest {
     @Test
     public void testCriarTransacaoComDescricaoNula(){
         System.out.println("=== Teste: Criar transação com descrição nula ===");
-        CartaoDeCredito cartao = CartaoDeCreditoTestFactory.criaCartaoValido();
+        CreditCard cartao = CartaoDeCreditoTestFactory.criaCartaoValido();
 
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 new Transacao(

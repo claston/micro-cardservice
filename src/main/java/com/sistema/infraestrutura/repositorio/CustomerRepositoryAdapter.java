@@ -1,9 +1,9 @@
 package com.sistema.infraestrutura.repositorio;
 
-import com.sistema.dominio.entidade.Cliente;
+import com.sistema.dominio.entidade.Customer;
 import com.sistema.dominio.repository.CustomerRepository;
-import com.sistema.infraestrutura.entidade.ClienteEntity;
-import com.sistema.infraestrutura.mapper.ClienteMapper;
+import com.sistema.infraestrutura.entidade.CustomerEntity;
+import com.sistema.infraestrutura.mapper.CustomerMapper;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -14,30 +14,30 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class CustomerRepositoryAdapter implements CustomerRepository, PanacheRepository<ClienteEntity> {
+public class CustomerRepositoryAdapter implements CustomerRepository, PanacheRepository<CustomerEntity> {
 
     @Inject
-    ClienteMapper clienteMapper;
+    CustomerMapper customerMapper;
 
     @Override
-    public Cliente save(Cliente cliente) {
-        ClienteEntity entity = clienteMapper.toEntity(cliente);
+    public Customer save(Customer customer) {
+        CustomerEntity entity = customerMapper.toEntity(customer);
         persist(entity);
-        return clienteMapper.toDomain(entity);
+        return customerMapper.toDomain(entity);
     }
 
     @Override
-    public List<Cliente> findAllAsList() {
-        List<ClienteEntity> entities = list("ORDER BY nome ASC");
+    public List<Customer> findAllAsList() {
+        List<CustomerEntity> entities = list("ORDER BY nome ASC");
         return entities.stream()
-                .map(clienteMapper::toDomain)
+                .map(customerMapper::toDomain)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Cliente findById(UUID id) {
-        ClienteEntity entity = find("id", id).firstResult();
-        return clienteMapper.toDomain(entity);
+    public Customer findById(UUID id) {
+        CustomerEntity entity = find("id", id).firstResult();
+        return customerMapper.toDomain(entity);
     }
 }
