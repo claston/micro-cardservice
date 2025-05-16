@@ -1,7 +1,7 @@
 package com.sistema.infraestrutura.mapper;
 
 import com.sistema.adaptadores.dto.TransacaoDTO;
-import com.sistema.dominio.entidade.CartaoDeCredito;
+import com.sistema.dominio.entidade.CreditCard;
 import com.sistema.dominio.entidade.Transacao;
 import com.sistema.util.CartaoDeCreditoBuilder;
 import io.quarkus.test.junit.QuarkusTest;
@@ -34,7 +34,7 @@ public class TransacaoMapperTest {
         LocalDateTime dataHora = LocalDateTime.of(2024, 1, 10,  10, 0);
         UUID cartaoId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-        CartaoDeCredito cartao = cartaoDeCreditoBuilder.comID(cartaoId).build();
+        CreditCard cartao = cartaoDeCreditoBuilder.comID(cartaoId).build();
 
         UUID transacaoId = UUID.fromString("111e4567-e89b-12d3-a456-426614174000");
         Transacao transacao = new Transacao(descricao, valor, cartao, dataHora);

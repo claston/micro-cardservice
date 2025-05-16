@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class CartaoDeCreditoResourceTest {
+public class CreditCardResourceTest {
 
     @InjectMock
     GeradorNumeroCartao geradorNumeroCartao;
