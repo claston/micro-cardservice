@@ -10,11 +10,11 @@ public class Customer {
     private String cpf;
     private String cnpj;
 
-    private String nome;
+    private String name;
     private LocalDate dataNascimento;
 
     private String email;
-    private String telefone;
+    private String foneNumber;
 
     private boolean ativo;
     private LocalDate dataCadastro;
@@ -26,17 +26,17 @@ public class Customer {
         this.dataCadastro = LocalDate.now();
     }
 
-    public Customer(String cpf, String nome, String email ) {
+    public Customer(String cpf, String name, String email ) {
         this.cpf = cpf;
-        this.nome = nome;
+        this.name = name;
         this.email = email;
         this.ativo = true;
         this.dataCadastro = LocalDate.now();
     }
 
-    public Customer(String nome, String cpf) {
+    public Customer(String name, String cpf) {
         this.cpf = cpf;
-        this.nome = nome;
+        this.name = name;
         this.ativo = true;
         this.dataCadastro = LocalDate.now();
     }
@@ -91,12 +91,12 @@ public class Customer {
         this.cnpj = cnpj;
     }
 
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -107,12 +107,12 @@ public class Customer {
         this.email = email;
     }
 
-    public String getTelefone() {
-        return telefone;
+    public String getFoneNumber() {
+        return foneNumber;
     }
 
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
+    public void setFoneNumber(String foneNumber) {
+        this.foneNumber = foneNumber;
     }
 
     public boolean isAtivo() {

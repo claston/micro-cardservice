@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sistema.casodeuso.CriarClienteUseCase;
 import com.sistema.dominio.entidade.Customer;
-import com.sistema.adaptadores.dto.ClienteDTO;
+import com.sistema.adaptadores.dto.CustomerDTO;
 import com.sistema.infraestrutura.mapper.CustomerMapper;
 
 import com.sistema.dominio.repository.CustomerRepository;
@@ -42,9 +42,9 @@ public class CriarClienteResource {
     }
 
     @POST
-    public Response criarCliente(ClienteDTO clienteDTO){
+    public Response criarCliente(CustomerDTO customerDTO){
 
-        Customer customer = customerMapper.toDomain(clienteDTO);
+        Customer customer = customerMapper.toDomain(customerDTO);
 
         Customer customerCriado = criarClienteUseCase.executar(customer);
 

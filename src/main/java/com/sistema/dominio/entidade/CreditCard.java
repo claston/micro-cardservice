@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-public class CartaoDeCredito {
+public class CreditCard {
 
     private UUID id;
     private String numero;
@@ -23,9 +23,9 @@ public class CartaoDeCredito {
 
     private Customer customer;
 
-    public CartaoDeCredito() {}
+    public CreditCard() {}
 
-    public CartaoDeCredito(String numero, String bandeira, String nomeTitular, LocalDate dataValidade, String cvv, BigDecimal limiteTotal, BigDecimal limiteDisponivel) {
+    public CreditCard(String numero, String bandeira, String nomeTitular, LocalDate dataValidade, String cvv, BigDecimal limiteTotal, BigDecimal limiteDisponivel) {
 
         if (nomeTitular == null || nomeTitular.isEmpty()) {
            throw new IllegalArgumentException("Nome do titular do cartão não pode ser nulo ou vazio");
@@ -53,7 +53,7 @@ public class CartaoDeCredito {
         this.bloqueadoPorPerdaOuRoubo = false;
     }
 
-    public CartaoDeCredito(String numero, String bandeira, String nomeTitular, LocalDate dataValidade, String cvv, BigDecimal limiteTotal, BigDecimal limiteDisponivel, Customer customer) {
+    public CreditCard(String numero, String bandeira, String nomeTitular, LocalDate dataValidade, String cvv, BigDecimal limiteTotal, BigDecimal limiteDisponivel, Customer customer) {
 
         if (nomeTitular == null || nomeTitular.isEmpty()) {
             throw new IllegalArgumentException("Nome do titular do cartão não pode ser nulo ou vazio");

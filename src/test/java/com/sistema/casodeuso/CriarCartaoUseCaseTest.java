@@ -1,7 +1,7 @@
 package com.sistema.casodeuso;
 
-import com.sistema.adaptadores.dto.CartaoDeCreditoDTO;
-import com.sistema.dominio.entidade.CartaoDeCredito;
+import com.sistema.adaptadores.dto.CreditCardDTO;
+import com.sistema.dominio.entidade.CreditCard;
 import com.sistema.dominio.entidade.Customer;
 import com.sistema.dominio.servico.CartaoDeCreditoService;
 import com.sistema.dominio.repository.CartaoRepository;
@@ -50,7 +50,7 @@ public class CriarCartaoUseCaseTest {
 
         // Mock do cartão retornado pelo service
         UUID cartaoId = UUID.randomUUID();
-        CartaoDeCredito cartaoMock = new CartaoDeCredito(
+        CreditCard cartaoMock = new CreditCard(
                 "1234567890123456",
                 "Mastercard",
                 "João da Silva",
@@ -73,18 +73,18 @@ public class CriarCartaoUseCaseTest {
                 eq(customer))).thenReturn(cartaoMock);
 
         // Mock Repository
-        when(cartaoDeCreditoRepository.save(any(CartaoDeCredito.class)))
+        when(cartaoDeCreditoRepository.save(any(CreditCard.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // Preparar DTO de entrada
-        CartaoDeCreditoDTO dto = new CartaoDeCreditoDTO();
+        CreditCardDTO dto = new CreditCardDTO();
         dto.setClienteId(customer.getId().toString());
         dto.setBandeira("Mastercard");
-        dto.setNomeTitular(customer.getNome());
+        dto.setNomeTitular(customer.getName());
         dto.setCvv("123");
 
         //Act
-        CartaoDeCredito resultado = criarCartaoUseCase.executar(dto);
+        CreditCard resultado = criarCartaoUseCase.executar(dto);
 
         //Assert
         assertNotNull(resultado);
@@ -99,6 +99,6 @@ public class CriarCartaoUseCaseTest {
                     eq( new BigDecimal("1000.00")),
                     eq( new BigDecimal("1000.00")),
                     eq(customer));
-        verify(cartaoDeCreditoRepository, times(1)).save(any(CartaoDeCredito.class));
+        verify(cartaoDeCreditoRepository, times(1)).save(any(CreditCard.class));
     }
 }

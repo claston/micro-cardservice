@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CartaoDeCreditoDomainTest {
+public class CreditCardDomainTest {
 
     @Test
     public void testCriarCartaoDeCredito(){
@@ -15,7 +15,7 @@ public class CartaoDeCreditoDomainTest {
 
         UUID cartaoId = UUID.randomUUID();
 
-        CartaoDeCredito cartao = new CartaoDeCredito(
+        CreditCard cartao = new CreditCard(
                 "1234567890123456",
                 "Mastercard",
                 "João da Silva",
@@ -42,7 +42,7 @@ public class CartaoDeCreditoDomainTest {
 
         UUID cartaoId = UUID.randomUUID();
 
-        CartaoDeCredito cartaoDeCredito = new CartaoDeCredito(
+        CreditCard creditCard = new CreditCard(
                 "1234567890123456",
                 "Mastercard",
                 "João da Silva",
@@ -52,16 +52,16 @@ public class CartaoDeCreditoDomainTest {
                 new BigDecimal("1000.00"));
 
         // Compra Aprovada
-        boolean compraAprovada = cartaoDeCredito.realizarCompra(new BigDecimal("200.00"));
+        boolean compraAprovada = creditCard.realizarCompra(new BigDecimal("200.00"));
         assertTrue(compraAprovada);
-        assertEquals(new BigDecimal("200.00"), cartaoDeCredito.getSaldoDevedor());
-        assertEquals(new BigDecimal("800.00"), cartaoDeCredito.getLimiteDisponivel());
+        assertEquals(new BigDecimal("200.00"), creditCard.getSaldoDevedor());
+        assertEquals(new BigDecimal("800.00"), creditCard.getLimiteDisponivel());
 
         // Compra Negada por saldo insuficiente
-        boolean compraNegada = cartaoDeCredito.realizarCompra(new BigDecimal("1000"));
+        boolean compraNegada = creditCard.realizarCompra(new BigDecimal("1000"));
         assertFalse(compraNegada);
-        assertEquals(new BigDecimal("200.00"), cartaoDeCredito.getSaldoDevedor());
-        assertEquals(new BigDecimal("800.00"), cartaoDeCredito.getLimiteDisponivel());
+        assertEquals(new BigDecimal("200.00"), creditCard.getSaldoDevedor());
+        assertEquals(new BigDecimal("800.00"), creditCard.getLimiteDisponivel());
 
         System.out.println("Compra teste realizada com sucesso!");
     }
@@ -73,7 +73,7 @@ public class CartaoDeCreditoDomainTest {
         UUID cartaoId = UUID.randomUUID();
 
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
-                new CartaoDeCredito(
+                new CreditCard(
                         "1234567890123456",
                         "Mastercard",
                         null,
@@ -85,7 +85,7 @@ public class CartaoDeCreditoDomainTest {
         assertEquals("Nome do titular do cartão não pode ser nulo ou vazio", exception.getMessage());
 
         exception = assertThrows(IllegalArgumentException.class, () ->
-                new CartaoDeCredito(
+                new CreditCard(
                         "123",
                         "Mastercard",
                         "João da Silva",
@@ -103,7 +103,7 @@ public class CartaoDeCreditoDomainTest {
 
         UUID cartaoId = UUID.randomUUID();
 
-        CartaoDeCredito cartao = new CartaoDeCredito(
+        CreditCard cartao = new CreditCard(
                 "1234567890123456",
                 "Mastercard",
                 "João da Silva",
@@ -122,7 +122,7 @@ public class CartaoDeCreditoDomainTest {
     public void testCompraValorZero(){
         System.out.println("=== Teste: Compra com valor zero ===");
 
-        CartaoDeCredito cartao = CartaoDeCreditoTestFactory.criaCartaoValido();
+        CreditCard cartao = CartaoDeCreditoTestFactory.criaCartaoValido();
 
         boolean compraNegada = cartao.realizarCompra(BigDecimal.ZERO);
         assertFalse(compraNegada);
@@ -134,7 +134,7 @@ public class CartaoDeCreditoDomainTest {
 
         UUID cartaoId = UUID.randomUUID();
 
-        CartaoDeCredito cartao = new CartaoDeCredito(
+        CreditCard cartao = new CreditCard(
                 "1234567890123456",
                 "Mastercard",
                 "João da Silva",

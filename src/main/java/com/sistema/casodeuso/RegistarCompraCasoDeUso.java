@@ -1,6 +1,6 @@
 package com.sistema.casodeuso;
 
-import com.sistema.dominio.entidade.CartaoDeCredito;
+import com.sistema.dominio.entidade.CreditCard;
 import com.sistema.dominio.entidade.Transacao;
 import com.sistema.infraestrutura.entidade.TransacaoEntity;
 import com.sistema.infraestrutura.mapper.TransacaoMapper;
@@ -25,7 +25,7 @@ public class RegistarCompraCasoDeUso {
     @Transactional
     public Transacao registraCompra(Transacao transacao) {
 
-        CartaoDeCredito cartao = cartaoDeCreditoRepository.findById(transacao.getCartao().getId());
+        CreditCard cartao = cartaoDeCreditoRepository.findById(transacao.getCartao().getId());
         if (cartao == null){
             throw new IllegalArgumentException("Cartão não encontrado");
         }

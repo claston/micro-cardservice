@@ -18,11 +18,11 @@ public class CustomerEntity {
     private String cpf;
     private String cnpj;
 
-    private String nome;
+    private String name;
     private LocalDate dataNascimento;
 
     private String email;
-    private String telefone;
+    private String foneNumber;
 
     private boolean ativo;
     private LocalDate dataCadastro;
@@ -55,12 +55,12 @@ public class CustomerEntity {
         this.cnpj = cnpj;
     }
 
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -71,12 +71,12 @@ public class CustomerEntity {
         this.email = email;
     }
 
-    public String getTelefone() {
-        return telefone;
+    public String getFoneNumber() {
+        return foneNumber;
     }
 
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
+    public void setFoneNumber(String foneNumber) {
+        this.foneNumber = foneNumber;
     }
 
     public boolean isAtivo() {

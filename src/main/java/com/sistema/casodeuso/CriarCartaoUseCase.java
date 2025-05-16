@@ -1,7 +1,7 @@
 package com.sistema.casodeuso;
 
-import com.sistema.adaptadores.dto.CartaoDeCreditoDTO;
-import com.sistema.dominio.entidade.CartaoDeCredito;
+import com.sistema.adaptadores.dto.CreditCardDTO;
+import com.sistema.dominio.entidade.CreditCard;
 import com.sistema.dominio.entidade.Customer;
 import com.sistema.dominio.servico.CartaoDeCreditoService;
 import com.sistema.infraestrutura.mapper.CartaoDeCreditoMapper;
@@ -36,7 +36,7 @@ public class CriarCartaoUseCase {
     CartaoDeCreditoMapper cartaoDeCreditoMapper;
 
     @Transactional
-    public CartaoDeCredito executar(CartaoDeCreditoDTO cartaoDTO) {
+    public CreditCard executar(CreditCardDTO cartaoDTO) {
 
         System.out.println("Recebido DTO bandeira: " + cartaoDTO.getBandeira());
 
@@ -46,7 +46,7 @@ public class CriarCartaoUseCase {
             throw new IllegalArgumentException("Cliente não Encontrado:" + cartaoDTO.getClienteId());
         }
 
-            CartaoDeCredito cartaoCriado = cartaoDeCreditoService.criarCartao(
+            CreditCard cartaoCriado = cartaoDeCreditoService.criarCartao(
                 cartaoDTO.getBandeira(),
                 cartaoDTO.getNomeTitular(),
                 LocalDate.now().plusYears(5),

@@ -1,6 +1,6 @@
 package com.sistema.util;
 
-import com.sistema.dominio.entidade.CartaoDeCredito;
+import com.sistema.dominio.entidade.CreditCard;
 import com.sistema.dominio.entidade.Customer;
 import com.sistema.dominio.servico.CartaoDeCreditoService;
 import com.sistema.dominio.servico.GeradorNumeroCartao;
@@ -39,7 +39,7 @@ public class CartaoDeCreditoBuilder {
     }
 
     @Transactional
-    public CartaoDeCredito build() {
+    public CreditCard build() {
 
         if (persistirCliente && customer != null) {
             this.customer = customerRepository.save(customer);
@@ -47,7 +47,7 @@ public class CartaoDeCreditoBuilder {
 
         CartaoDeCreditoService cartaoDeCreditoService = new CartaoDeCreditoService(new GeradorNumeroCartao());
 
-        CartaoDeCredito cartao = cartaoDeCreditoService.criarCartao(
+        CreditCard cartao = cartaoDeCreditoService.criarCartao(
                 "Mastercard",
                 "João da Silva",
                 LocalDate.now().plusYears(5),

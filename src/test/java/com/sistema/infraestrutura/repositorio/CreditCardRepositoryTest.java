@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-class CartaoDeCreditoRepositoryTest {
+class CreditCardRepositoryTest {
 
     @Inject
     CartaoDeCreditoRepository cartaoDeCreditoRepository;
@@ -28,7 +28,7 @@ class CartaoDeCreditoRepositoryTest {
 
         // criar um cliente entity
         CustomerEntity customerEntity = new CustomerEntity();
-        customerEntity.setNome("João Silva");
+        customerEntity.setName("João Silva");
         customerEntity.setAtivo(true);
         customerEntity.setDataCadastro(LocalDate.now());
         clienteRepository.persist(customerEntity);

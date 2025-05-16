@@ -74,12 +74,12 @@ public class FaturaRepositoryTest {
         // Cria um cliente para o cartão;
 
         CustomerEntity cliente = new CustomerEntity();
-        cliente.setNome("João da Silva");
+        cliente.setName("João da Silva");
         cliente.setAtivo(true);
         cliente.setDataCadastro(LocalDate.now());
         cliente.setCpf("222.222.222-22");
         cliente.setEmail("teste@teste.com");
-        cliente.setTelefone("11 99999999");
+        cliente.setFoneNumber("11 99999999");
 
         clienteRepository.persist(cliente);
 

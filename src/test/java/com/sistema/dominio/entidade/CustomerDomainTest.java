@@ -13,7 +13,7 @@ class CustomerDomainTest {
 
         assertNotNull(customer);
         assertEquals("1234567890", customer.getCpf());
-        assertEquals("José da Silva", customer.getNome());
+        assertEquals("José da Silva", customer.getName());
         assertEquals("joao@email.com", customer.getEmail());
         assertNotNull(customer.getDataCadastro());
         assertTrue(customer.isAtivo());

@@ -1,6 +1,6 @@
 package com.sistema.infraestrutura.repositorio;
 
-import com.sistema.dominio.entidade.CartaoDeCredito;
+import com.sistema.dominio.entidade.CreditCard;
 import com.sistema.infraestrutura.entidade.CartaoDeCreditoEntity;
 import com.sistema.infraestrutura.mapper.CartaoDeCreditoMapper;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
@@ -16,14 +16,14 @@ public class CartaoDeCreditoRepositoryAdapter implements CartaoRepository, Panac
     @Inject
     CartaoDeCreditoMapper cartaoMapper;
 
-    public CartaoDeCredito save(CartaoDeCredito cartao) {
+    public CreditCard save(CreditCard cartao) {
         CartaoDeCreditoEntity entity = cartaoMapper.toEntity(cartao);
         persist(entity);
         getEntityManager().flush();
         return cartaoMapper.toDomain(entity);
     }
 
-    public CartaoDeCredito findById(UUID id) {
+    public CreditCard findById(UUID id) {
         CartaoDeCreditoEntity entity = find("id", id).firstResult();
         return cartaoMapper.toDomain(entity);
     }

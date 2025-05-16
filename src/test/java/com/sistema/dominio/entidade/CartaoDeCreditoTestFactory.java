@@ -9,10 +9,10 @@ import java.util.UUID;
 
 public class CartaoDeCreditoTestFactory {
 
-        public static CartaoDeCredito criaCartaoValido(){
+        public static CreditCard criaCartaoValido(){
 
             Customer customer = new Customer();
-            customer.setNome("João Silva");
+            customer.setName("João Silva");
 
             CartaoDeCreditoService cartaoDeCreditoService = new CartaoDeCreditoService(new GeradorNumeroCartao());
 
@@ -26,10 +26,10 @@ public class CartaoDeCreditoTestFactory {
                     customer);
         }
 
-    public static CartaoDeCredito criaCartaoValido(UUID cartaoId){
+    public static CreditCard criaCartaoValido(UUID cartaoId){
 
         Customer customer = new Customer();
-        customer.setNome("João Silva");
+        customer.setName("João Silva");
 
         CartaoDeCreditoService cartaoDeCreditoService = new CartaoDeCreditoService(new GeradorNumeroCartao());
 

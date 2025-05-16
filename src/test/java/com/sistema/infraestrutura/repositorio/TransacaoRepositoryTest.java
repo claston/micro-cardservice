@@ -36,7 +36,7 @@ public class TransacaoRepositoryTest {
 
         // criar um cliente entity
         CustomerEntity customerEntity = new CustomerEntity();
-        customerEntity.setNome("João Silva");
+        customerEntity.setName("João Silva");
         clienteRepository.persist(customerEntity);
 
         //criar um cartao de credito entity

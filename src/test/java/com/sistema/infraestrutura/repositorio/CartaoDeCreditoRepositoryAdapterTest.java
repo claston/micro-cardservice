@@ -1,6 +1,6 @@
 package com.sistema.infraestrutura.repositorio;
 
-import com.sistema.dominio.entidade.CartaoDeCredito;
+import com.sistema.dominio.entidade.CreditCard;
 import com.sistema.dominio.entidade.Customer;
 import com.sistema.dominio.repository.CartaoRepository;
 import com.sistema.dominio.repository.CustomerRepository;
@@ -26,9 +26,9 @@ class CartaoDeCreditoRepositoryAdapterTest {
         Customer customer = Customer.createValidCustomer("João da Silva", "joao@teste.com.br", registrationDate);
         customerRepository.save(customer);
 
-        CartaoDeCredito card = new CartaoDeCreditoBuilder().comCliente(customer).build();
+        CreditCard card = new CartaoDeCreditoBuilder().comCliente(customer).build();
         //Act
-        CartaoDeCredito savedCard = cartaoRepository.save(card);
+        CreditCard savedCard = cartaoRepository.save(card);
 
         //Assert
         assertNotNull(savedCard);
