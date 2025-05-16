@@ -1,6 +1,6 @@
 package com.sistema.casodeuso;
 
-import com.sistema.dominio.entidade.CartaoDeCredito;
+import com.sistema.dominio.entidade.CreditCard;
 import com.sistema.dominio.entidade.CartaoDeCreditoTestFactory;
 import com.sistema.dominio.entidade.Fatura;
 import com.sistema.dominio.entidade.Transacao;
@@ -49,7 +49,7 @@ public class RegistarTransacaoNaFaturaUseCaseTest {
     public void testRegistarTransacaoNaFatura_newFatura(){
         //Arrange: Cria uma transação com data/pré definida para janeiro de 2024
         LocalDateTime dataHora = LocalDateTime.of(2024, 1, 10, 10, 0);
-        CartaoDeCredito cartao = CartaoDeCreditoTestFactory.criaCartaoValido();
+        CreditCard cartao = CartaoDeCreditoTestFactory.criaCartaoValido();
         Transacao transacao = new Transacao("Compra A", new BigDecimal("100.00"), cartao, dataHora);
 
         //O período da transação (primeiro dia do mês)
@@ -93,7 +93,7 @@ public class RegistarTransacaoNaFaturaUseCaseTest {
     public void testRegistrarTransacaoNaFatura_ExistingFatura(){
     // Arrange: Cria uma transação para Janeiro de 2024
         LocalDateTime dataHora = LocalDateTime.of(2024, 1, 15, 12, 0);
-        CartaoDeCredito cartao = CartaoDeCreditoTestFactory.criaCartaoValido();
+        CreditCard cartao = CartaoDeCreditoTestFactory.criaCartaoValido();
         Transacao transacao = new Transacao("Compra B", new BigDecimal("50.00"), cartao, dataHora);
 
         LocalDate periodoTransacao = dataHora.toLocalDate().withDayOfMonth(1);

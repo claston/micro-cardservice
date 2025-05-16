@@ -1,17 +1,17 @@
 package com.sistema.adaptadores.dto;
 
-public class ClienteDTO {
-    private String nome;
+public class CustomerDTO {
+    private String name;
     private String cpf;
     private String email;
-    private String telefone;
+    private String foneNumber;
 
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getCpf() {
@@ -30,11 +30,11 @@ public class ClienteDTO {
         this.email = email;
     }
 
-    public String getTelefone() {
-        return telefone;
+    public String getFoneNumber() {
+        return foneNumber;
     }
 
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
+    public void setFoneNumber(String foneNumber) {
+        this.foneNumber = foneNumber;
     }
 }

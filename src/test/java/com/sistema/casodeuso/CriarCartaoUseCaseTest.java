@@ -1,8 +1,8 @@
 package com.sistema.casodeuso;
 
-import com.sistema.adaptadores.dto.CartaoDeCreditoDTO;
-import com.sistema.dominio.entidade.CartaoDeCredito;
-import com.sistema.dominio.entidade.Cliente;
+import com.sistema.adaptadores.dto.CreditCardDTO;
+import com.sistema.dominio.entidade.CreditCard;
+import com.sistema.dominio.entidade.Customer;
 import com.sistema.dominio.servico.CartaoDeCreditoService;
 import com.sistema.dominio.repository.CartaoRepository;
 import com.sistema.dominio.repository.CustomerRepository;
@@ -42,15 +42,15 @@ public class CriarCartaoUseCaseTest {
 
         //Arrange
         UUID clienteId = UUID.randomUUID();
-        Cliente cliente = new Cliente("João Silva", "1234567890");
-        cliente.setId(clienteId);
+        Customer customer = new Customer("João Silva", "1234567890");
+        customer.setId(clienteId);
 
         // Mock do cliente
-        when(customerRepository.findById(clienteId)).thenReturn(cliente);
+        when(customerRepository.findById(clienteId)).thenReturn(customer);
 
         // Mock do cartão retornado pelo service
         UUID cartaoId = UUID.randomUUID();
-        CartaoDeCredito cartaoMock = new CartaoDeCredito(
+        CreditCard cartaoMock = new CreditCard(
                 "1234567890123456",
                 "Mastercard",
                 "João da Silva",
@@ -70,21 +70,21 @@ public class CriarCartaoUseCaseTest {
                 eq("123"),
                 eq( new BigDecimal("1000.00")),
                 eq( new BigDecimal("1000.00")),
-                eq(cliente))).thenReturn(cartaoMock);
+                eq(customer))).thenReturn(cartaoMock);
 
         // Mock Repository
-        when(cartaoDeCreditoRepository.save(any(CartaoDeCredito.class)))
+        when(cartaoDeCreditoRepository.save(any(CreditCard.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // Preparar DTO de entrada
-        CartaoDeCreditoDTO dto = new CartaoDeCreditoDTO();
-        dto.setClienteId(cliente.getId().toString());
+        CreditCardDTO dto = new CreditCardDTO();
+        dto.setClienteId(customer.getId().toString());
         dto.setBandeira("Mastercard");
-        dto.setNomeTitular(cliente.getNome());
+        dto.setNomeTitular(customer.getName());
         dto.setCvv("123");
 
         //Act
-        CartaoDeCredito resultado = criarCartaoUseCase.executar(dto);
+        CreditCard resultado = criarCartaoUseCase.executar(dto);
 
         //Assert
         assertNotNull(resultado);
@@ -98,7 +98,7 @@ public class CriarCartaoUseCaseTest {
                     eq("123"),
                     eq( new BigDecimal("1000.00")),
                     eq( new BigDecimal("1000.00")),
-                    eq(cliente));
-        verify(cartaoDeCreditoRepository, times(1)).save(any(CartaoDeCredito.class));
+                    eq(customer));
+        verify(cartaoDeCreditoRepository, times(1)).save(any(CreditCard.class));
     }
 }

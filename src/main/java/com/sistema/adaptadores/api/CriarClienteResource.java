@@ -3,9 +3,9 @@ package com.sistema.adaptadores.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sistema.casodeuso.CriarClienteUseCase;
-import com.sistema.dominio.entidade.Cliente;
-import com.sistema.adaptadores.dto.ClienteDTO;
-import com.sistema.infraestrutura.mapper.ClienteMapper;
+import com.sistema.dominio.entidade.Customer;
+import com.sistema.adaptadores.dto.CustomerDTO;
+import com.sistema.infraestrutura.mapper.CustomerMapper;
 
 import com.sistema.dominio.repository.CustomerRepository;
 import jakarta.inject.Inject;
@@ -24,7 +24,7 @@ public class CriarClienteResource {
     CriarClienteUseCase criarClienteUseCase;
 
     @Inject
-    ClienteMapper clienteMapper;
+    CustomerMapper customerMapper;
 
     @Inject
     CustomerRepository customerRepository;
@@ -32,27 +32,27 @@ public class CriarClienteResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllClientes(){
-        List<Cliente> clientes = customerRepository.findAllAsList();
+        List<Customer> customers = customerRepository.findAllAsList();
 
-        if(clientes.isEmpty()){
+        if(customers.isEmpty()){
             return Response.status(Response.Status.NO_CONTENT).build();
         }
 
-        return Response.ok(clientes).build();
+        return Response.ok(customers).build();
     }
 
     @POST
-    public Response criarCliente(ClienteDTO clienteDTO){
+    public Response criarCliente(CustomerDTO customerDTO){
 
-        Cliente cliente = clienteMapper.toDomain(clienteDTO);
+        Customer customer = customerMapper.toDomain(customerDTO);
 
-        Cliente clienteCriado = criarClienteUseCase.executar(cliente);
+        Customer customerCriado = criarClienteUseCase.executar(customer);
 
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JavaTimeModule());
 
-            String json = mapper.writeValueAsString(clienteCriado);
+            String json = mapper.writeValueAsString(customerCriado);
             System.out.println(json);
         } catch (Exception e) {
             e.printStackTrace();
@@ -60,7 +60,7 @@ public class CriarClienteResource {
 
         System.out.println("Cliente criado com sucesso.");
         return Response.status(Response.Status.CREATED)
-                .entity(clienteCriado)
+                .entity(customerCriado)
                 .build();
     }
 }

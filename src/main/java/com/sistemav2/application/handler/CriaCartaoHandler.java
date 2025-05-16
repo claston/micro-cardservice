@@ -1,6 +1,6 @@
 package com.sistemav2.application.handler;
 
-import com.sistema.dominio.entidade.CartaoDeCredito;
+import com.sistema.dominio.entidade.CreditCard;
 import com.sistemav2.application.command.CriarCartaoCommand;
 import com.sistemav2.domain.model.CartaoCriadoEvent;
 import com.sistemav2.infrastructure.repository.EventStore;
@@ -18,7 +18,7 @@ public class CriaCartaoHandler {
     public void handle(CriarCartaoCommand command){
         // Criar novo cartão com UUID
         // TODO : Verificar essa questão de persistência - objetos com UUID já estão persistidos na base
-        CartaoDeCredito cartao = new CartaoDeCredito();
+        CreditCard cartao = new CreditCard();
         CartaoCriadoEvent event = new CartaoCriadoEvent(cartao);
 
         // Persisitr e Publicar o Evento

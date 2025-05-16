@@ -20,7 +20,7 @@ public class FaturaTest {
         Fatura fatura = new Fatura(mesAno);
 
         //CartaoDeCredito cartao = CartaoDeCreditoTestFactory.criaCartaoValido();
-        CartaoDeCredito cartao = new CartaoDeCreditoBuilder().build();
+        CreditCard cartao = new CartaoDeCreditoBuilder().build();
 
         LocalDateTime dataTransacao = LocalDateTime.of(2024,1,10, 10,0);
 
@@ -49,7 +49,7 @@ public class FaturaTest {
         Fatura fatura = new Fatura(mesAno);
         // adiciona 2 transações
 
-        CartaoDeCredito cartao = new CartaoDeCreditoBuilder().build();
+        CreditCard cartao = new CartaoDeCreditoBuilder().build();
 
         LocalDateTime dataTransacao = LocalDateTime.of(2024,1,10, 10,0);
 

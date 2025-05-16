@@ -1,12 +1,11 @@
 package com.sistema.dominio.repository;
 
-import com.sistema.dominio.entidade.CartaoDeCredito;
-import com.sistema.infraestrutura.entidade.CartaoDeCreditoEntity;
+import com.sistema.dominio.entidade.CreditCard;
 
 import java.util.UUID;
 
 public interface CartaoRepository {
 
-    CartaoDeCredito save(CartaoDeCredito cartaoDeCredito);
-    CartaoDeCredito findById(UUID id);
+    CreditCard save(CreditCard creditCard);
+    CreditCard findById(UUID id);
 }

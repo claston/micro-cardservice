@@ -1,6 +1,6 @@
 package com.sistema.dominio.servico;
 
-import com.sistema.dominio.entidade.CartaoDeCredito;
+import com.sistema.dominio.entidade.CreditCard;
 import com.sistema.dominio.entidade.CartaoDeCreditoTestFactory;
 import com.sistema.dominio.entidade.Fatura;
 import com.sistema.dominio.entidade.Transacao;
@@ -18,7 +18,7 @@ public class FaturaServiceTest {
 
     private FaturaService faturaService;
     private Fatura fatura;
-    private CartaoDeCredito cartaoDeCredito;
+    private CreditCard creditCard;
 
     @BeforeEach
     public void setup(){
@@ -30,10 +30,10 @@ public class FaturaServiceTest {
     @Test
     public void testAdicionarTransacaoAtualizaTotalEPagamentoMinimo() {
         //Arrange: Cria 2 transações para o mesmo período
-        cartaoDeCredito = CartaoDeCreditoTestFactory.criaCartaoValido();
+        creditCard = CartaoDeCreditoTestFactory.criaCartaoValido();
         LocalDateTime dataTransacao = LocalDateTime.of(2024, 1, 10, 10, 0);
-        Transacao t1 = new Transacao("Compra 1", new BigDecimal("100.00"), cartaoDeCredito,dataTransacao);
-        Transacao t2 = new Transacao( "Compra 2", new BigDecimal("50.00"), cartaoDeCredito, dataTransacao);
+        Transacao t1 = new Transacao("Compra 1", new BigDecimal("100.00"), creditCard,dataTransacao);
+        Transacao t2 = new Transacao( "Compra 2", new BigDecimal("50.00"), creditCard, dataTransacao);
 
         faturaService.adicionarTransacao(fatura, t1);
         faturaService.adicionarTransacao(fatura, t2);

@@ -1,7 +1,7 @@
 package com.sistema.util;
 
-import com.sistema.dominio.entidade.CartaoDeCredito;
-import com.sistema.dominio.entidade.Cliente;
+import com.sistema.dominio.entidade.CreditCard;
+import com.sistema.dominio.entidade.Customer;
 import com.sistema.dominio.servico.CartaoDeCreditoService;
 import com.sistema.dominio.servico.GeradorNumeroCartao;
 import com.sistema.dominio.repository.CustomerRepository;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @Dependent
 public class CartaoDeCreditoBuilder {
 
-    private Cliente cliente;
+    private Customer customer;
     private boolean persistirCliente = false;
     private UUID cartaoId;
 
@@ -28,8 +28,8 @@ public class CartaoDeCreditoBuilder {
         return this;
     }
 
-    public CartaoDeCreditoBuilder comCliente(Cliente cliente){
-        this.cliente = cliente;
+    public CartaoDeCreditoBuilder comCliente(Customer customer){
+        this.customer = customer;
         return this;
     }
 
@@ -39,22 +39,22 @@ public class CartaoDeCreditoBuilder {
     }
 
     @Transactional
-    public CartaoDeCredito build() {
+    public CreditCard build() {
 
-        if (persistirCliente && cliente != null) {
-            this.cliente = customerRepository.save(cliente);
+        if (persistirCliente && customer != null) {
+            this.customer = customerRepository.save(customer);
         }
 
         CartaoDeCreditoService cartaoDeCreditoService = new CartaoDeCreditoService(new GeradorNumeroCartao());
 
-        CartaoDeCredito cartao = cartaoDeCreditoService.criarCartao(
+        CreditCard cartao = cartaoDeCreditoService.criarCartao(
                 "Mastercard",
                 "João da Silva",
                 LocalDate.now().plusYears(5),
                 "123",
                 new BigDecimal("1000.00"),
                 new BigDecimal("1000.00"),
-                cliente);
+                customer);
 
         System.out.println("CARTAO_ID:" + cartao.getId());
 

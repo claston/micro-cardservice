@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-public class ClienteEntity {
+public class CustomerEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -18,18 +18,18 @@ public class ClienteEntity {
     private String cpf;
     private String cnpj;
 
-    private String nome;
+    private String name;
     private LocalDate dataNascimento;
 
     private String email;
-    private String telefone;
+    private String foneNumber;
 
     private boolean ativo;
     private LocalDate dataCadastro;
 
     //private List<CartaoDeCredito> cartoes = new ArrayList<>();
 
-    public ClienteEntity() {}
+    public CustomerEntity() {}
 
     public UUID getId() {
         return id;
@@ -55,12 +55,12 @@ public class ClienteEntity {
         this.cnpj = cnpj;
     }
 
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -71,12 +71,12 @@ public class ClienteEntity {
         this.email = email;
     }
 
-    public String getTelefone() {
-        return telefone;
+    public String getFoneNumber() {
+        return foneNumber;
     }
 
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
+    public void setFoneNumber(String foneNumber) {
+        this.foneNumber = foneNumber;
     }
 
     public boolean isAtivo() {
