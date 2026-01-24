@@ -14,7 +14,7 @@ public class Customer {
     private LocalDate dataNascimento;
 
     private String email;
-    private String foneNumber;
+    private String phoneNumber;
 
     private boolean ativo;
     private LocalDate dataCadastro;
@@ -107,12 +107,12 @@ public class Customer {
         this.email = email;
     }
 
-    public String getFoneNumber() {
-        return foneNumber;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setFoneNumber(String foneNumber) {
-        this.foneNumber = foneNumber;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public boolean isAtivo() {

@@ -28,7 +28,7 @@ public class CustomerRepositoryAdapter implements CustomerRepository, PanacheRep
 
     @Override
     public List<Customer> findAllAsList() {
-        List<CustomerEntity> entities = list("ORDER BY nome ASC");
+        List<CustomerEntity> entities = list("ORDER BY name ASC");
         return entities.stream()
                 .map(customerMapper::toDomain)
                 .filter(Objects::nonNull)
