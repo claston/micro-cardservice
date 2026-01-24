@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-public class TransacaoRepositoryTest {
+class TransacaoRepositoryTest extends DbCleanIT {
 
     @Inject
     ClienteRepository clienteRepository;
@@ -27,7 +27,7 @@ public class TransacaoRepositoryTest {
     @Inject
     TransacaoRepository transacaoRepository;
 
-    @Tag("repository-transacao")
+    @Tag("integration-test")
     @Test
     @Transactional
     public void testDeveRegistarCompraComSucesso(){

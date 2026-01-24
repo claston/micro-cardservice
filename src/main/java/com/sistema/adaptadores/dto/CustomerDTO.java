@@ -4,7 +4,7 @@ public class CustomerDTO {
     private String name;
     private String cpf;
     private String email;
-    private String foneNumber;
+    private String phoneNumber;
 
     public String getName() {
         return name;
@@ -30,11 +30,11 @@ public class CustomerDTO {
         this.email = email;
     }
 
-    public String getFoneNumber() {
-        return foneNumber;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setFoneNumber(String foneNumber) {
-        this.foneNumber = foneNumber;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

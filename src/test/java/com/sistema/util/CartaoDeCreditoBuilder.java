@@ -19,6 +19,7 @@ public class CartaoDeCreditoBuilder {
     private Customer customer;
     private boolean persistirCliente = false;
     private UUID cartaoId;
+    private GeradorNumeroCartao geradorNumeroCartao;
 
     @Inject
     private CustomerRepository customerRepository;
@@ -30,6 +31,11 @@ public class CartaoDeCreditoBuilder {
 
     public CartaoDeCreditoBuilder comCliente(Customer customer){
         this.customer = customer;
+        return this;
+    }
+
+    public CartaoDeCreditoBuilder comGeradorNumeroCartao(GeradorNumeroCartao geradorNumeroCartao){
+        this.geradorNumeroCartao = geradorNumeroCartao;
         return this;
     }
 
@@ -45,7 +51,10 @@ public class CartaoDeCreditoBuilder {
             this.customer = customerRepository.save(customer);
         }
 
-        CartaoDeCreditoService cartaoDeCreditoService = new CartaoDeCreditoService(new GeradorNumeroCartao());
+        GeradorNumeroCartao gerador = this.geradorNumeroCartao != null
+                ? this.geradorNumeroCartao
+                : new GeradorNumeroCartao();
+        CartaoDeCreditoService cartaoDeCreditoService = new CartaoDeCreditoService(gerador);
 
         CreditCard cartao = cartaoDeCreditoService.criarCartao(
                 "Mastercard",

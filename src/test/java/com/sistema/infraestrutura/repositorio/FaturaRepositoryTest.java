@@ -19,7 +19,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-public class FaturaRepositoryTest {
+class FaturaRepositoryTest extends DbCleanIT {
 
     @Inject
     FaturaRepository faturaRepository;
@@ -32,7 +32,7 @@ public class FaturaRepositoryTest {
 
     //TODO: Faz sentido colocar o FaturaEntity para ser injetado?
 
-    @Tag("repository-fatura")
+    @Tag("integration-test")
     @Test
     @Transactional
     public void testFindByMesAno() {
@@ -79,7 +79,7 @@ public class FaturaRepositoryTest {
         cliente.setDataCadastro(LocalDate.now());
         cliente.setCpf("222.222.222-22");
         cliente.setEmail("teste@teste.com");
-        cliente.setFoneNumber("11 99999999");
+        cliente.setPhoneNumber("11 99999999");
 
         clienteRepository.persist(cliente);
 

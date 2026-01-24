@@ -17,7 +17,7 @@ public interface CustomerMapper {
             @Mapping(target = "ativo", source = "ativo"),
             @Mapping(target = "cnpj", source = "cnpj"),
             @Mapping(target = "email", source = "email"),
-            @Mapping(target = "foneNumber", source = "foneNumber"),
+            @Mapping(target = "phoneNumber", source = "phoneNumber"),
             @Mapping(target = "dataCadastro",  source = "dataCadastro")
 
     })
@@ -30,7 +30,7 @@ public interface CustomerMapper {
             @Mapping(target = "ativo", source = "ativo"),
             @Mapping(target = "cnpj", source = "cnpj"),
             @Mapping(target = "email", source = "email"),
-            @Mapping(target = "foneNumber", source = "foneNumber"),
+            @Mapping(target = "phoneNumber", source = "phoneNumber"),
             @Mapping(target = "dataCadastro",  source = "dataCadastro")
     })
     Customer toDomain(CustomerEntity customerEntity);
@@ -40,7 +40,7 @@ public interface CustomerMapper {
             @Mapping(target = "cpf", source = "cpf"),
             @Mapping(target = "id", ignore = true),
             @Mapping(target = "email", source = "email"),
-            @Mapping(target = "foneNumber", source = "foneNumber")
+            @Mapping(target = "phoneNumber", source = "phoneNumber")
     })
     Customer toDomain(CustomerDTO customerDTO);
 }

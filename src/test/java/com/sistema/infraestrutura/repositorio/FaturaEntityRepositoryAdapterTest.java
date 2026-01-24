@@ -18,7 +18,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-public class FaturaEntityRepositoryAdapterTest {
+class FaturaEntityRepositoryAdapterTest extends DbCleanIT{
 
     @Inject
     FaturaRepository faturaRepository;
@@ -29,7 +29,7 @@ public class FaturaEntityRepositoryAdapterTest {
     @Inject
     CartaoDeCreditoBuilder cartaoDeCreditoBuilder;
 
-    @Tag("repository-fatura-adapter")
+    @Tag("integration-test")
     @Test
     @Transactional
     public void testPersistNewFatura() {
@@ -111,7 +111,7 @@ public class FaturaEntityRepositoryAdapterTest {
         assertNotNull(fatura.getTransacoes().get(0));
     }
 
-    @Tag("r-f-paga-2")
+    @Tag("integration-test")
     @Test
     @Transactional
     public void testPersistPagamentoDeFatura() {
