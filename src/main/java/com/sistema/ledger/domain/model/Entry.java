@@ -8,7 +8,7 @@ public class Entry {
     private final UUID id;
     private final UUID tenantId;
     private final UUID transactionId;
-    private final UUID accountId;
+    private final UUID ledgerAccountId;
     private final EntryDirection direction;
     private final Money money;
     private final Instant occurredAt;
@@ -17,7 +17,7 @@ public class Entry {
     public Entry(UUID id,
                  UUID tenantId,
                  UUID transactionId,
-                 UUID accountId,
+                 UUID ledgerAccountId,
                  EntryDirection direction,
                  Money money,
                  Instant occurredAt,
@@ -25,7 +25,7 @@ public class Entry {
         this.id = Objects.requireNonNull(id, "id");
         this.tenantId = Objects.requireNonNull(tenantId, "tenantId");
         this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
-        this.accountId = Objects.requireNonNull(accountId, "accountId");
+        this.ledgerAccountId = Objects.requireNonNull(ledgerAccountId, "ledgerAccountId");
         this.direction = Objects.requireNonNull(direction, "direction");
         this.money = Objects.requireNonNull(money, "money");
         this.occurredAt = Objects.requireNonNull(occurredAt, "occurredAt");
@@ -44,8 +44,8 @@ public class Entry {
         return transactionId;
     }
 
-    public UUID getAccountId() {
-        return accountId;
+    public UUID getLedgerAccountId() {
+        return ledgerAccountId;
     }
 
     public EntryDirection getDirection() {

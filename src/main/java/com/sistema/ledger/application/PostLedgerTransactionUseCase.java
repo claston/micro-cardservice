@@ -2,14 +2,14 @@ package com.sistema.ledger.application;
 
 import com.sistema.ledger.application.command.PostLedgerTransactionCommand;
 import com.sistema.ledger.application.command.PostingEntryCommand;
-import com.sistema.ledger.domain.model.Account;
 import com.sistema.ledger.domain.model.AccountStatus;
 import com.sistema.ledger.domain.model.Entry;
 import com.sistema.ledger.domain.model.EntryDirection;
 import com.sistema.ledger.domain.model.IdempotencyKey;
 import com.sistema.ledger.domain.model.LedgerTransaction;
+import com.sistema.ledger.domain.model.LedgerAccount;
 import com.sistema.ledger.domain.model.Money;
-import com.sistema.ledger.domain.repository.AccountRepository;
+import com.sistema.ledger.domain.repository.LedgerAccountRepository;
 import com.sistema.ledger.domain.repository.EntryRepository;
 import com.sistema.ledger.domain.repository.LedgerTransactionRepository;
 import com.sistema.ledger.domain.validation.DoubleEntryValidator;
@@ -28,14 +28,14 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class PostLedgerTransactionUseCase {
-    private final AccountRepository accountRepository;
+    private final LedgerAccountRepository ledgerAccountRepository;
     private final EntryRepository entryRepository;
     private final LedgerTransactionRepository ledgerTransactionRepository;
 
-    public PostLedgerTransactionUseCase(AccountRepository accountRepository,
+    public PostLedgerTransactionUseCase(LedgerAccountRepository ledgerAccountRepository,
                                         EntryRepository entryRepository,
                                         LedgerTransactionRepository ledgerTransactionRepository) {
-        this.accountRepository = accountRepository;
+        this.ledgerAccountRepository = ledgerAccountRepository;
         this.entryRepository = entryRepository;
         this.ledgerTransactionRepository = ledgerTransactionRepository;
     }
@@ -54,19 +54,19 @@ public class PostLedgerTransactionUseCase {
             throw new IllegalArgumentException("entries must have at least 2 items");
         }
 
-        Map<UUID, Account> accountsById = loadAccounts(command.getTenantId(), command.getEntries());
+        Map<UUID, LedgerAccount> accountsById = loadAccounts(command.getTenantId(), command.getEntries());
         Instant occurredAt = command.getOccurredAt() != null ? command.getOccurredAt() : Instant.now();
         Instant createdAt = Instant.now();
 
         List<Entry> entries = new ArrayList<>();
         for (PostingEntryCommand entryCommand : command.getEntries()) {
-            Account account = accountsById.get(entryCommand.getAccountId());
-            if (!account.getTenantId().equals(command.getTenantId())) {
+            LedgerAccount ledgerAccount = accountsById.get(entryCommand.getLedgerAccountId());
+            if (!ledgerAccount.getTenantId().equals(command.getTenantId())) {
                 throw new IllegalArgumentException("cross-tenant operation is not allowed");
             }
-            String currency = entryCommand.getCurrency() == null ? account.getCurrency() : entryCommand.getCurrency();
-            if (!account.getCurrency().equals(currency)) {
-                throw new IllegalArgumentException("currency mismatch for account " + account.getId());
+            String currency = entryCommand.getCurrency() == null ? ledgerAccount.getCurrency() : entryCommand.getCurrency();
+            if (!ledgerAccount.getCurrency().equals(currency)) {
+                throw new IllegalArgumentException("currency mismatch for account " + ledgerAccount.getId());
             }
 
             Money money = new Money(entryCommand.getAmountMinor(), currency);
@@ -74,7 +74,7 @@ public class PostLedgerTransactionUseCase {
                     UUID.randomUUID(),
                     command.getTenantId(),
                     UUID.randomUUID(), // temporary, replaced below
-                    account.getId(),
+                    ledgerAccount.getId(),
                     entryCommand.getDirection(),
                     money,
                     occurredAt,
@@ -92,7 +92,7 @@ public class PostLedgerTransactionUseCase {
                         entry.getId(),
                         entry.getTenantId(),
                         transactionId,
-                        entry.getAccountId(),
+                        entry.getLedgerAccountId(),
                         entry.getDirection(),
                         entry.getMoney(),
                         entry.getOccurredAt(),
@@ -114,37 +114,37 @@ public class PostLedgerTransactionUseCase {
         return ledgerTransactionRepository.save(transaction);
     }
 
-    private Map<UUID, Account> loadAccounts(UUID tenantId, List<PostingEntryCommand> entries) {
-        Map<UUID, Account> accountsById = new HashMap<>();
+    private Map<UUID, LedgerAccount> loadAccounts(UUID tenantId, List<PostingEntryCommand> entries) {
+        Map<UUID, LedgerAccount> accountsById = new HashMap<>();
         for (PostingEntryCommand entryCommand : entries) {
-            UUID accountId = entryCommand.getAccountId();
-            if (accountsById.containsKey(accountId)) {
+            UUID ledgerAccountId = entryCommand.getLedgerAccountId();
+            if (accountsById.containsKey(ledgerAccountId)) {
                 continue;
             }
-            Account account = accountRepository.findById(tenantId, accountId)
-                    .orElseThrow(() -> new IllegalArgumentException("account not found: " + accountId));
-            if (account.getStatus() != AccountStatus.ACTIVE) {
-                throw new IllegalArgumentException("account not active: " + accountId);
+            LedgerAccount ledgerAccount = ledgerAccountRepository.findById(tenantId, ledgerAccountId)
+                    .orElseThrow(() -> new IllegalArgumentException("account not found: " + ledgerAccountId));
+            if (ledgerAccount.getStatus() != AccountStatus.ACTIVE) {
+                throw new IllegalArgumentException("account not active: " + ledgerAccountId);
             }
-            if (!account.getTenantId().equals(tenantId)) {
+            if (!ledgerAccount.getTenantId().equals(tenantId)) {
                 throw new IllegalArgumentException("cross-tenant operation is not allowed");
             }
-            accountsById.put(accountId, account);
+            accountsById.put(ledgerAccountId, ledgerAccount);
         }
         return accountsById;
     }
 
-    private void validateNegativeBalances(UUID tenantId, Map<UUID, Account> accountsById, List<Entry> entries) {
+    private void validateNegativeBalances(UUID tenantId, Map<UUID, LedgerAccount> accountsById, List<Entry> entries) {
         Map<UUID, Long> deltaByAccount = new HashMap<>();
         for (Entry entry : entries) {
             long delta = entry.getDirection() == EntryDirection.CREDIT
                     ? entry.getMoney().getAmountMinor()
                     : -entry.getMoney().getAmountMinor();
-            deltaByAccount.merge(entry.getAccountId(), delta, Long::sum);
+            deltaByAccount.merge(entry.getLedgerAccountId(), delta, Long::sum);
         }
 
         for (Map.Entry<UUID, Long> delta : deltaByAccount.entrySet()) {
-            Account account = accountsById.get(delta.getKey());
+            LedgerAccount account = accountsById.get(delta.getKey());
             long currentBalance = entryRepository.getBalanceMinor(tenantId, account.getId());
             long resultingBalance = currentBalance + delta.getValue();
             NegativeBalancePolicy.check(account.isAllowNegative(), resultingBalance);

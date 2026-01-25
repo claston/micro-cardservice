@@ -15,9 +15,9 @@ public class GetAccountStatementUseCase {
         this.entryRepository = entryRepository;
     }
 
-    public StatementPage execute(UUID tenantId, UUID accountId, Instant from, Instant to, int page, int size) {
+    public StatementPage execute(UUID tenantId, UUID ledgerAccountId, Instant from, Instant to, int page, int size) {
         int safePage = Math.max(page, 0);
         int safeSize = size <= 0 ? 20 : size;
-        return entryRepository.getStatement(tenantId, accountId, from, to, safePage, safeSize);
+        return entryRepository.getStatement(tenantId, ledgerAccountId, from, to, safePage, safeSize);
     }
 }

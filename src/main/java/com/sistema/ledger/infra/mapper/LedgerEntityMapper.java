@@ -1,6 +1,6 @@
 package com.sistema.ledger.infra.mapper;
 
-import com.sistema.ledger.domain.model.Account;
+import com.sistema.ledger.domain.model.LedgerAccount;
 import com.sistema.ledger.domain.model.AccountStatus;
 import com.sistema.ledger.domain.model.AccountType;
 import com.sistema.ledger.domain.model.Entry;
@@ -8,7 +8,7 @@ import com.sistema.ledger.domain.model.EntryDirection;
 import com.sistema.ledger.domain.model.IdempotencyKey;
 import com.sistema.ledger.domain.model.LedgerTransaction;
 import com.sistema.ledger.domain.model.Money;
-import com.sistema.ledger.infra.entity.AccountEntity;
+import com.sistema.ledger.infra.entity.LedgerAccountEntity;
 import com.sistema.ledger.infra.entity.EntryEntity;
 import com.sistema.ledger.infra.entity.LedgerTransactionEntity;
 
@@ -18,21 +18,21 @@ public final class LedgerEntityMapper {
     private LedgerEntityMapper() {
     }
 
-    public static AccountEntity toEntity(Account account) {
-        AccountEntity entity = new AccountEntity();
-        entity.setId(account.getId());
-        entity.setTenantId(account.getTenantId());
-        entity.setName(account.getName());
-        entity.setType(account.getType().name());
-        entity.setCurrency(account.getCurrency());
-        entity.setAllowNegative(account.isAllowNegative());
-        entity.setStatus(account.getStatus().name());
-        entity.setCreatedAt(account.getCreatedAt());
+    public static LedgerAccountEntity toEntity(LedgerAccount ledgerAccount) {
+        LedgerAccountEntity entity = new LedgerAccountEntity();
+        entity.setId(ledgerAccount.getId());
+        entity.setTenantId(ledgerAccount.getTenantId());
+        entity.setName(ledgerAccount.getName());
+        entity.setType(ledgerAccount.getType().name());
+        entity.setCurrency(ledgerAccount.getCurrency());
+        entity.setAllowNegative(ledgerAccount.isAllowNegative());
+        entity.setStatus(ledgerAccount.getStatus().name());
+        entity.setCreatedAt(ledgerAccount.getCreatedAt());
         return entity;
     }
 
-    public static Account toDomain(AccountEntity entity) {
-        return new Account(
+    public static LedgerAccount toDomain(LedgerAccountEntity entity) {
+        return new LedgerAccount(
                 entity.getId(),
                 entity.getTenantId(),
                 entity.getName(),
@@ -62,7 +62,7 @@ public final class LedgerEntityMapper {
                 entity.getId(),
                 entity.getTenantId(),
                 entity.getTransaction().getId(),
-                entity.getAccount().getId(),
+                entity.getLedgerAccount().getId(),
                 EntryDirection.valueOf(entity.getDirection()),
                 new Money(entity.getAmountMinor(), entity.getCurrency()),
                 entity.getOccurredAt(),
