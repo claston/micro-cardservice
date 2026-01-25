@@ -18,10 +18,10 @@ public class GetAccountBalanceUseCase {
         this.entryRepository = entryRepository;
     }
 
-    public AccountBalance execute(UUID accountId) {
-        Account account = accountRepository.findById(accountId)
+    public AccountBalance execute(UUID tenantId, UUID accountId) {
+        Account account = accountRepository.findById(tenantId, accountId)
                 .orElseThrow(() -> new IllegalArgumentException("account not found: " + accountId));
-        long balance = entryRepository.getBalanceMinor(accountId);
+        long balance = entryRepository.getBalanceMinor(tenantId, accountId);
         return new AccountBalance(accountId, balance, account.getCurrency());
     }
 }

@@ -24,12 +24,13 @@ class GetAccountBalanceUseCaseTest {
         AccountRepository accountRepository = Mockito.mock(AccountRepository.class);
         EntryRepository entryRepository = Mockito.mock(EntryRepository.class);
 
+        UUID tenantId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
-        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account(accountId)));
-        when(entryRepository.getBalanceMinor(accountId)).thenReturn(2500L);
+        when(accountRepository.findById(tenantId, accountId)).thenReturn(Optional.of(account(tenantId, accountId)));
+        when(entryRepository.getBalanceMinor(tenantId, accountId)).thenReturn(2500L);
 
         GetAccountBalanceUseCase useCase = new GetAccountBalanceUseCase(accountRepository, entryRepository);
-        AccountBalance balance = useCase.execute(accountId);
+        AccountBalance balance = useCase.execute(tenantId, accountId);
 
         assertEquals(accountId, balance.getAccountId());
         assertEquals(2500L, balance.getBalanceMinor());
@@ -41,17 +42,19 @@ class GetAccountBalanceUseCaseTest {
         AccountRepository accountRepository = Mockito.mock(AccountRepository.class);
         EntryRepository entryRepository = Mockito.mock(EntryRepository.class);
 
+        UUID tenantId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
-        when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
+        when(accountRepository.findById(tenantId, accountId)).thenReturn(Optional.empty());
 
         GetAccountBalanceUseCase useCase = new GetAccountBalanceUseCase(accountRepository, entryRepository);
 
-        assertThrows(IllegalArgumentException.class, () -> useCase.execute(accountId));
+        assertThrows(IllegalArgumentException.class, () -> useCase.execute(tenantId, accountId));
     }
 
-    private Account account(UUID id) {
+    private Account account(UUID tenantId, UUID id) {
         return new Account(
                 id,
+                tenantId,
                 "Conta Teste",
                 AccountType.ASSET,
                 "BRL",

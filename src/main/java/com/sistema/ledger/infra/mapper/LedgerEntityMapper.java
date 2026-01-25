@@ -21,6 +21,7 @@ public final class LedgerEntityMapper {
     public static AccountEntity toEntity(Account account) {
         AccountEntity entity = new AccountEntity();
         entity.setId(account.getId());
+        entity.setTenantId(account.getTenantId());
         entity.setName(account.getName());
         entity.setType(account.getType().name());
         entity.setCurrency(account.getCurrency());
@@ -33,6 +34,7 @@ public final class LedgerEntityMapper {
     public static Account toDomain(AccountEntity entity) {
         return new Account(
                 entity.getId(),
+                entity.getTenantId(),
                 entity.getName(),
                 AccountType.valueOf(entity.getType()),
                 entity.getCurrency(),
@@ -45,6 +47,7 @@ public final class LedgerEntityMapper {
     public static LedgerTransaction toDomain(LedgerTransactionEntity transactionEntity, List<Entry> entries) {
         return new LedgerTransaction(
                 transactionEntity.getId(),
+                transactionEntity.getTenantId(),
                 new IdempotencyKey(transactionEntity.getIdempotencyKey()),
                 transactionEntity.getExternalReference(),
                 transactionEntity.getDescription(),
@@ -57,6 +60,7 @@ public final class LedgerEntityMapper {
     public static Entry toDomain(EntryEntity entity) {
         return new Entry(
                 entity.getId(),
+                entity.getTenantId(),
                 entity.getTransaction().getId(),
                 entity.getAccount().getId(),
                 EntryDirection.valueOf(entity.getDirection()),

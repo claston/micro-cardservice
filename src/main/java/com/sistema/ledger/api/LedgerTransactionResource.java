@@ -9,6 +9,7 @@ import com.sistema.ledger.application.command.PostingEntryCommand;
 import com.sistema.ledger.domain.model.EntryDirection;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -27,12 +28,14 @@ public class LedgerTransactionResource {
     PostLedgerTransactionUseCase postLedgerTransactionUseCase;
 
     @POST
-    public Response postTransaction(PostLedgerTransactionRequest request) {
+    public Response postTransaction(@HeaderParam("X-Tenant-Id") java.util.UUID tenantId,
+                                    PostLedgerTransactionRequest request) {
         try {
             List<PostingEntryCommand> entries = request.getEntries().stream()
                     .map(this::toCommand)
                     .collect(Collectors.toList());
             PostLedgerTransactionCommand command = new PostLedgerTransactionCommand(
+                    requireTenantId(tenantId),
                     request.getIdempotencyKey(),
                     request.getExternalReference(),
                     request.getDescription(),
@@ -55,5 +58,12 @@ public class LedgerTransactionResource {
                 entry.getAmountMinor(),
                 entry.getCurrency()
         );
+    }
+
+    private java.util.UUID requireTenantId(java.util.UUID tenantId) {
+        if (tenantId == null) {
+            throw new WebApplicationException("tenantId is required", Response.Status.BAD_REQUEST);
+        }
+        return tenantId;
     }
 }

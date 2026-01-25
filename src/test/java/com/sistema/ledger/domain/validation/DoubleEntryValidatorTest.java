@@ -62,6 +62,7 @@ class DoubleEntryValidatorTest {
                 UUID.randomUUID(),
                 UUID.randomUUID(),
                 UUID.randomUUID(),
+                UUID.randomUUID(),
                 direction,
                 new Money(amountMinor, currency),
                 Instant.now(),

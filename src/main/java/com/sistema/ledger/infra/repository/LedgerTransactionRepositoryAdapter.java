@@ -23,14 +23,15 @@ public class LedgerTransactionRepositoryAdapter implements LedgerTransactionRepo
     EntityManager entityManager;
 
     @Override
-    public Optional<LedgerTransaction> findByIdempotencyKey(String idempotencyKey) {
-        LedgerTransactionEntity transactionEntity = find("idempotencyKey", idempotencyKey).firstResult();
+    public Optional<LedgerTransaction> findByIdempotencyKey(UUID tenantId, String idempotencyKey) {
+        LedgerTransactionEntity transactionEntity = find("tenantId = ?1 and idempotencyKey = ?2", tenantId, idempotencyKey).firstResult();
         if (transactionEntity == null) {
             return Optional.empty();
         }
         List<EntryEntity> entryEntities = entityManager.createQuery(
-                        "from EntryEntity e where e.transaction.id = :transactionId order by e.occurredAt asc",
+                        "from EntryEntity e where e.tenantId = :tenantId and e.transaction.id = :transactionId order by e.occurredAt asc",
                         EntryEntity.class)
+                .setParameter("tenantId", tenantId)
                 .setParameter("transactionId", transactionEntity.getId())
                 .getResultList();
         List<Entry> entries = entryEntities.stream()
@@ -43,6 +44,7 @@ public class LedgerTransactionRepositoryAdapter implements LedgerTransactionRepo
     public LedgerTransaction save(LedgerTransaction transaction) {
         LedgerTransactionEntity transactionEntity = new LedgerTransactionEntity();
         transactionEntity.setId(transaction.getId());
+        transactionEntity.setTenantId(transaction.getTenantId());
         transactionEntity.setIdempotencyKey(transaction.getIdempotencyKey().getValue());
         transactionEntity.setExternalReference(transaction.getExternalReference());
         transactionEntity.setDescription(transaction.getDescription());
@@ -53,6 +55,7 @@ public class LedgerTransactionRepositoryAdapter implements LedgerTransactionRepo
         for (Entry entry : transaction.getEntries()) {
             EntryEntity entryEntity = new EntryEntity();
             entryEntity.setId(entry.getId());
+            entryEntity.setTenantId(entry.getTenantId());
             entryEntity.setTransaction(transactionEntity);
             AccountEntity accountRef = entityManager.getReference(AccountEntity.class, entry.getAccountId());
             entryEntity.setAccount(accountRef);

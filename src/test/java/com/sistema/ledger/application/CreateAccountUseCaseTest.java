@@ -22,7 +22,9 @@ class CreateAccountUseCaseTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         CreateAccountUseCase useCase = new CreateAccountUseCase(accountRepository);
+        java.util.UUID tenantId = java.util.UUID.randomUUID();
         CreateAccountCommand command = new CreateAccountCommand(
+                tenantId,
                 "Carteira Cliente",
                 AccountType.ASSET,
                 "BRL",
@@ -32,6 +34,7 @@ class CreateAccountUseCaseTest {
         Account account = useCase.execute(command);
 
         assertNotNull(account.getId());
+        assertEquals(tenantId, account.getTenantId());
         assertEquals("Carteira Cliente", account.getName());
         assertEquals(AccountType.ASSET, account.getType());
         assertEquals("BRL", account.getCurrency());

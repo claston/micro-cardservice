@@ -16,6 +16,9 @@ public class EntryEntity {
     @Id
     private UUID id;
 
+    @Column(name = "tenant_id")
+    private UUID tenantId;
+
     @ManyToOne
     @JoinColumn(name = "transaction_id", nullable = false)
     private LedgerTransactionEntity transaction;
@@ -45,6 +48,14 @@ public class EntryEntity {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public UUID getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(UUID tenantId) {
+        this.tenantId = tenantId;
     }
 
     public LedgerTransactionEntity getTransaction() {
