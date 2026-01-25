@@ -5,20 +5,20 @@ import com.sistema.ledger.domain.model.EntryDirection;
 import java.util.UUID;
 
 public class PostingEntryCommand {
-    private final UUID accountId;
+    private final UUID ledgerAccountId;
     private final EntryDirection direction;
     private final long amountMinor;
     private final String currency;
 
-    public PostingEntryCommand(UUID accountId, EntryDirection direction, long amountMinor, String currency) {
-        this.accountId = accountId;
+    public PostingEntryCommand(UUID ledgerAccountId, EntryDirection direction, long amountMinor, String currency) {
+        this.ledgerAccountId = ledgerAccountId;
         this.direction = direction;
         this.amountMinor = amountMinor;
         this.currency = currency;
     }
 
-    public UUID getAccountId() {
-        return accountId;
+    public UUID getLedgerAccountId() {
+        return ledgerAccountId;
     }
 
     public EntryDirection getDirection() {

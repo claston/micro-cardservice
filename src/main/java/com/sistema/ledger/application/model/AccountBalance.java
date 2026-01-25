@@ -3,18 +3,18 @@ package com.sistema.ledger.application.model;
 import java.util.UUID;
 
 public class AccountBalance {
-    private final UUID accountId;
+    private final UUID ledgerAccountId;
     private final long balanceMinor;
     private final String currency;
 
-    public AccountBalance(UUID accountId, long balanceMinor, String currency) {
-        this.accountId = accountId;
+    public AccountBalance(UUID ledgerAccountId, long balanceMinor, String currency) {
+        this.ledgerAccountId = ledgerAccountId;
         this.balanceMinor = balanceMinor;
         this.currency = currency;
     }
 
-    public UUID getAccountId() {
-        return accountId;
+    public UUID getLedgerAccountId() {
+        return ledgerAccountId;
     }
 
     public long getBalanceMinor() {

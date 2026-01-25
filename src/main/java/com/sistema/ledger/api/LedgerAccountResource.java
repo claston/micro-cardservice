@@ -55,9 +55,9 @@ public class LedgerAccountResource {
                     request.getCurrency(),
                     request.isAllowNegative()
             );
-            var account = createAccountUseCase.execute(command);
+            var ledgerAccount = createAccountUseCase.execute(command);
             return Response.status(Response.Status.CREATED)
-                    .entity(new CreateAccountResponse(account.getId()))
+                    .entity(new CreateAccountResponse(ledgerAccount.getId()))
                     .build();
         } catch (IllegalArgumentException ex) {
             throw new WebApplicationException(ex.getMessage(), Response.Status.BAD_REQUEST);
@@ -67,10 +67,10 @@ public class LedgerAccountResource {
     @GET
     @Path("/{id}/balance")
     public AccountBalanceResponse getBalance(@HeaderParam("X-Tenant-Id") UUID tenantId,
-                                             @PathParam("id") UUID accountId) {
+                                             @PathParam("id") UUID ledgerAccountId) {
         try {
-            AccountBalance balance = getAccountBalanceUseCase.execute(requireTenantId(tenantId), accountId);
-            return new AccountBalanceResponse(balance.getAccountId(), balance.getBalanceMinor(), balance.getCurrency());
+            AccountBalance balance = getAccountBalanceUseCase.execute(requireTenantId(tenantId), ledgerAccountId);
+            return new AccountBalanceResponse(balance.getLedgerAccountId(), balance.getBalanceMinor(), balance.getCurrency());
         } catch (IllegalArgumentException ex) {
             throw new WebApplicationException(ex.getMessage(), Response.Status.NOT_FOUND);
         }
@@ -79,21 +79,21 @@ public class LedgerAccountResource {
     @GET
     @Path("/{id}/statement")
     public StatementResponse getStatement(@HeaderParam("X-Tenant-Id") UUID tenantId,
-                                          @PathParam("id") UUID accountId,
+                                          @PathParam("id") UUID ledgerAccountId,
                                           @QueryParam("from") Instant from,
                                           @QueryParam("to") Instant to,
                                           @QueryParam("page") Integer page,
                                           @QueryParam("size") Integer size) {
         StatementPage pageResult = getAccountStatementUseCase.execute(
                 requireTenantId(tenantId),
-                accountId,
+                ledgerAccountId,
                 from,
                 to,
                 page == null ? 0 : page,
                 size == null ? 20 : size
         );
         StatementResponse response = new StatementResponse();
-        response.setAccountId(pageResult.getAccountId());
+        response.setAccountId(pageResult.getLedgerAccountId());
         response.setPage(pageResult.getPage());
         response.setSize(pageResult.getSize());
         response.setTotal(pageResult.getTotal());

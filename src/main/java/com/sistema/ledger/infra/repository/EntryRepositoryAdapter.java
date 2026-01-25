@@ -21,20 +21,20 @@ public class EntryRepositoryAdapter implements EntryRepository, PanacheRepositor
     EntityManager entityManager;
 
     @Override
-    public long getBalanceMinor(UUID tenantId, UUID accountId) {
+    public long getBalanceMinor(UUID tenantId, UUID ledgerAccountId) {
         Long balance = entityManager.createQuery(
                         "select coalesce(sum(case when e.direction = 'CREDIT' then e.amountMinor else -e.amountMinor end), 0) " +
-                                "from EntryEntity e where e.tenantId = :tenantId and e.account.id = :accountId",
+                                "from EntryEntity e where e.tenantId = :tenantId and e.ledgerAccount.id = :ledgerAccountId",
                         Long.class)
                 .setParameter("tenantId", tenantId)
-                .setParameter("accountId", accountId)
+                .setParameter("ledgerAccountId", ledgerAccountId)
                 .getSingleResult();
         return balance == null ? 0L : balance;
     }
 
     @Override
-    public StatementPage getStatement(UUID tenantId, UUID accountId, Instant from, Instant to, int page, int size) {
-        StringBuilder queryBuilder = new StringBuilder("from EntryEntity e where e.tenantId = :tenantId and e.account.id = :accountId");
+    public StatementPage getStatement(UUID tenantId, UUID ledgerAccountId, Instant from, Instant to, int page, int size) {
+        StringBuilder queryBuilder = new StringBuilder("from EntryEntity e where e.tenantId = :tenantId and e.ledgerAccount.id = :ledgerAccountId");
         if (from != null) {
             queryBuilder.append(" and e.occurredAt >= :from");
         }
@@ -45,7 +45,7 @@ public class EntryRepositoryAdapter implements EntryRepository, PanacheRepositor
 
         var query = entityManager.createQuery(queryBuilder.toString(), EntryEntity.class)
                 .setParameter("tenantId", tenantId)
-                .setParameter("accountId", accountId)
+                .setParameter("ledgerAccountId", ledgerAccountId)
                 .setFirstResult(page * size)
                 .setMaxResults(size);
         if (from != null) {
@@ -66,7 +66,7 @@ public class EntryRepositoryAdapter implements EntryRepository, PanacheRepositor
                         entity.getCurrency()))
                 .collect(Collectors.toList());
 
-        StringBuilder countBuilder = new StringBuilder("select count(e) from EntryEntity e where e.tenantId = :tenantId and e.account.id = :accountId");
+        StringBuilder countBuilder = new StringBuilder("select count(e) from EntryEntity e where e.tenantId = :tenantId and e.ledgerAccount.id = :ledgerAccountId");
         if (from != null) {
             countBuilder.append(" and e.occurredAt >= :from");
         }
@@ -75,7 +75,7 @@ public class EntryRepositoryAdapter implements EntryRepository, PanacheRepositor
         }
         var countQuery = entityManager.createQuery(countBuilder.toString(), Long.class)
                 .setParameter("tenantId", tenantId)
-                .setParameter("accountId", accountId);
+                .setParameter("ledgerAccountId", ledgerAccountId);
         if (from != null) {
             countQuery.setParameter("from", from);
         }
@@ -84,6 +84,6 @@ public class EntryRepositoryAdapter implements EntryRepository, PanacheRepositor
         }
 
         long total = countQuery.getSingleResult();
-        return new StatementPage(accountId, items, page, size, total);
+        return new StatementPage(ledgerAccountId, items, page, size, total);
     }
 }

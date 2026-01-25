@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "ledger_accounts")
-public class AccountEntity {
+public class LedgerAccountEntity {
     @Id
     private UUID id;
 
