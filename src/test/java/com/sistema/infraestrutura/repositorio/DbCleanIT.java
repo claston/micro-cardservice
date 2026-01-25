@@ -37,6 +37,17 @@ public abstract class DbCleanIT {
             }
 
             st.execute("SET REFERENTIAL_INTEGRITY TRUE");
+
+            try (ResultSet rs = st.executeQuery(
+                    "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES " +
+                            "WHERE TABLE_SCHEMA='PUBLIC' AND TABLE_NAME='TENANTS'")) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    st.executeUpdate(
+                            "INSERT INTO tenants (id, name, status, created_at) " +
+                                    "VALUES ('00000000-0000-0000-0000-000000000000', 'DEFAULT', 'ACTIVE', CURRENT_TIMESTAMP)"
+                    );
+                }
+            }
         }
     }
 }
