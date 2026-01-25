@@ -3,7 +3,7 @@ package com.sistema.wallet.application;
 import com.sistema.ledger.application.CreateAccountUseCase;
 import com.sistema.ledger.application.command.CreateAccountCommand;
 import com.sistema.ledger.domain.model.AccountType;
-import com.sistema.ledger.domain.model.Account;
+import com.sistema.ledger.domain.model.LedgerAccount;
 import com.sistema.wallet.application.command.CreateWalletAccountCommand;
 import com.sistema.wallet.domain.model.WalletAccount;
 import com.sistema.wallet.domain.model.WalletAccountStatus;
@@ -43,7 +43,7 @@ public class CreateWalletAccountUseCase {
 
         String ledgerAccountName = "WalletAccount " + command.getOwnerType() + ":" + command.getOwnerId();
         boolean allowNegative = command.getOwnerType() == WalletOwnerType.INTERNAL;
-        Account ledgerAccount = createAccountUseCase.execute(
+        LedgerAccount ledgerAccount = createAccountUseCase.execute(
                 new CreateAccountCommand(
                         tenantId,
                         ledgerAccountName,
