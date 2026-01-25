@@ -25,7 +25,7 @@ public class EntryEntity {
 
     @ManyToOne
     @JoinColumn(name = "account_id", nullable = false)
-    private AccountEntity account;
+    private LedgerAccountEntity ledgerAccount;
 
     @Column(name = "direction")
     private String direction;
@@ -66,12 +66,12 @@ public class EntryEntity {
         this.transaction = transaction;
     }
 
-    public AccountEntity getAccount() {
-        return account;
+    public LedgerAccountEntity getLedgerAccount() {
+        return ledgerAccount;
     }
 
-    public void setAccount(AccountEntity account) {
-        this.account = account;
+    public void setLedgerAccount(LedgerAccountEntity ledgerAccount) {
+        this.ledgerAccount = ledgerAccount;
     }
 
     public String getDirection() {

@@ -2,13 +2,13 @@ package com.sistema.ledger.application;
 
 import com.sistema.ledger.application.command.PostLedgerTransactionCommand;
 import com.sistema.ledger.application.command.PostingEntryCommand;
-import com.sistema.ledger.domain.model.Account;
+import com.sistema.ledger.domain.model.LedgerAccount;
 import com.sistema.ledger.domain.model.AccountStatus;
 import com.sistema.ledger.domain.model.AccountType;
 import com.sistema.ledger.domain.model.EntryDirection;
 import com.sistema.ledger.domain.model.IdempotencyKey;
 import com.sistema.ledger.domain.model.LedgerTransaction;
-import com.sistema.ledger.domain.repository.AccountRepository;
+import com.sistema.ledger.domain.repository.LedgerAccountRepository;
 import com.sistema.ledger.domain.repository.EntryRepository;
 import com.sistema.ledger.domain.repository.LedgerTransactionRepository;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ class PostLedgerTransactionUseCaseTest {
 
     @Test
     void shouldReturnExistingTransactionForIdempotencyKey() {
-        AccountRepository accountRepository = Mockito.mock(AccountRepository.class);
+        LedgerAccountRepository ledgerAccountRepository = Mockito.mock(LedgerAccountRepository.class);
         EntryRepository entryRepository = Mockito.mock(EntryRepository.class);
         LedgerTransactionRepository transactionRepository = Mockito.mock(LedgerTransactionRepository.class);
 
@@ -49,7 +49,7 @@ class PostLedgerTransactionUseCaseTest {
         when(transactionRepository.findByIdempotencyKey(tenantId, "idemp-1")).thenReturn(Optional.of(existing));
 
         PostLedgerTransactionUseCase useCase =
-                new PostLedgerTransactionUseCase(accountRepository, entryRepository, transactionRepository);
+                new PostLedgerTransactionUseCase(ledgerAccountRepository, entryRepository, transactionRepository);
 
         PostLedgerTransactionCommand command = new PostLedgerTransactionCommand(
                 tenantId,
@@ -68,19 +68,19 @@ class PostLedgerTransactionUseCaseTest {
 
     @Test
     void shouldFailWhenDoubleEntryDoesNotClose() {
-        AccountRepository accountRepository = Mockito.mock(AccountRepository.class);
+        LedgerAccountRepository ledgerAccountRepository = Mockito.mock(LedgerAccountRepository.class);
         EntryRepository entryRepository = Mockito.mock(EntryRepository.class);
         LedgerTransactionRepository transactionRepository = Mockito.mock(LedgerTransactionRepository.class);
 
         UUID tenantId = UUID.randomUUID();
-        UUID accountId = UUID.randomUUID();
-        when(accountRepository.findById(tenantId, accountId))
-                .thenReturn(Optional.of(account(tenantId, accountId, "BRL", false)));
-        when(entryRepository.getBalanceMinor(tenantId, accountId)).thenReturn(0L);
+        UUID ledgerAccountId = UUID.randomUUID();
+        when(ledgerAccountRepository.findById(tenantId, ledgerAccountId))
+                .thenReturn(Optional.of(account(tenantId, ledgerAccountId, "BRL", false)));
+        when(entryRepository.getBalanceMinor(tenantId, ledgerAccountId)).thenReturn(0L);
         when(transactionRepository.findByIdempotencyKey(tenantId, "idemp-2")).thenReturn(Optional.empty());
 
         PostLedgerTransactionUseCase useCase =
-                new PostLedgerTransactionUseCase(accountRepository, entryRepository, transactionRepository);
+                new PostLedgerTransactionUseCase(ledgerAccountRepository, entryRepository, transactionRepository);
 
         PostLedgerTransactionCommand command = new PostLedgerTransactionCommand(
                 tenantId,
@@ -89,8 +89,8 @@ class PostLedgerTransactionUseCaseTest {
                 "invalid",
                 Instant.now(),
                 List.of(
-                        new PostingEntryCommand(accountId, EntryDirection.DEBIT, 1000, "BRL"),
-                        new PostingEntryCommand(accountId, EntryDirection.CREDIT, 900, "BRL")
+                        new PostingEntryCommand(ledgerAccountId, EntryDirection.DEBIT, 1000, "BRL"),
+                        new PostingEntryCommand(ledgerAccountId, EntryDirection.CREDIT, 900, "BRL")
                 )
         );
 
@@ -100,23 +100,23 @@ class PostLedgerTransactionUseCaseTest {
 
     @Test
     void shouldFailWhenNegativeBalanceNotAllowed() {
-        AccountRepository accountRepository = Mockito.mock(AccountRepository.class);
+        LedgerAccountRepository ledgerAccountRepository = Mockito.mock(LedgerAccountRepository.class);
         EntryRepository entryRepository = Mockito.mock(EntryRepository.class);
         LedgerTransactionRepository transactionRepository = Mockito.mock(LedgerTransactionRepository.class);
 
         UUID tenantId = UUID.randomUUID();
-        UUID debitAccount = UUID.randomUUID();
-        UUID creditAccount = UUID.randomUUID();
-        when(accountRepository.findById(tenantId, debitAccount))
-                .thenReturn(Optional.of(account(tenantId, debitAccount, "BRL", false)));
-        when(accountRepository.findById(tenantId, creditAccount))
-                .thenReturn(Optional.of(account(tenantId, creditAccount, "BRL", true)));
-        when(entryRepository.getBalanceMinor(tenantId, debitAccount)).thenReturn(0L);
-        when(entryRepository.getBalanceMinor(tenantId, creditAccount)).thenReturn(0L);
+        UUID debitLedgerAccount = UUID.randomUUID();
+        UUID creditLedgerAccount = UUID.randomUUID();
+        when(ledgerAccountRepository.findById(tenantId, debitLedgerAccount))
+                .thenReturn(Optional.of(account(tenantId, debitLedgerAccount, "BRL", false)));
+        when(ledgerAccountRepository.findById(tenantId, creditLedgerAccount))
+                .thenReturn(Optional.of(account(tenantId, creditLedgerAccount, "BRL", true)));
+        when(entryRepository.getBalanceMinor(tenantId, debitLedgerAccount)).thenReturn(0L);
+        when(entryRepository.getBalanceMinor(tenantId, creditLedgerAccount)).thenReturn(0L);
         when(transactionRepository.findByIdempotencyKey(tenantId, "idemp-3")).thenReturn(Optional.empty());
 
         PostLedgerTransactionUseCase useCase =
-                new PostLedgerTransactionUseCase(accountRepository, entryRepository, transactionRepository);
+                new PostLedgerTransactionUseCase(ledgerAccountRepository, entryRepository, transactionRepository);
 
         PostLedgerTransactionCommand command = new PostLedgerTransactionCommand(
                 tenantId,
@@ -125,8 +125,8 @@ class PostLedgerTransactionUseCaseTest {
                 "negative",
                 Instant.now(),
                 List.of(
-                        new PostingEntryCommand(debitAccount, EntryDirection.DEBIT, 1000, "BRL"),
-                        new PostingEntryCommand(creditAccount, EntryDirection.CREDIT, 1000, "BRL")
+                        new PostingEntryCommand(debitLedgerAccount, EntryDirection.DEBIT, 1000, "BRL"),
+                        new PostingEntryCommand(creditLedgerAccount, EntryDirection.CREDIT, 1000, "BRL")
                 )
         );
 
@@ -136,25 +136,25 @@ class PostLedgerTransactionUseCaseTest {
 
     @Test
     void shouldPostTransactionWhenValid() {
-        AccountRepository accountRepository = Mockito.mock(AccountRepository.class);
+        LedgerAccountRepository ledgerAccountRepository = Mockito.mock(LedgerAccountRepository.class);
         EntryRepository entryRepository = Mockito.mock(EntryRepository.class);
         LedgerTransactionRepository transactionRepository = Mockito.mock(LedgerTransactionRepository.class);
 
         UUID tenantId = UUID.randomUUID();
-        UUID debitAccount = UUID.randomUUID();
-        UUID creditAccount = UUID.randomUUID();
-        when(accountRepository.findById(tenantId, debitAccount))
-                .thenReturn(Optional.of(account(tenantId, debitAccount, "BRL", true)));
-        when(accountRepository.findById(tenantId, creditAccount))
-                .thenReturn(Optional.of(account(tenantId, creditAccount, "BRL", true)));
-        when(entryRepository.getBalanceMinor(tenantId, debitAccount)).thenReturn(0L);
-        when(entryRepository.getBalanceMinor(tenantId, creditAccount)).thenReturn(0L);
+        UUID debitLedgerAccount = UUID.randomUUID();
+        UUID creditLedgerAccount = UUID.randomUUID();
+        when(ledgerAccountRepository.findById(tenantId, debitLedgerAccount))
+                .thenReturn(Optional.of(account(tenantId, debitLedgerAccount, "BRL", true)));
+        when(ledgerAccountRepository.findById(tenantId, creditLedgerAccount))
+                .thenReturn(Optional.of(account(tenantId, creditLedgerAccount, "BRL", true)));
+        when(entryRepository.getBalanceMinor(tenantId, debitLedgerAccount)).thenReturn(0L);
+        when(entryRepository.getBalanceMinor(tenantId, creditLedgerAccount)).thenReturn(0L);
         when(transactionRepository.findByIdempotencyKey(tenantId, "idemp-4")).thenReturn(Optional.empty());
         when(transactionRepository.save(any(LedgerTransaction.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         PostLedgerTransactionUseCase useCase =
-                new PostLedgerTransactionUseCase(accountRepository, entryRepository, transactionRepository);
+                new PostLedgerTransactionUseCase(ledgerAccountRepository, entryRepository, transactionRepository);
 
         PostLedgerTransactionCommand command = new PostLedgerTransactionCommand(
                 tenantId,
@@ -163,8 +163,8 @@ class PostLedgerTransactionUseCaseTest {
                 "valid",
                 Instant.now(),
                 List.of(
-                        new PostingEntryCommand(debitAccount, EntryDirection.DEBIT, 1000, "BRL"),
-                        new PostingEntryCommand(creditAccount, EntryDirection.CREDIT, 1000, "BRL")
+                        new PostingEntryCommand(debitLedgerAccount, EntryDirection.DEBIT, 1000, "BRL"),
+                        new PostingEntryCommand(creditLedgerAccount, EntryDirection.CREDIT, 1000, "BRL")
                 )
         );
 
@@ -177,20 +177,20 @@ class PostLedgerTransactionUseCaseTest {
 
     @Test
     void shouldRejectCrossTenantPosting() {
-        AccountRepository accountRepository = Mockito.mock(AccountRepository.class);
+        LedgerAccountRepository ledgerAccountRepository = Mockito.mock(LedgerAccountRepository.class);
         EntryRepository entryRepository = Mockito.mock(EntryRepository.class);
         LedgerTransactionRepository transactionRepository = Mockito.mock(LedgerTransactionRepository.class);
 
         UUID tenantId = UUID.randomUUID();
         UUID otherTenantId = UUID.randomUUID();
-        UUID accountId = UUID.randomUUID();
-        when(accountRepository.findById(tenantId, accountId))
-                .thenReturn(Optional.of(account(otherTenantId, accountId, "BRL", true)));
-        when(entryRepository.getBalanceMinor(tenantId, accountId)).thenReturn(0L);
+        UUID ledgerAccountId = UUID.randomUUID();
+        when(ledgerAccountRepository.findById(tenantId, ledgerAccountId))
+                .thenReturn(Optional.of(account(otherTenantId, ledgerAccountId, "BRL", true)));
+        when(entryRepository.getBalanceMinor(tenantId, ledgerAccountId)).thenReturn(0L);
         when(transactionRepository.findByIdempotencyKey(tenantId, "idemp-5")).thenReturn(Optional.empty());
 
         PostLedgerTransactionUseCase useCase =
-                new PostLedgerTransactionUseCase(accountRepository, entryRepository, transactionRepository);
+                new PostLedgerTransactionUseCase(ledgerAccountRepository, entryRepository, transactionRepository);
 
         PostLedgerTransactionCommand command = new PostLedgerTransactionCommand(
                 tenantId,
@@ -199,8 +199,8 @@ class PostLedgerTransactionUseCaseTest {
                 "cross-tenant",
                 Instant.now(),
                 List.of(
-                        new PostingEntryCommand(accountId, EntryDirection.DEBIT, 1000, "BRL"),
-                        new PostingEntryCommand(accountId, EntryDirection.CREDIT, 1000, "BRL")
+                        new PostingEntryCommand(ledgerAccountId, EntryDirection.DEBIT, 1000, "BRL"),
+                        new PostingEntryCommand(ledgerAccountId, EntryDirection.CREDIT, 1000, "BRL")
                 )
         );
 
@@ -208,8 +208,8 @@ class PostLedgerTransactionUseCaseTest {
         verify(transactionRepository, never()).save(any(LedgerTransaction.class));
     }
 
-    private Account account(UUID tenantId, UUID id, String currency, boolean allowNegative) {
-        return new Account(
+    private LedgerAccount account(UUID tenantId, UUID id, String currency, boolean allowNegative) {
+        return new LedgerAccount(
                 id,
                 tenantId,
                 "Conta Teste",

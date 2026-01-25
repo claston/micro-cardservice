@@ -21,15 +21,15 @@ class GetAccountStatementUseCaseTest {
         GetAccountStatementUseCase useCase = new GetAccountStatementUseCase(entryRepository);
 
         UUID tenantId = UUID.randomUUID();
-        UUID accountId = UUID.randomUUID();
-        StatementPage page = new StatementPage(accountId, Collections.emptyList(), 0, 20, 0);
-        when(entryRepository.getStatement(tenantId, accountId, null, null, 0, 20)).thenReturn(page);
+        UUID ledgerAccountId = UUID.randomUUID();
+        StatementPage page = new StatementPage(ledgerAccountId, Collections.emptyList(), 0, 20, 0);
+        when(entryRepository.getStatement(tenantId, ledgerAccountId, null, null, 0, 20)).thenReturn(page);
 
-        StatementPage result = useCase.execute(tenantId, accountId, null, null, -1, 0);
+        StatementPage result = useCase.execute(tenantId, ledgerAccountId, null, null, -1, 0);
 
         assertEquals(0, result.getPage());
         assertEquals(20, result.getSize());
-        verify(entryRepository).getStatement(tenantId, accountId, null, null, 0, 20);
+        verify(entryRepository).getStatement(tenantId, ledgerAccountId, null, null, 0, 20);
     }
 
     @Test
@@ -38,16 +38,16 @@ class GetAccountStatementUseCaseTest {
         GetAccountStatementUseCase useCase = new GetAccountStatementUseCase(entryRepository);
 
         UUID tenantId = UUID.randomUUID();
-        UUID accountId = UUID.randomUUID();
+        UUID ledgerAccountId = UUID.randomUUID();
         Instant from = Instant.parse("2026-01-01T00:00:00Z");
         Instant to = Instant.parse("2026-01-02T00:00:00Z");
-        StatementPage page = new StatementPage(accountId, Collections.emptyList(), 1, 10, 0);
-        when(entryRepository.getStatement(tenantId, accountId, from, to, 1, 10)).thenReturn(page);
+        StatementPage page = new StatementPage(ledgerAccountId, Collections.emptyList(), 1, 10, 0);
+        when(entryRepository.getStatement(tenantId, ledgerAccountId, from, to, 1, 10)).thenReturn(page);
 
-        StatementPage result = useCase.execute(tenantId, accountId, from, to, 1, 10);
+        StatementPage result = useCase.execute(tenantId, ledgerAccountId, from, to, 1, 10);
 
         assertEquals(1, result.getPage());
         assertEquals(10, result.getSize());
-        verify(entryRepository).getStatement(tenantId, accountId, from, to, 1, 10);
+        verify(entryRepository).getStatement(tenantId, ledgerAccountId, from, to, 1, 10);
     }
 }

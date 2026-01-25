@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Account {
+public class LedgerAccount {
     private final UUID id;
     private final UUID tenantId;
     private final String name;
@@ -14,14 +14,14 @@ public class Account {
     private final AccountStatus status;
     private final Instant createdAt;
 
-    public Account(UUID id,
-                   UUID tenantId,
-                   String name,
-                   AccountType type,
-                   String currency,
-                   boolean allowNegative,
-                   AccountStatus status,
-                   Instant createdAt) {
+    public LedgerAccount(UUID id,
+                         UUID tenantId,
+                         String name,
+                         AccountType type,
+                         String currency,
+                         boolean allowNegative,
+                         AccountStatus status,
+                         Instant createdAt) {
         this.id = Objects.requireNonNull(id, "id");
         this.tenantId = Objects.requireNonNull(tenantId, "tenantId");
         this.name = Objects.requireNonNull(name, "name");

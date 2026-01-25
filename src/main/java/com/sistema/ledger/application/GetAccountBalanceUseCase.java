@@ -1,8 +1,8 @@
 package com.sistema.ledger.application;
 
 import com.sistema.ledger.application.model.AccountBalance;
-import com.sistema.ledger.domain.model.Account;
-import com.sistema.ledger.domain.repository.AccountRepository;
+import com.sistema.ledger.domain.model.LedgerAccount;
+import com.sistema.ledger.domain.repository.LedgerAccountRepository;
 import com.sistema.ledger.domain.repository.EntryRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -10,18 +10,18 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class GetAccountBalanceUseCase {
-    private final AccountRepository accountRepository;
+    private final LedgerAccountRepository ledgerAccountRepository;
     private final EntryRepository entryRepository;
 
-    public GetAccountBalanceUseCase(AccountRepository accountRepository, EntryRepository entryRepository) {
-        this.accountRepository = accountRepository;
+    public GetAccountBalanceUseCase(LedgerAccountRepository ledgerAccountRepository, EntryRepository entryRepository) {
+        this.ledgerAccountRepository = ledgerAccountRepository;
         this.entryRepository = entryRepository;
     }
 
-    public AccountBalance execute(UUID tenantId, UUID accountId) {
-        Account account = accountRepository.findById(tenantId, accountId)
-                .orElseThrow(() -> new IllegalArgumentException("account not found: " + accountId));
-        long balance = entryRepository.getBalanceMinor(tenantId, accountId);
-        return new AccountBalance(accountId, balance, account.getCurrency());
+    public AccountBalance execute(UUID tenantId, UUID ledgerAccountId) {
+        LedgerAccount ledgerAccount = ledgerAccountRepository.findById(tenantId, ledgerAccountId)
+                .orElseThrow(() -> new IllegalArgumentException("account not found: " + ledgerAccountId));
+        long balance = entryRepository.getBalanceMinor(tenantId, ledgerAccountId);
+        return new AccountBalance(ledgerAccountId, balance, ledgerAccount.getCurrency());
     }
 }

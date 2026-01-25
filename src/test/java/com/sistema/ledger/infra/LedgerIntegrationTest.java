@@ -9,7 +9,7 @@ import com.sistema.ledger.application.command.CreateAccountCommand;
 import com.sistema.ledger.application.command.PostLedgerTransactionCommand;
 import com.sistema.ledger.application.command.PostingEntryCommand;
 import com.sistema.ledger.application.model.StatementPage;
-import com.sistema.ledger.domain.model.Account;
+import com.sistema.ledger.domain.model.LedgerAccount;
 import com.sistema.ledger.domain.model.AccountType;
 import com.sistema.ledger.domain.model.EntryDirection;
 import com.sistema.ledger.domain.model.LedgerTransaction;
@@ -43,13 +43,13 @@ class LedgerIntegrationTest extends DbCleanIT {
     @Test
     void shouldCreateAccountsPostTransactionAndReturnBalance() {
         java.util.UUID tenantId = java.util.UUID.randomUUID();
-        Account debitAccount = createAccountUseCase.execute(
+        LedgerAccount debitAccount = createAccountUseCase.execute(
                 new CreateAccountCommand(tenantId, "Carteira Cliente", AccountType.ASSET, "BRL", false)
         );
-        Account creditAccount = createAccountUseCase.execute(
+        LedgerAccount creditAccount = createAccountUseCase.execute(
                 new CreateAccountCommand(tenantId, "Receita Loja", AccountType.REVENUE, "BRL", true)
         );
-        Account fundingAccount = createAccountUseCase.execute(
+        LedgerAccount fundingAccount = createAccountUseCase.execute(
                 new CreateAccountCommand(tenantId, "Conta Funding", AccountType.ASSET, "BRL", true)
         );
 
@@ -93,10 +93,10 @@ class LedgerIntegrationTest extends DbCleanIT {
     @Test
     void shouldReturnStatementForAccount() {
         java.util.UUID tenantId = java.util.UUID.randomUUID();
-        Account debitAccount = createAccountUseCase.execute(
+        LedgerAccount debitAccount = createAccountUseCase.execute(
                 new CreateAccountCommand(tenantId, "Conta Extrato", AccountType.ASSET, "BRL", true)
         );
-        Account creditAccount = createAccountUseCase.execute(
+        LedgerAccount creditAccount = createAccountUseCase.execute(
                 new CreateAccountCommand(tenantId, "ContraPartida", AccountType.REVENUE, "BRL", true)
         );
 
@@ -121,7 +121,7 @@ class LedgerIntegrationTest extends DbCleanIT {
                 10
         );
 
-        assertEquals(debitAccount.getId(), statement.getAccountId());
+        assertEquals(debitAccount.getId(), statement.getLedgerAccountId());
         assertEquals(1, statement.getItems().size());
         assertEquals(1L, statement.getTotal());
         assertEquals(0, statement.getPage());
@@ -133,16 +133,16 @@ class LedgerIntegrationTest extends DbCleanIT {
         java.util.UUID tenantA = java.util.UUID.randomUUID();
         java.util.UUID tenantB = java.util.UUID.randomUUID();
 
-        Account debitA = createAccountUseCase.execute(
+        LedgerAccount debitA = createAccountUseCase.execute(
                 new CreateAccountCommand(tenantA, "Conta A", AccountType.ASSET, "BRL", true)
         );
-        Account creditA = createAccountUseCase.execute(
+        LedgerAccount creditA = createAccountUseCase.execute(
                 new CreateAccountCommand(tenantA, "Receita A", AccountType.REVENUE, "BRL", true)
         );
-        Account debitB = createAccountUseCase.execute(
+        LedgerAccount debitB = createAccountUseCase.execute(
                 new CreateAccountCommand(tenantB, "Conta B", AccountType.ASSET, "BRL", true)
         );
-        Account creditB = createAccountUseCase.execute(
+        LedgerAccount creditB = createAccountUseCase.execute(
                 new CreateAccountCommand(tenantB, "Receita B", AccountType.REVENUE, "BRL", true)
         );
 
