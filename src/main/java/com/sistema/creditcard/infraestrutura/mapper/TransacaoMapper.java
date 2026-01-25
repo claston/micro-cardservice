@@ -11,14 +11,17 @@ public interface TransacaoMapper {
 
     @Mapping(target = "cartao.id", source = "cartao.id")
     @Mapping(target = "fatura", ignore = true)
+    @Mapping(target = "id", source = "id")
     TransacaoEntity toEntity(Transacao transacao);
 
     @Mapping(target = "cartao.id", source = "cartao.id")
     @Mapping(target = "fatura", ignore = true)
+    @Mapping(target = "id", source = "id")
     Transacao toDomain(TransacaoEntity transacaoEntityEntity);
 
     @Mapping(target = "cartao.id", source = "cartaoId")
     @Mapping(target = "fatura", ignore = true)
+    @Mapping(target = "id", ignore = true)
     Transacao toDomain(TransacaoDTO transacaoDTO);
 
     @Mapping(target = "cartaoId", source = "cartao.id")

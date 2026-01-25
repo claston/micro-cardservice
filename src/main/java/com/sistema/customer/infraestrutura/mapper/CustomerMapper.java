@@ -40,7 +40,10 @@ public interface CustomerMapper {
             @Mapping(target = "cpf", source = "cpf"),
             @Mapping(target = "id", ignore = true),
             @Mapping(target = "email", source = "email"),
-            @Mapping(target = "phoneNumber", source = "phoneNumber")
+            @Mapping(target = "phoneNumber", source = "phoneNumber"),
+            @Mapping(target = "cnpj", ignore = true),
+            @Mapping(target = "ativo", ignore = true),
+            @Mapping(target = "dataCadastro", ignore = true)
     })
     Customer toDomain(CustomerDTO customerDTO);
 }
