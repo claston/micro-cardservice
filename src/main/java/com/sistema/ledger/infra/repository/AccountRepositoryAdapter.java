@@ -21,8 +21,8 @@ public class AccountRepositoryAdapter implements AccountRepository, PanacheRepos
     }
 
     @Override
-    public Optional<Account> findById(UUID id) {
-        AccountEntity entity = find("id", id).firstResult();
+    public Optional<Account> findById(UUID tenantId, UUID id) {
+        AccountEntity entity = find("tenantId = ?1 and id = ?2", tenantId, id).firstResult();
         if (entity == null) {
             return Optional.empty();
         }

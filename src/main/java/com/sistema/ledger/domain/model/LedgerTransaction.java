@@ -7,6 +7,7 @@ import java.util.UUID;
 
 public class LedgerTransaction {
     private final UUID id;
+    private final UUID tenantId;
     private final IdempotencyKey idempotencyKey;
     private final String externalReference;
     private final String description;
@@ -15,6 +16,7 @@ public class LedgerTransaction {
     private final List<Entry> entries;
 
     public LedgerTransaction(UUID id,
+                             UUID tenantId,
                              IdempotencyKey idempotencyKey,
                              String externalReference,
                              String description,
@@ -22,6 +24,7 @@ public class LedgerTransaction {
                              Instant createdAt,
                              List<Entry> entries) {
         this.id = Objects.requireNonNull(id, "id");
+        this.tenantId = Objects.requireNonNull(tenantId, "tenantId");
         this.idempotencyKey = Objects.requireNonNull(idempotencyKey, "idempotencyKey");
         this.externalReference = externalReference;
         this.description = description;
@@ -35,6 +38,10 @@ public class LedgerTransaction {
 
     public UUID getId() {
         return id;
+    }
+
+    public UUID getTenantId() {
+        return tenantId;
     }
 
     public IdempotencyKey getIdempotencyKey() {

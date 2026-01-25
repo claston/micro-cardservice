@@ -15,6 +15,7 @@ import com.sistema.ledger.domain.model.AccountType;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -43,10 +44,12 @@ public class LedgerAccountResource {
     GetAccountStatementUseCase getAccountStatementUseCase;
 
     @POST
-    public Response createAccount(CreateAccountRequest request) {
+    public Response createAccount(@HeaderParam("X-Tenant-Id") UUID tenantId, CreateAccountRequest request) {
         try {
+            UUID resolvedTenantId = requireTenantId(tenantId);
             AccountType type = AccountType.valueOf(request.getType());
             var command = new CreateAccountCommand(
+                    resolvedTenantId,
                     request.getName(),
                     type,
                     request.getCurrency(),
@@ -63,9 +66,10 @@ public class LedgerAccountResource {
 
     @GET
     @Path("/{id}/balance")
-    public AccountBalanceResponse getBalance(@PathParam("id") UUID accountId) {
+    public AccountBalanceResponse getBalance(@HeaderParam("X-Tenant-Id") UUID tenantId,
+                                             @PathParam("id") UUID accountId) {
         try {
-            AccountBalance balance = getAccountBalanceUseCase.execute(accountId);
+            AccountBalance balance = getAccountBalanceUseCase.execute(requireTenantId(tenantId), accountId);
             return new AccountBalanceResponse(balance.getAccountId(), balance.getBalanceMinor(), balance.getCurrency());
         } catch (IllegalArgumentException ex) {
             throw new WebApplicationException(ex.getMessage(), Response.Status.NOT_FOUND);
@@ -74,12 +78,14 @@ public class LedgerAccountResource {
 
     @GET
     @Path("/{id}/statement")
-    public StatementResponse getStatement(@PathParam("id") UUID accountId,
+    public StatementResponse getStatement(@HeaderParam("X-Tenant-Id") UUID tenantId,
+                                          @PathParam("id") UUID accountId,
                                           @QueryParam("from") Instant from,
                                           @QueryParam("to") Instant to,
                                           @QueryParam("page") Integer page,
                                           @QueryParam("size") Integer size) {
         StatementPage pageResult = getAccountStatementUseCase.execute(
+                requireTenantId(tenantId),
                 accountId,
                 from,
                 to,
@@ -105,5 +111,12 @@ public class LedgerAccountResource {
                 .collect(Collectors.toList());
         response.setItems(items);
         return response;
+    }
+
+    private UUID requireTenantId(UUID tenantId) {
+        if (tenantId == null) {
+            throw new WebApplicationException("tenantId is required", Response.Status.BAD_REQUEST);
+        }
+        return tenantId;
     }
 }
