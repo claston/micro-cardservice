@@ -14,6 +14,9 @@ public class LedgerTransactionEntity {
     @Id
     private UUID id;
 
+    @Column(name = "tenant_id")
+    private UUID tenantId;
+
     @Column(name = "idempotency_key")
     private String idempotencyKey;
 
@@ -35,6 +38,14 @@ public class LedgerTransactionEntity {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public UUID getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(UUID tenantId) {
+        this.tenantId = tenantId;
     }
 
     public String getIdempotencyKey() {

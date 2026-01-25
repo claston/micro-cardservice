@@ -42,17 +42,19 @@ class LedgerIntegrationTest extends DbCleanIT {
     @Tag("integration-test")
     @Test
     void shouldCreateAccountsPostTransactionAndReturnBalance() {
+        java.util.UUID tenantId = java.util.UUID.randomUUID();
         Account debitAccount = createAccountUseCase.execute(
-                new CreateAccountCommand("Carteira Cliente", AccountType.ASSET, "BRL", false)
+                new CreateAccountCommand(tenantId, "Carteira Cliente", AccountType.ASSET, "BRL", false)
         );
         Account creditAccount = createAccountUseCase.execute(
-                new CreateAccountCommand("Receita Loja", AccountType.REVENUE, "BRL", true)
+                new CreateAccountCommand(tenantId, "Receita Loja", AccountType.REVENUE, "BRL", true)
         );
         Account fundingAccount = createAccountUseCase.execute(
-                new CreateAccountCommand("Conta Funding", AccountType.ASSET, "BRL", true)
+                new CreateAccountCommand(tenantId, "Conta Funding", AccountType.ASSET, "BRL", true)
         );
 
         postLedgerTransactionUseCase.execute(new PostLedgerTransactionCommand(
+                tenantId,
                 "txn-it-1-fund",
                 "ext-it-1-fund",
                 "Carga inicial",
@@ -64,6 +66,7 @@ class LedgerIntegrationTest extends DbCleanIT {
         ));
 
         PostLedgerTransactionCommand command = new PostLedgerTransactionCommand(
+                tenantId,
                 "txn-it-1",
                 "ext-it-1",
                 "Compra teste",
@@ -79,8 +82,8 @@ class LedgerIntegrationTest extends DbCleanIT {
         assertNotNull(transaction.getId());
         assertEquals(2, transaction.getEntries().size());
 
-        var debitBalance = getAccountBalanceUseCase.execute(debitAccount.getId());
-        var creditBalance = getAccountBalanceUseCase.execute(creditAccount.getId());
+        var debitBalance = getAccountBalanceUseCase.execute(tenantId, debitAccount.getId());
+        var creditBalance = getAccountBalanceUseCase.execute(tenantId, creditAccount.getId());
 
         assertEquals(0L, debitBalance.getBalanceMinor());
         assertEquals(10000L, creditBalance.getBalanceMinor());
@@ -89,14 +92,16 @@ class LedgerIntegrationTest extends DbCleanIT {
     @Tag("integration-test")
     @Test
     void shouldReturnStatementForAccount() {
+        java.util.UUID tenantId = java.util.UUID.randomUUID();
         Account debitAccount = createAccountUseCase.execute(
-                new CreateAccountCommand("Conta Extrato", AccountType.ASSET, "BRL", true)
+                new CreateAccountCommand(tenantId, "Conta Extrato", AccountType.ASSET, "BRL", true)
         );
         Account creditAccount = createAccountUseCase.execute(
-                new CreateAccountCommand("ContraPartida", AccountType.REVENUE, "BRL", true)
+                new CreateAccountCommand(tenantId, "ContraPartida", AccountType.REVENUE, "BRL", true)
         );
 
         postLedgerTransactionUseCase.execute(new PostLedgerTransactionCommand(
+                tenantId,
                 "txn-it-2",
                 "ext-it-2",
                 "Compra A",
@@ -108,6 +113,7 @@ class LedgerIntegrationTest extends DbCleanIT {
         ));
 
         StatementPage statement = getAccountStatementUseCase.execute(
+                tenantId,
                 debitAccount.getId(),
                 null,
                 null,
@@ -119,5 +125,55 @@ class LedgerIntegrationTest extends DbCleanIT {
         assertEquals(1, statement.getItems().size());
         assertEquals(1L, statement.getTotal());
         assertEquals(0, statement.getPage());
+    }
+
+    @Tag("integration-test")
+    @Test
+    void shouldAllowSameIdempotencyKeyAcrossTenants() {
+        java.util.UUID tenantA = java.util.UUID.randomUUID();
+        java.util.UUID tenantB = java.util.UUID.randomUUID();
+
+        Account debitA = createAccountUseCase.execute(
+                new CreateAccountCommand(tenantA, "Conta A", AccountType.ASSET, "BRL", true)
+        );
+        Account creditA = createAccountUseCase.execute(
+                new CreateAccountCommand(tenantA, "Receita A", AccountType.REVENUE, "BRL", true)
+        );
+        Account debitB = createAccountUseCase.execute(
+                new CreateAccountCommand(tenantB, "Conta B", AccountType.ASSET, "BRL", true)
+        );
+        Account creditB = createAccountUseCase.execute(
+                new CreateAccountCommand(tenantB, "Receita B", AccountType.REVENUE, "BRL", true)
+        );
+
+        postLedgerTransactionUseCase.execute(new PostLedgerTransactionCommand(
+                tenantA,
+                "txn-it-3",
+                "ext-it-3-a",
+                "Compra A",
+                Instant.now(),
+                List.of(
+                        new PostingEntryCommand(debitA.getId(), EntryDirection.DEBIT, 1000, "BRL"),
+                        new PostingEntryCommand(creditA.getId(), EntryDirection.CREDIT, 1000, "BRL")
+                )
+        ));
+
+        postLedgerTransactionUseCase.execute(new PostLedgerTransactionCommand(
+                tenantB,
+                "txn-it-3",
+                "ext-it-3-b",
+                "Compra B",
+                Instant.now(),
+                List.of(
+                        new PostingEntryCommand(debitB.getId(), EntryDirection.DEBIT, 1000, "BRL"),
+                        new PostingEntryCommand(creditB.getId(), EntryDirection.CREDIT, 1000, "BRL")
+                )
+        ));
+
+        var balanceA = getAccountBalanceUseCase.execute(tenantA, creditA.getId());
+        var balanceB = getAccountBalanceUseCase.execute(tenantB, creditB.getId());
+
+        assertEquals(1000L, balanceA.getBalanceMinor());
+        assertEquals(1000L, balanceB.getBalanceMinor());
     }
 }

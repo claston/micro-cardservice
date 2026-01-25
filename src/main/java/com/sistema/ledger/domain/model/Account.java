@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public class Account {
     private final UUID id;
+    private final UUID tenantId;
     private final String name;
     private final AccountType type;
     private final String currency;
@@ -14,6 +15,7 @@ public class Account {
     private final Instant createdAt;
 
     public Account(UUID id,
+                   UUID tenantId,
                    String name,
                    AccountType type,
                    String currency,
@@ -21,6 +23,7 @@ public class Account {
                    AccountStatus status,
                    Instant createdAt) {
         this.id = Objects.requireNonNull(id, "id");
+        this.tenantId = Objects.requireNonNull(tenantId, "tenantId");
         this.name = Objects.requireNonNull(name, "name");
         if (this.name.isBlank()) {
             throw new IllegalArgumentException("name must not be blank");
@@ -37,6 +40,10 @@ public class Account {
 
     public UUID getId() {
         return id;
+    }
+
+    public UUID getTenantId() {
+        return tenantId;
     }
 
     public String getName() {

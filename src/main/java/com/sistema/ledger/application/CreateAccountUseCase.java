@@ -25,6 +25,7 @@ public class CreateAccountUseCase {
 
         Account account = new Account(
                 UUID.randomUUID(),
+                command.getTenantId(),
                 command.getName(),
                 command.getType(),
                 command.getCurrency(),

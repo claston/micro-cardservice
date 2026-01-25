@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public interface EntryRepository {
-    long getBalanceMinor(UUID accountId);
+    long getBalanceMinor(UUID tenantId, UUID accountId);
 
-    StatementPage getStatement(UUID accountId, Instant from, Instant to, int page, int size);
+    StatementPage getStatement(UUID tenantId, UUID accountId, Instant from, Instant to, int page, int size);
 }

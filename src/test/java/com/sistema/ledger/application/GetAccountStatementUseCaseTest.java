@@ -20,15 +20,16 @@ class GetAccountStatementUseCaseTest {
         EntryRepository entryRepository = Mockito.mock(EntryRepository.class);
         GetAccountStatementUseCase useCase = new GetAccountStatementUseCase(entryRepository);
 
+        UUID tenantId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
         StatementPage page = new StatementPage(accountId, Collections.emptyList(), 0, 20, 0);
-        when(entryRepository.getStatement(accountId, null, null, 0, 20)).thenReturn(page);
+        when(entryRepository.getStatement(tenantId, accountId, null, null, 0, 20)).thenReturn(page);
 
-        StatementPage result = useCase.execute(accountId, null, null, -1, 0);
+        StatementPage result = useCase.execute(tenantId, accountId, null, null, -1, 0);
 
         assertEquals(0, result.getPage());
         assertEquals(20, result.getSize());
-        verify(entryRepository).getStatement(accountId, null, null, 0, 20);
+        verify(entryRepository).getStatement(tenantId, accountId, null, null, 0, 20);
     }
 
     @Test
@@ -36,16 +37,17 @@ class GetAccountStatementUseCaseTest {
         EntryRepository entryRepository = Mockito.mock(EntryRepository.class);
         GetAccountStatementUseCase useCase = new GetAccountStatementUseCase(entryRepository);
 
+        UUID tenantId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
         Instant from = Instant.parse("2026-01-01T00:00:00Z");
         Instant to = Instant.parse("2026-01-02T00:00:00Z");
         StatementPage page = new StatementPage(accountId, Collections.emptyList(), 1, 10, 0);
-        when(entryRepository.getStatement(accountId, from, to, 1, 10)).thenReturn(page);
+        when(entryRepository.getStatement(tenantId, accountId, from, to, 1, 10)).thenReturn(page);
 
-        StatementPage result = useCase.execute(accountId, from, to, 1, 10);
+        StatementPage result = useCase.execute(tenantId, accountId, from, to, 1, 10);
 
         assertEquals(1, result.getPage());
         assertEquals(10, result.getSize());
-        verify(entryRepository).getStatement(accountId, from, to, 1, 10);
+        verify(entryRepository).getStatement(tenantId, accountId, from, to, 1, 10);
     }
 }
