@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -40,7 +41,7 @@ public class FaturaServiceTest {
 
         // Assert: Verifica se o total e o pagamento mínimos foram calculadores corretamente
         BigDecimal totalEsperado = new BigDecimal("150.00");
-        BigDecimal pagamentoMinimoEsperado = totalEsperado.multiply(new BigDecimal("0.15")).setScale(2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal pagamentoMinimoEsperado = totalEsperado.multiply(new BigDecimal("0.15")).setScale(2, RoundingMode.HALF_UP);
 
         assertEquals(totalEsperado, fatura.getTotal(), "o total deve ser 150.00");
         assertEquals(pagamentoMinimoEsperado, fatura.getPagamentoMinimo(), "o pagamento mínimo deve ser 22.50");

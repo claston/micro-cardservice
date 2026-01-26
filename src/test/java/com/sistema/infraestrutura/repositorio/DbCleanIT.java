@@ -29,12 +29,13 @@ public abstract class DbCleanIT {
                     "SELECT TABLE_NAME " +
                             "FROM INFORMATION_SCHEMA.TABLES " +
                             "WHERE TABLE_SCHEMA='PUBLIC' AND TABLE_TYPE='BASE TABLE'")) {
-                while (rs.next()) tables.add(rs.getString(1));
-            }
+            while (rs.next()) tables.add(rs.getString(1));
+        }
 
-            for (String table : tables) {
-                st.executeUpdate("TRUNCATE TABLE " + table);
-            }
+        for (String table : tables) {
+            String quotedTable = "\"" + table.replace("\"", "\"\"") + "\"";
+            st.executeUpdate("TRUNCATE TABLE " + quotedTable);
+        }
 
             st.execute("SET REFERENTIAL_INTEGRITY TRUE");
 
