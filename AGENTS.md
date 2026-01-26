@@ -87,3 +87,6 @@ Todas as chamadas do Wallet exigem `X-API-Key` para resolver `tenantId`.
 - Ao criar endpoints, sempre propagar `tenantId` para o Ledger.
 - Manter compatibilidade com PostgreSQL.
 
+## Contexto adicional
+- Consulte `docs/guidelines_projeto.md` para um resumo atualizado de diretrizes, padroes e observacoes do projeto.
+
