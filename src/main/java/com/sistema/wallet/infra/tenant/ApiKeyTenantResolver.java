@@ -1,6 +1,7 @@
 package com.sistema.wallet.infra.tenant;
 
 import com.sistema.wallet.application.tenant.TenantResolver;
+import com.sistema.wallet.application.exception.WalletUnauthorizedException;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -39,11 +40,11 @@ public class ApiKeyTenantResolver implements TenantResolver {
     @Override
     public UUID resolveTenantId(String apiKey) {
         if (apiKey == null || apiKey.isBlank()) {
-            throw new IllegalArgumentException("apiKey is required");
+            throw new WalletUnauthorizedException("apiKey is required");
         }
         UUID tenantId = apiKeyToTenant.get(apiKey);
         if (tenantId == null) {
-            throw new IllegalArgumentException("apiKey not recognized");
+            throw new WalletUnauthorizedException("apiKey not recognized");
         }
         return tenantId;
     }

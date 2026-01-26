@@ -1,11 +1,30 @@
 package com.sistema.wallet.api.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+
 public class TransferRequest {
+    @NotBlank(message = "idempotencyKey is required")
     private String idempotencyKey;
+
+    @NotBlank(message = "fromAccountId is required")
+    @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+            message = "fromAccountId must be a valid UUID")
     private String fromAccountId;
+
+    @NotBlank(message = "toAccountId is required")
+    @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+            message = "toAccountId must be a valid UUID")
     private String toAccountId;
+
+    @Positive(message = "amountMinor must be greater than zero")
     private long amountMinor;
+
+    @NotBlank(message = "currency is required")
+    @Pattern(regexp = "^[A-Z]{3}$", message = "currency must be a 3-letter ISO code")
     private String currency;
+
     private String description;
 
     public String getIdempotencyKey() {

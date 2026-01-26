@@ -5,6 +5,7 @@ import com.sistema.ledger.application.command.CreateAccountCommand;
 import com.sistema.ledger.domain.model.AccountType;
 import com.sistema.ledger.domain.model.LedgerAccount;
 import com.sistema.wallet.application.command.CreateWalletAccountCommand;
+import com.sistema.wallet.application.exception.WalletAccountAlreadyExistsException;
 import com.sistema.wallet.domain.model.WalletAccount;
 import com.sistema.wallet.domain.model.WalletAccountStatus;
 import com.sistema.wallet.domain.model.WalletOwnerType;
@@ -38,7 +39,7 @@ public class CreateWalletAccountUseCase {
                 command.getOwnerId(),
                 command.getCurrency()
         ).ifPresent(existing -> {
-            throw new IllegalArgumentException("wallet account already exists");
+            throw new WalletAccountAlreadyExistsException();
         });
 
         String ledgerAccountName = "WalletAccount " + command.getOwnerType() + ":" + command.getOwnerId();
