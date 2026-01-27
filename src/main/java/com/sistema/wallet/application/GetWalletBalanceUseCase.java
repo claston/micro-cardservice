@@ -1,6 +1,7 @@
 package com.sistema.wallet.application;
 
 import com.sistema.ledger.application.GetAccountBalanceUseCase;
+import com.sistema.wallet.application.exception.WalletAccountNotFoundException;
 import com.sistema.wallet.application.model.WalletBalance;
 import com.sistema.wallet.domain.model.WalletAccount;
 import com.sistema.wallet.domain.repository.WalletAccountRepository;
@@ -21,7 +22,7 @@ public class GetWalletBalanceUseCase {
 
     public WalletBalance execute(UUID tenantId, UUID accountId) {
         WalletAccount walletAccount = walletAccountRepository.findById(tenantId, accountId)
-                .orElseThrow(() -> new IllegalArgumentException("wallet account not found: " + accountId));
+                .orElseThrow(() -> new WalletAccountNotFoundException(accountId));
         var balance = getAccountBalanceUseCase.execute(tenantId, walletAccount.getLedgerAccountId());
         return new WalletBalance(walletAccount.getId(), balance.getBalanceMinor(), balance.getCurrency());
     }

@@ -30,6 +30,9 @@ Pacotes principais:
 - Camada de produto sobre o Ledger.
 - Resolvendo tenant via API key (header `X-API-Key`).
 - Operacoes principais: criar conta, saldo, extrato, transferencia.
+- Erros padronizados no formato Problem Details (RFC 7807 + extensoes).
+- Validacao declarativa via Bean Validation nos DTOs.
+- `traceId` sempre presente nas respostas; reutiliza `X-Request-Id` quando enviado.
 
 ## Regras tecnicas importantes
 - **Saldo negativo**: respeitar `allowNegative`.
@@ -39,7 +42,23 @@ Pacotes principais:
   - 400 para validacoes
   - 401 para API key invalida
   - 404 para entidades nao encontradas
-  - 409 para conflitos de idempotencia/duplicidade
+  - 409 para conflitos de idempotencia/duplicidade e regras de negocio (ex.: saldo insuficiente)
+
+## Padrao de erros (Problem Details)
+- Respostas de erro devem seguir o contrato:
+  - `type`, `title`, `status`, `detail`, `instance`
+  - `errorCode` estavel por modulo
+  - `violations[]` para erros de validacao
+  - `traceId` sempre presente
+- Preferir excecoes tipadas no Application para erros de negocio.
+
+## Reuso entre modulos (Wallet/Ledger/CreditCard)
+- Separar componentes genericos (ErrorResponse, traceId filter, mappers base) em um pacote comum.
+- Cada modulo define:
+  - catalogo de `errorCode`
+  - excecoes tipadas do dominio
+  - resolver de `type/title` se necessario
+- Objetivo: padrao uniforme com minima duplicacao.
 
 ## Testes
 - JUnit 5 + QuarkusTest.

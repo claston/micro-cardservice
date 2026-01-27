@@ -3,6 +3,8 @@ package com.sistema.wallet.api;
 import com.sistema.wallet.application.CreateWalletAccountUseCase;
 import com.sistema.wallet.application.GetWalletBalanceUseCase;
 import com.sistema.wallet.application.GetWalletStatementUseCase;
+import com.sistema.wallet.application.exception.WalletAccountAlreadyExistsException;
+import com.sistema.wallet.application.exception.WalletUnauthorizedException;
 import com.sistema.wallet.application.model.WalletBalance;
 import com.sistema.wallet.application.model.WalletStatementItem;
 import com.sistema.wallet.application.model.WalletStatementPage;
@@ -20,6 +22,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -76,7 +80,7 @@ public class WalletAccountResourceTest {
         UUID tenantId = UUID.randomUUID();
         when(tenantResolver.resolveTenantId("api-key")).thenReturn(tenantId);
         when(createWalletAccountUseCase.execute(eq(tenantId), any()))
-                .thenThrow(new IllegalArgumentException("wallet account already exists"));
+                .thenThrow(new WalletAccountAlreadyExistsException());
 
         RestAssured.given()
                 .contentType("application/json")
@@ -84,12 +88,14 @@ public class WalletAccountResourceTest {
                 .body("{\"ownerType\":\"CUSTOMER\",\"ownerId\":\"user-1\",\"currency\":\"BRL\"}")
                 .post("/accounts")
                 .then()
-                .statusCode(409);
+                .statusCode(409)
+                .body("errorCode", equalTo("WALLET_ACCOUNT_ALREADY_EXISTS"))
+                .body("traceId", notNullValue());
     }
 
     @Test
     public void shouldRejectInvalidApiKey() {
-        when(tenantResolver.resolveTenantId("bad")).thenThrow(new IllegalArgumentException("apiKey not recognized"));
+        when(tenantResolver.resolveTenantId("bad")).thenThrow(new WalletUnauthorizedException("apiKey not recognized"));
 
         RestAssured.given()
                 .contentType("application/json")
@@ -97,7 +103,59 @@ public class WalletAccountResourceTest {
                 .body("{\"ownerType\":\"CUSTOMER\",\"ownerId\":\"user-1\",\"currency\":\"BRL\"}")
                 .post("/accounts")
                 .then()
-                .statusCode(401);
+                .statusCode(401)
+                .body("errorCode", equalTo("WALLET_UNAUTHORIZED"))
+                .body("traceId", notNullValue());
+    }
+
+    @Test
+    public void shouldReturnValidationWhenOwnerTypeInvalid() {
+        UUID tenantId = UUID.randomUUID();
+        when(tenantResolver.resolveTenantId("api-key")).thenReturn(tenantId);
+
+        RestAssured.given()
+                .contentType("application/json")
+                .header("X-API-Key", "api-key")
+                .body("{\"ownerType\":\"FUNDER\",\"ownerId\":\"user-1\",\"currency\":\"BRL\"}")
+                .post("/accounts")
+                .then()
+                .statusCode(400)
+                .body("errorCode", equalTo("WALLET_VALIDATION_ERROR"))
+                .body("violations", hasSize(1))
+                .body("violations[0].field", equalTo("ownerType"))
+                .body("traceId", notNullValue());
+    }
+
+    @Test
+    public void shouldReturnValidationWhenOwnerIdMissing() {
+        UUID tenantId = UUID.randomUUID();
+        when(tenantResolver.resolveTenantId("api-key")).thenReturn(tenantId);
+
+        RestAssured.given()
+                .contentType("application/json")
+                .header("X-API-Key", "api-key")
+                .body("{\"ownerType\":\"CUSTOMER\",\"currency\":\"BRL\"}")
+                .post("/accounts")
+                .then()
+                .statusCode(400)
+                .body("errorCode", equalTo("WALLET_VALIDATION_ERROR"))
+                .body("violations", hasSize(1))
+                .body("violations[0].field", equalTo("ownerId"))
+                .body("traceId", notNullValue());
+    }
+
+    @Test
+    public void shouldRejectMissingApiKey() {
+        when(tenantResolver.resolveTenantId(null)).thenThrow(new WalletUnauthorizedException("apiKey is required"));
+
+        RestAssured.given()
+                .contentType("application/json")
+                .body("{\"ownerType\":\"CUSTOMER\",\"ownerId\":\"user-1\",\"currency\":\"BRL\"}")
+                .post("/accounts")
+                .then()
+                .statusCode(401)
+                .body("errorCode", equalTo("WALLET_UNAUTHORIZED"))
+                .body("traceId", notNullValue());
     }
 
     @Test

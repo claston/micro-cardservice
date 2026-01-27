@@ -13,6 +13,7 @@ import com.sistema.wallet.application.model.WalletStatementPage;
 import com.sistema.wallet.application.tenant.TenantResolver;
 import com.sistema.wallet.domain.model.WalletOwnerType;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
@@ -21,7 +22,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -47,30 +47,24 @@ public class WalletAccountResource {
     GetWalletStatementUseCase getWalletStatementUseCase;
 
     @POST
-    public Response createAccount(@HeaderParam("X-API-Key") String apiKey, CreateWalletAccountRequest request) {
+    public Response createAccount(@HeaderParam("X-API-Key") String apiKey,
+                                  @Valid CreateWalletAccountRequest request) {
         UUID tenantId = requireTenantId(apiKey);
-        try {
-            WalletOwnerType ownerType = WalletOwnerType.valueOf(request.getOwnerType());
-            var command = new CreateWalletAccountCommand(
-                    ownerType,
-                    request.getOwnerId(),
-                    request.getCurrency(),
-                    request.getLabel()
-            );
-            var walletAccount = createWalletAccountUseCase.execute(tenantId, command);
-            CreateWalletAccountResponse response = new CreateWalletAccountResponse();
-            response.setAccountId(walletAccount.getId().toString());
-            response.setOwnerType(walletAccount.getOwnerType().name());
-            response.setOwnerId(walletAccount.getOwnerId());
-            response.setCurrency(walletAccount.getCurrency());
-            response.setStatus(walletAccount.getStatus().name());
-            return Response.status(Response.Status.CREATED).entity(response).build();
-        } catch (IllegalArgumentException ex) {
-            if ("wallet account already exists".equals(ex.getMessage())) {
-                throw new WebApplicationException(ex.getMessage(), Response.Status.CONFLICT);
-            }
-            throw new WebApplicationException(ex.getMessage(), Response.Status.BAD_REQUEST);
-        }
+        WalletOwnerType ownerType = WalletOwnerType.valueOf(request.getOwnerType());
+        var command = new CreateWalletAccountCommand(
+                ownerType,
+                request.getOwnerId(),
+                request.getCurrency(),
+                request.getLabel()
+        );
+        var walletAccount = createWalletAccountUseCase.execute(tenantId, command);
+        CreateWalletAccountResponse response = new CreateWalletAccountResponse();
+        response.setAccountId(walletAccount.getId().toString());
+        response.setOwnerType(walletAccount.getOwnerType().name());
+        response.setOwnerId(walletAccount.getOwnerId());
+        response.setCurrency(walletAccount.getCurrency());
+        response.setStatus(walletAccount.getStatus().name());
+        return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
     @GET
@@ -78,16 +72,12 @@ public class WalletAccountResource {
     public WalletBalanceResponse getBalance(@HeaderParam("X-API-Key") String apiKey,
                                             @PathParam("accountId") UUID accountId) {
         UUID tenantId = requireTenantId(apiKey);
-        try {
-            var balance = getWalletBalanceUseCase.execute(tenantId, accountId);
-            WalletBalanceResponse response = new WalletBalanceResponse();
-            response.setAccountId(balance.getAccountId().toString());
-            response.setBalanceMinor(balance.getBalanceMinor());
-            response.setCurrency(balance.getCurrency());
-            return response;
-        } catch (IllegalArgumentException ex) {
-            throw new WebApplicationException(ex.getMessage(), Response.Status.NOT_FOUND);
-        }
+        var balance = getWalletBalanceUseCase.execute(tenantId, accountId);
+        WalletBalanceResponse response = new WalletBalanceResponse();
+        response.setAccountId(balance.getAccountId().toString());
+        response.setBalanceMinor(balance.getBalanceMinor());
+        response.setCurrency(balance.getCurrency());
+        return response;
     }
 
     @GET
@@ -99,45 +89,37 @@ public class WalletAccountResource {
                                                 @QueryParam("page") Integer page,
                                                 @QueryParam("size") Integer size) {
         UUID tenantId = requireTenantId(apiKey);
-        try {
-            WalletStatementPage statement = getWalletStatementUseCase.execute(
-                    tenantId,
-                    accountId,
-                    from,
-                    to,
-                    page == null ? 0 : page,
-                    size == null ? 20 : size
-            );
+        WalletStatementPage statement = getWalletStatementUseCase.execute(
+                tenantId,
+                accountId,
+                from,
+                to,
+                page == null ? 0 : page,
+                size == null ? 20 : size
+        );
 
-            WalletStatementResponse response = new WalletStatementResponse();
-            response.setAccountId(statement.getAccountId().toString());
-            response.setPage(statement.getPage());
-            response.setSize(statement.getSize());
-            response.setTotal(statement.getTotal());
-            List<WalletStatementItemResponse> items = statement.getItems().stream()
-                    .map(item -> {
-                        WalletStatementItemResponse itemResponse = new WalletStatementItemResponse();
-                        itemResponse.setTransactionId(item.getTransactionId());
-                        itemResponse.setOccurredAt(item.getOccurredAt());
-                        itemResponse.setDescription(item.getDescription());
-                        itemResponse.setDirection(item.getDirection());
-                        itemResponse.setAmountMinor(item.getAmountMinor());
-                        itemResponse.setCurrency(item.getCurrency());
-                        return itemResponse;
-                    })
-                    .collect(Collectors.toList());
-            response.setItems(items);
-            return response;
-        } catch (IllegalArgumentException ex) {
-            throw new WebApplicationException(ex.getMessage(), Response.Status.NOT_FOUND);
-        }
+        WalletStatementResponse response = new WalletStatementResponse();
+        response.setAccountId(statement.getAccountId().toString());
+        response.setPage(statement.getPage());
+        response.setSize(statement.getSize());
+        response.setTotal(statement.getTotal());
+        List<WalletStatementItemResponse> items = statement.getItems().stream()
+                .map(item -> {
+                    WalletStatementItemResponse itemResponse = new WalletStatementItemResponse();
+                    itemResponse.setTransactionId(item.getTransactionId());
+                    itemResponse.setOccurredAt(item.getOccurredAt());
+                    itemResponse.setDescription(item.getDescription());
+                    itemResponse.setDirection(item.getDirection());
+                    itemResponse.setAmountMinor(item.getAmountMinor());
+                    itemResponse.setCurrency(item.getCurrency());
+                    return itemResponse;
+                })
+                .collect(Collectors.toList());
+        response.setItems(items);
+        return response;
     }
 
     private UUID requireTenantId(String apiKey) {
-        try {
-            return tenantResolver.resolveTenantId(apiKey);
-        } catch (IllegalArgumentException ex) {
-            throw new WebApplicationException(ex.getMessage(), Response.Status.UNAUTHORIZED);
-        }
+        return tenantResolver.resolveTenantId(apiKey);
     }
 }

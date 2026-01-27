@@ -6,6 +6,8 @@ import com.sistema.ledger.application.command.PostLedgerTransactionCommand;
 import com.sistema.ledger.application.command.PostingEntryCommand;
 import com.sistema.ledger.domain.model.EntryDirection;
 import com.sistema.wallet.application.command.TransferBetweenWalletAccountsCommand;
+import com.sistema.wallet.application.exception.WalletAccountNotFoundException;
+import com.sistema.wallet.application.exception.WalletInsufficientBalanceException;
 import com.sistema.wallet.application.model.WalletTransferResult;
 import com.sistema.wallet.domain.model.WalletAccount;
 import com.sistema.wallet.domain.repository.WalletAccountRepository;
@@ -47,12 +49,12 @@ public class TransferBetweenWalletAccountsUseCase {
         WalletAccount fromAccount = walletAccountRepository.findById(tenantId, command.getFromAccountId())
                 .orElseThrow(() -> {
                     System.out.println("TransferBetweenWalletAccounts: fromAccount not found " + command.getFromAccountId());
-                    return new IllegalArgumentException("wallet account not found: " + command.getFromAccountId());
+                    return new WalletAccountNotFoundException(command.getFromAccountId());
                 });
         WalletAccount toAccount = walletAccountRepository.findById(tenantId, command.getToAccountId())
                 .orElseThrow(() -> {
                     System.out.println("TransferBetweenWalletAccounts: toAccount not found " + command.getToAccountId());
-                    return new IllegalArgumentException("wallet account not found: " + command.getToAccountId());
+                    return new WalletAccountNotFoundException(command.getToAccountId());
                 });
 
         if (!fromAccount.getCurrency().equals(command.getCurrency())
@@ -67,7 +69,7 @@ public class TransferBetweenWalletAccountsUseCase {
                 && fromBalance.getBalanceMinor() < command.getAmountMinor()) {
             System.out.println("TransferBetweenWalletAccounts: insufficient balance " + fromBalance.getBalanceMinor()
                     + " < " + command.getAmountMinor());
-            throw new IllegalArgumentException("insufficient balance");
+            throw new WalletInsufficientBalanceException("insufficient balance");
         }
 
         PostLedgerTransactionCommand ledgerCommand = new PostLedgerTransactionCommand(

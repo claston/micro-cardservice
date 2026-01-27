@@ -1,6 +1,7 @@
 package com.sistema.wallet.infra.tenant;
 
 import org.junit.jupiter.api.Test;
+import com.sistema.wallet.application.exception.WalletUnauthorizedException;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -24,13 +25,13 @@ public class ApiKeyTenantResolverTest {
     public void shouldRejectBlankApiKey() {
         ApiKeyTenantResolver resolver = new ApiKeyTenantResolver(Optional.of(""));
 
-        assertThrows(IllegalArgumentException.class, () -> resolver.resolveTenantId(" "));
+        assertThrows(WalletUnauthorizedException.class, () -> resolver.resolveTenantId(" "));
     }
 
     @Test
     public void shouldRejectUnknownApiKey() {
         ApiKeyTenantResolver resolver = new ApiKeyTenantResolver(Optional.of("key-1=" + UUID.randomUUID()));
 
-        assertThrows(IllegalArgumentException.class, () -> resolver.resolveTenantId("missing"));
+        assertThrows(WalletUnauthorizedException.class, () -> resolver.resolveTenantId("missing"));
     }
 }

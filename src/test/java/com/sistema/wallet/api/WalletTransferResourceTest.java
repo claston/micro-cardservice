@@ -1,6 +1,8 @@
 package com.sistema.wallet.api;
 
 import com.sistema.wallet.application.TransferBetweenWalletAccountsUseCase;
+import com.sistema.wallet.application.exception.WalletAccountNotFoundException;
+import com.sistema.wallet.application.exception.WalletInsufficientBalanceException;
 import com.sistema.wallet.application.model.WalletTransferResult;
 import com.sistema.wallet.application.tenant.TenantResolver;
 import io.quarkus.test.InjectMock;
@@ -11,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -55,9 +58,10 @@ public class WalletTransferResourceTest {
     @Test
     public void shouldReturnNotFoundWhenAccountMissing() {
         UUID tenantId = UUID.randomUUID();
+        UUID missingId = UUID.randomUUID();
         when(tenantResolver.resolveTenantId("api-key")).thenReturn(tenantId);
         when(transferBetweenWalletAccountsUseCase.execute(eq(tenantId), any()))
-                .thenThrow(new IllegalArgumentException("wallet account not found: 123"));
+                .thenThrow(new WalletAccountNotFoundException(missingId));
 
         RestAssured.given()
                 .contentType("application/json")
@@ -73,6 +77,34 @@ public class WalletTransferResourceTest {
                         """.formatted(UUID.randomUUID(), UUID.randomUUID()))
                 .post("/transfers")
                 .then()
-                .statusCode(404);
+                .statusCode(404)
+                .body("errorCode", equalTo("WALLET_ACCOUNT_NOT_FOUND"))
+                .body("traceId", notNullValue());
+    }
+
+    @Test
+    public void shouldReturnConflictWhenInsufficientBalance() {
+        UUID tenantId = UUID.randomUUID();
+        when(tenantResolver.resolveTenantId("api-key")).thenReturn(tenantId);
+        when(transferBetweenWalletAccountsUseCase.execute(eq(tenantId), any()))
+                .thenThrow(new WalletInsufficientBalanceException("insufficient balance"));
+
+        RestAssured.given()
+                .contentType("application/json")
+                .header("X-API-Key", "api-key")
+                .body("""
+                        {
+                          "idempotencyKey":"txn-3",
+                          "fromAccountId":"%s",
+                          "toAccountId":"%s",
+                          "amountMinor":500,
+                          "currency":"BRL"
+                        }
+                        """.formatted(UUID.randomUUID(), UUID.randomUUID()))
+                .post("/transfers")
+                .then()
+                .statusCode(409)
+                .body("errorCode", equalTo("WALLET_INSUFFICIENT_BALANCE"))
+                .body("traceId", notNullValue());
     }
 }
