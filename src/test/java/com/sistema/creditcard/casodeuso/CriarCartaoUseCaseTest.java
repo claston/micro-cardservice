@@ -2,10 +2,10 @@ package com.sistema.creditcard.casodeuso;
 
 import com.sistema.creditcard.adaptadores.dto.CreditCardDTO;
 import com.sistema.creditcard.dominio.entidade.CreditCard;
-import com.sistema.customer.dominio.entidade.Customer;
+import com.sistema.customer.domain.model.Customer;
 import com.sistema.creditcard.dominio.servico.CartaoDeCreditoService;
 import com.sistema.creditcard.dominio.repository.CartaoRepository;
-import com.sistema.customer.dominio.repository.CustomerRepository;
+import com.sistema.customer.domain.repository.CustomerRepository;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;

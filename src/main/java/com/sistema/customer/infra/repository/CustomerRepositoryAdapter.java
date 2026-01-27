@@ -1,9 +1,9 @@
-package com.sistema.customer.infraestrutura.repositorio;
+package com.sistema.customer.infra.repository;
 
-import com.sistema.customer.dominio.entidade.Customer;
-import com.sistema.customer.dominio.repository.CustomerRepository;
-import com.sistema.customer.infraestrutura.entidade.CustomerEntity;
-import com.sistema.customer.infraestrutura.mapper.CustomerMapper;
+import com.sistema.customer.domain.model.Customer;
+import com.sistema.customer.domain.repository.CustomerRepository;
+import com.sistema.customer.infra.entity.CustomerEntity;
+import com.sistema.customer.infra.mapper.CustomerMapper;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

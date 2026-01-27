@@ -1,6 +1,6 @@
-package com.sistema.customer.dominio.repository;
+package com.sistema.customer.domain.repository;
 
-import com.sistema.customer.dominio.entidade.Customer;
+import com.sistema.customer.domain.model.Customer;
 
 import java.util.List;
 import java.util.UUID;

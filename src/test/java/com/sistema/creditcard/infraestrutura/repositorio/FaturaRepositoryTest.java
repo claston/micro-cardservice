@@ -3,8 +3,8 @@ package com.sistema.creditcard.infraestrutura.repositorio;
 import com.sistema.creditcard.infraestrutura.entidade.CartaoDeCreditoEntity;
 import com.sistema.creditcard.infraestrutura.entidade.FaturaEntity;
 import com.sistema.creditcard.infraestrutura.entidade.TransacaoEntity;
-import com.sistema.customer.infraestrutura.entidade.CustomerEntity;
-import com.sistema.customer.infraestrutura.repositorio.ClienteRepository;
+import com.sistema.customer.infra.entity.CustomerEntity;
+import com.sistema.customer.infra.repository.CustomerRepositoryAdapter;
 import com.sistema.infraestrutura.repositorio.DbCleanIT;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -30,7 +30,7 @@ class FaturaRepositoryTest extends DbCleanIT {
     CartaoDeCreditoRepository cartaoDeCreditoRepository;
 
     @Inject
-    ClienteRepository clienteRepository;
+    CustomerRepositoryAdapter customerRepositoryAdapter;
 
     //TODO: Faz sentido colocar o FaturaEntity para ser injetado?
 
@@ -83,7 +83,7 @@ class FaturaRepositoryTest extends DbCleanIT {
         cliente.setEmail("teste@teste.com");
         cliente.setPhoneNumber("11 99999999");
 
-        clienteRepository.persist(cliente);
+        customerRepositoryAdapter.persist(cliente);
 
         // Cria cartão de crédito para a Transação
         CartaoDeCreditoEntity cartao = new CartaoDeCreditoEntity();

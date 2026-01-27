@@ -8,8 +8,8 @@ public class TestDataFactory {
 
         return RestAssured.given()
                 .contentType("application/json")
-                .body("{\"nome\":\"" + nome + "\",\"cpf\":\"" + cpf + "\",\"email\":\"" + "\",\"telefone\":\"" + telefone + "\"}")
-                .post("/clientes")
+                .body("{\"name\":\"" + nome + "\",\"cpf\":\"" + cpf + "\",\"email\":\"" + email + "\",\"phoneNumber\":\"" + telefone + "\"}")
+                .post("/customers")
                 .then()
                 .statusCode(201)
                 .extract()

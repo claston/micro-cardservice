@@ -2,13 +2,13 @@ package com.sistema.creditcard.casodeuso;
 
 import com.sistema.creditcard.adaptadores.dto.CreditCardDTO;
 import com.sistema.creditcard.dominio.entidade.CreditCard;
-import com.sistema.customer.dominio.entidade.Customer;
+import com.sistema.customer.domain.model.Customer;
 import com.sistema.creditcard.dominio.servico.CartaoDeCreditoService;
 import com.sistema.creditcard.infraestrutura.mapper.CartaoDeCreditoMapper;
-import com.sistema.customer.infraestrutura.mapper.CustomerMapper;
+import com.sistema.customer.infra.mapper.CustomerMapper;
 import com.sistema.creditcard.dominio.repository.CartaoRepository;
 
-import com.sistema.customer.dominio.repository.CustomerRepository;
+import com.sistema.customer.domain.repository.CustomerRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;

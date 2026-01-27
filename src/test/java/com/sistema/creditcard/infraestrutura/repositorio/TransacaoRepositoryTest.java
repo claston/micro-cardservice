@@ -2,8 +2,8 @@ package com.sistema.creditcard.infraestrutura.repositorio;
 
 import com.sistema.creditcard.infraestrutura.entidade.CartaoDeCreditoEntity;
 import com.sistema.creditcard.infraestrutura.entidade.TransacaoEntity;
-import com.sistema.customer.infraestrutura.entidade.CustomerEntity;
-import com.sistema.customer.infraestrutura.repositorio.ClienteRepository;
+import com.sistema.customer.infra.entity.CustomerEntity;
+import com.sistema.customer.infra.repository.CustomerRepositoryAdapter;
 import com.sistema.infraestrutura.repositorio.DbCleanIT;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class TransacaoRepositoryTest extends DbCleanIT {
 
     @Inject
-    ClienteRepository clienteRepository;
+    CustomerRepositoryAdapter customerRepositoryAdapter;
 
     @Inject
     CartaoDeCreditoRepository cartaoDeCreditoRepository;
@@ -39,7 +39,7 @@ class TransacaoRepositoryTest extends DbCleanIT {
         // criar um cliente entity
         CustomerEntity customerEntity = new CustomerEntity();
         customerEntity.setName("João Silva");
-        clienteRepository.persist(customerEntity);
+        customerRepositoryAdapter.persist(customerEntity);
 
         //criar um cartao de credito entity
         CartaoDeCreditoEntity cartaoEntity = new CartaoDeCreditoEntity();

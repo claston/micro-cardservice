@@ -1,4 +1,4 @@
-package com.sistema.customer.dominio.entidade;
+package com.sistema.customer.domain.model;
 
 import org.junit.jupiter.api.Test;
 
@@ -9,8 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CustomerDomainTest {
 
     @Test
-    public void testCriarClienteComSucesso(){
-
+    public void testCriarClienteComSucesso() {
         Customer customer = new Customer("1234567890", "Jose da Silva", "joao@email.com");
 
         assertNotNull(customer);
@@ -71,8 +70,4 @@ class CustomerDomainTest {
                 () -> Customer.createValidCustomer("Jose da Silva", "joao@email.com", null));
         assertEquals("Registration Date cannot be null", dateNull.getMessage());
     }
-
-    // Poderia criar verificar um cpf valido
-    // Poderia listar os cartoes desse cliente
 }
-

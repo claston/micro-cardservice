@@ -6,6 +6,7 @@ import com.sistema.ledger.domain.model.LedgerAccount;
 import com.sistema.ledger.domain.model.AccountStatus;
 import com.sistema.ledger.domain.model.AccountType;
 import com.sistema.wallet.application.command.CreateWalletAccountCommand;
+import com.sistema.wallet.application.exception.WalletAccountAlreadyExistsException;
 import com.sistema.wallet.domain.model.WalletAccount;
 import com.sistema.wallet.domain.model.WalletAccountStatus;
 import com.sistema.wallet.domain.model.WalletOwnerType;
@@ -111,7 +112,7 @@ class CreateWalletAccountUseCaseTest {
 
         CreateWalletAccountUseCase useCase = new CreateWalletAccountUseCase(walletAccountRepository, createAccountUseCase);
 
-        assertThrows(IllegalArgumentException.class, () -> useCase.execute(tenantId, command));
+        assertThrows(WalletAccountAlreadyExistsException.class, () -> useCase.execute(tenantId, command));
         verify(createAccountUseCase, never()).execute(any(CreateAccountCommand.class));
     }
 }

@@ -1,10 +1,10 @@
 package com.sistema.creditcard.util;
 
 import com.sistema.creditcard.dominio.entidade.CreditCard;
-import com.sistema.customer.dominio.entidade.Customer;
+import com.sistema.customer.domain.model.Customer;
 import com.sistema.creditcard.dominio.servico.CartaoDeCreditoService;
 import com.sistema.creditcard.dominio.servico.GeradorNumeroCartao;
-import com.sistema.customer.dominio.repository.CustomerRepository;
+import com.sistema.customer.domain.repository.CustomerRepository;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;

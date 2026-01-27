@@ -6,6 +6,7 @@ Este documento consolida as principais diretrizes, padroes e aprendizados observ
 - Projeto em Java com Quarkus.
 - Dominio principal: **Ledger Core** (contabil) e **Wallet API**.
 - Multi-tenancy obrigatorio: todas as operacoes devem respeitar `tenantId`.
+- Modulo **Customer** em padrao ingles: API/Application/Domain/Infra.
 
 ## Principios de negocio (Ledger)
 - **Imutabilidade**: transacoes e entries sao append-only.
@@ -26,6 +27,18 @@ Pacotes principais:
 - `com.sistema.creditcard.*`
 - `com.sistema.customer.*`
 
+## Customer (Fase 1 aplicada)
+- Endpoint principal: `POST /customers` e `GET /customers` (sem alias `/clientes`).
+- Pacotes padronizados:
+  - `com.sistema.customer.api` + `com.sistema.customer.api.dto`
+  - `com.sistema.customer.application`
+  - `com.sistema.customer.domain.model` + `com.sistema.customer.domain.repository`
+  - `com.sistema.customer.infra.entity` + `com.sistema.customer.infra.mapper` + `com.sistema.customer.infra.repository`
+- Use cases: `CreateCustomerUseCase` e `ListCustomersUseCase` (resources finos).
+- DTO aceita aliases para compatibilidade de payload:
+  - `name` aceita `nome`
+  - `phoneNumber` aceita `telefone` e `foneNumber`
+
 ## Wallet API
 - Camada de produto sobre o Ledger.
 - Resolvendo tenant via API key (header `X-API-Key`).
@@ -43,6 +56,13 @@ Pacotes principais:
   - 401 para API key invalida
   - 404 para entidades nao encontradas
   - 409 para conflitos de idempotencia/duplicidade e regras de negocio (ex.: saldo insuficiente)
+
+## Observacoes recentes de testes
+- `LedgerAccountResource` deve retornar **400** quando `X-Tenant-Id` esta ausente.
+- Testes de wallet esperam excecoes tipadas:
+  - `WalletAccountAlreadyExistsException`
+  - `WalletAccountNotFoundException`
+  - `WalletInsufficientBalanceException`
 
 ## Padrao de erros (Problem Details)
 - Respostas de erro devem seguir o contrato:

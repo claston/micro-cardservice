@@ -1,9 +1,13 @@
-package com.sistema.customer.adaptadores.dto;
+package com.sistema.customer.api.dto;
+
+import com.fasterxml.jackson.annotation.JsonAlias;
 
 public class CustomerDTO {
+    @JsonAlias("nome")
     private String name;
     private String cpf;
     private String email;
+    @JsonAlias({"telefone", "foneNumber"})
     private String phoneNumber;
 
     public String getName() {

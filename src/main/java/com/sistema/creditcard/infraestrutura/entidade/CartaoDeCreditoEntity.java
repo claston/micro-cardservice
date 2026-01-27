@@ -1,6 +1,6 @@
 package com.sistema.creditcard.infraestrutura.entidade;
 
-import com.sistema.customer.infraestrutura.entidade.CustomerEntity;
+import com.sistema.customer.infra.entity.CustomerEntity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;

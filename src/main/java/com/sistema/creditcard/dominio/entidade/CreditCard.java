@@ -1,6 +1,6 @@
 package com.sistema.creditcard.dominio.entidade;
 
-import com.sistema.customer.dominio.entidade.Customer;
+import com.sistema.customer.domain.model.Customer;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

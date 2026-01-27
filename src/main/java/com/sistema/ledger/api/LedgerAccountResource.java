@@ -45,11 +45,13 @@ public class LedgerAccountResource {
 
     @POST
     public Response createAccount(@HeaderParam("X-Tenant-Id") UUID tenantId, CreateAccountRequest request) {
+        if (tenantId == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
         try {
-            UUID resolvedTenantId = requireTenantId(tenantId);
             AccountType type = AccountType.valueOf(request.getType());
             var command = new CreateAccountCommand(
-                    resolvedTenantId,
+                    tenantId,
                     request.getName(),
                     type,
                     request.getCurrency(),
