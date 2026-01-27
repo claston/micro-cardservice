@@ -1,4 +1,4 @@
-package com.sistema.customer.dominio.entidade;
+package com.sistema.customer.domain.model;
 
 import java.time.LocalDate;
 import java.util.Objects;

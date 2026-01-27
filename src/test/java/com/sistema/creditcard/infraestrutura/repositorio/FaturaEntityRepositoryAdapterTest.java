@@ -6,7 +6,7 @@ import com.sistema.creditcard.dominio.entidade.Transacao;
 import com.sistema.creditcard.dominio.repository.CartaoRepository;
 import com.sistema.creditcard.dominio.repository.FaturaRepository;
 import com.sistema.creditcard.util.CartaoDeCreditoBuilder;
-import com.sistema.customer.dominio.entidade.Customer;
+import com.sistema.customer.domain.model.Customer;
 import com.sistema.infraestrutura.repositorio.DbCleanIT;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;

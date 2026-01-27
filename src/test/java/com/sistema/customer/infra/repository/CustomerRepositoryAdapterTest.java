@@ -1,8 +1,6 @@
-package com.sistema.customer.infraestrutura.repositorio;
+package com.sistema.customer.infra.repository;
 
-import com.sistema.customer.dominio.entidade.Customer;
-import com.sistema.customer.dominio.repository.CustomerRepository;
-import com.sistema.customer.infraestrutura.entidade.CustomerEntity;
+import com.sistema.customer.domain.model.Customer;
 import com.sistema.infraestrutura.repositorio.DbCleanIT;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -13,13 +11,9 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @QuarkusTest
 class CustomerRepositoryAdapterTest extends DbCleanIT {
-
-    @Inject
-    CustomerRepository customerRepository;
 
     @Inject
     CustomerRepositoryAdapter customerRepositoryAdapter;
@@ -37,10 +31,7 @@ class CustomerRepositoryAdapterTest extends DbCleanIT {
 
         List<Customer> customers = customerRepositoryAdapter.findAllAsList();
 
-        //assertEquals(2, customers.size());
         assertEquals("Ana Silva", customers.get(0).getName());
         assertEquals("Maria Souza", customers.get(1).getName());
     }
 }
-
-

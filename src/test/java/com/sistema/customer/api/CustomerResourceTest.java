@@ -1,10 +1,10 @@
-package com.sistema.customer.adaptadores.api;
+package com.sistema.customer.api;
 
-import com.sistema.customer.adaptadores.dto.CustomerDTO;
-import com.sistema.customer.casodeuso.CriarClienteUseCase;
-import com.sistema.customer.dominio.entidade.Customer;
-import com.sistema.customer.dominio.repository.CustomerRepository;
-import com.sistema.customer.infraestrutura.mapper.CustomerMapper;
+import com.sistema.customer.api.dto.CustomerDTO;
+import com.sistema.customer.application.CreateCustomerUseCase;
+import com.sistema.customer.application.ListCustomersUseCase;
+import com.sistema.customer.domain.model.Customer;
+import com.sistema.customer.infra.mapper.CustomerMapper;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
@@ -22,36 +22,36 @@ import static org.mockito.Mockito.when;
 public class CustomerResourceTest {
 
     @InjectMock
-    CustomerRepository customerRepository;
+    ListCustomersUseCase listCustomersUseCase;
 
     @InjectMock
     CustomerMapper customerMapper;
 
     @InjectMock
-    CriarClienteUseCase criarClienteUseCase;
+    CreateCustomerUseCase createCustomerUseCase;
 
     @Test
-    public void getAllClientesReturnsNoContentWhenEmpty() {
-        when(customerRepository.findAllAsList()).thenReturn(List.of());
+    public void getAllCustomersReturnsNoContentWhenEmpty() {
+        when(listCustomersUseCase.execute()).thenReturn(List.of());
 
         RestAssured.given()
-                .get("/clientes")
+                .get("/customers")
                 .then()
                 .statusCode(204);
     }
 
     @Test
-    public void getAllClientesReturnsList() {
+    public void getAllCustomersReturnsList() {
         Customer first = new Customer("11111111111", "Joao Silva", "joao.silva@email.com");
         first.setId(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
         Customer second = new Customer("22222222222", "Maria Souza", "maria.souza@email.com");
         second.setId(UUID.fromString("22222222-2222-2222-2222-222222222222"));
 
-        when(customerRepository.findAllAsList()).thenReturn(List.of(first, second));
+        when(listCustomersUseCase.execute()).thenReturn(List.of(first, second));
 
         RestAssured.given()
-                .get("/clientes")
+                .get("/customers")
                 .then()
                 .statusCode(200)
                 .body("size()", equalTo(2))
@@ -62,7 +62,7 @@ public class CustomerResourceTest {
     }
 
     @Test
-    public void criarClienteReturnsCreatedCustomer() {
+    public void createCustomerReturnsCreatedCustomer() {
         Customer input = new Customer("12345678900", "Joao Silva", "joao.silva@email.com");
         input.setPhoneNumber("11999999999");
 
@@ -71,12 +71,12 @@ public class CustomerResourceTest {
         saved.setPhoneNumber("11999999999");
 
         when(customerMapper.toDomain(any(CustomerDTO.class))).thenReturn(input);
-        when(criarClienteUseCase.executar(input)).thenReturn(saved);
+        when(createCustomerUseCase.execute(input)).thenReturn(saved);
 
         RestAssured.given()
                 .contentType("application/json")
-                .body("{\"name\":\"Joao Silva\",\"cpf\":\"12345678900\",\"email\":\"joao.silva@email.com\",\"foneNumber\":\"11999999999\"}")
-                .post("/clientes")
+                .body("{\"name\":\"Joao Silva\",\"cpf\":\"12345678900\",\"email\":\"joao.silva@email.com\",\"phoneNumber\":\"11999999999\"}")
+                .post("/customers")
                 .then()
                 .statusCode(201)
                 .body("id", notNullValue())
@@ -86,5 +86,3 @@ public class CustomerResourceTest {
                 .body("phoneNumber", equalTo("11999999999"));
     }
 }
-
-

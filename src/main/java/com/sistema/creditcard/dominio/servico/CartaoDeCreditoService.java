@@ -1,7 +1,7 @@
 package com.sistema.creditcard.dominio.servico;
 
 import com.sistema.creditcard.dominio.entidade.CreditCard;
-import com.sistema.customer.dominio.entidade.Customer;
+import com.sistema.customer.domain.model.Customer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 

@@ -9,6 +9,8 @@ import com.sistema.ledger.domain.model.IdempotencyKey;
 import com.sistema.ledger.domain.model.LedgerTransaction;
 import com.sistema.ledger.domain.model.Money;
 import com.sistema.wallet.application.command.TransferBetweenWalletAccountsCommand;
+import com.sistema.wallet.application.exception.WalletAccountNotFoundException;
+import com.sistema.wallet.application.exception.WalletInsufficientBalanceException;
 import com.sistema.wallet.application.model.WalletTransferResult;
 import com.sistema.wallet.domain.model.WalletAccount;
 import com.sistema.wallet.domain.model.WalletAccountStatus;
@@ -116,7 +118,7 @@ class TransferBetweenWalletAccountsUseCaseTest {
                 "transfer"
         );
 
-        assertThrows(IllegalArgumentException.class, () -> useCase.execute(tenantId, command));
+        assertThrows(WalletInsufficientBalanceException.class, () -> useCase.execute(tenantId, command));
         verify(postLedgerTransactionUseCase, never()).execute(any());
     }
 
@@ -199,7 +201,7 @@ class TransferBetweenWalletAccountsUseCaseTest {
                 "transfer"
         );
 
-        assertThrows(IllegalArgumentException.class, () -> useCase.execute(tenantId, command));
+        assertThrows(WalletAccountNotFoundException.class, () -> useCase.execute(tenantId, command));
         verify(postLedgerTransactionUseCase, never()).execute(any());
     }
 

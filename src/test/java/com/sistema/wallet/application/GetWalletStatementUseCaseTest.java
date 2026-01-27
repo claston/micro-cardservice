@@ -4,6 +4,7 @@ import com.sistema.ledger.application.GetAccountStatementUseCase;
 import com.sistema.ledger.application.model.StatementItem;
 import com.sistema.ledger.application.model.StatementPage;
 import com.sistema.ledger.domain.model.EntryDirection;
+import com.sistema.wallet.application.exception.WalletAccountNotFoundException;
 import com.sistema.wallet.application.model.WalletStatementPage;
 import com.sistema.wallet.domain.model.WalletAccount;
 import com.sistema.wallet.domain.model.WalletAccountStatus;
@@ -84,6 +85,6 @@ class GetWalletStatementUseCaseTest {
 
         GetWalletStatementUseCase useCase = new GetWalletStatementUseCase(walletAccountRepository, getAccountStatementUseCase);
 
-        assertThrows(IllegalArgumentException.class, () -> useCase.execute(tenantId, walletAccountId, null, null, 0, 20));
+        assertThrows(WalletAccountNotFoundException.class, () -> useCase.execute(tenantId, walletAccountId, null, null, 0, 20));
     }
 }

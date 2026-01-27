@@ -1,8 +1,8 @@
-package com.sistema.customer.infraestrutura.mapper;
+package com.sistema.customer.infra.mapper;
 
-import com.sistema.customer.adaptadores.dto.CustomerDTO;
-import com.sistema.customer.dominio.entidade.Customer;
-import com.sistema.customer.infraestrutura.entidade.CustomerEntity;
+import com.sistema.customer.api.dto.CustomerDTO;
+import com.sistema.customer.domain.model.Customer;
+import com.sistema.customer.infra.entity.CustomerEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;

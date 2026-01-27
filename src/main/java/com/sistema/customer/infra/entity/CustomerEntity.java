@@ -1,4 +1,4 @@
-package com.sistema.customer.infraestrutura.entidade;
+package com.sistema.customer.infra.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
