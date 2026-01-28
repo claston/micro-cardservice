@@ -94,6 +94,16 @@ Este documento descreve um plano incremental para padronizar o modulo `customer`
 - Quais chaves sao unicas por tenant (CPF/CNPJ? email? ambos?)?
 - O endpoint de customer deve exigir autenticacao/tenant da mesma forma que wallet (ex.: `X-API-Key`) ou outro mecanismo?
 
+## Decisões (MVP) — 2026-01-28
+- Suportar **PF e PJ** já no MVP: `type=INDIVIDUAL|BUSINESS`.
+- Obrigatórios no cadastro: apenas `name` + `documentType` + `documentNumber` (além de `type`).
+- Unicidade: `UNIQUE(tenant_id, document_type, document_number)`.
+- Multi-tenancy: preferir resolver `tenantId` via `X-API-Key` (mesmo padrão da Wallet) para rotas públicas.
+- Remoção: no MVP, preferir `status=INACTIVE` (evitar `DELETE`). `deletedAt` pode ser avaliado depois.
+- KYC: manter **estado mínimo** em Customer no MVP (ex.: `kycStatus`), migrando para módulo próprio quando houver workflow/histórico/provedores.
+
+Consulte `docs/especificacao_modulo_customer_mvp_wallet.md` para a especificação completa.
+
 ## Esclarecimento de dominio (Tenant vs Customer)
 - `tenant` representa o cliente pagante do sistema (B2B / organizacao).
 - `customer` representa o cliente final dentro de um tenant (B2C/B2B2C), ou seja, o "cliente do tenant".
