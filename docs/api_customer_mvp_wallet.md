@@ -14,6 +14,7 @@
 
 Decisão do MVP:
 - Todas as rotas exigem `X-API-Key` (mesmo padrão da Wallet).
+- Em dev/test o exemplo usa `key-dev` (config `app.api-keys=key-dev=00000000-0000-0000-0000-000000000000`).
 
 ---
 

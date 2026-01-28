@@ -86,6 +86,11 @@ Especificação do módulo:
 Pacote sugerido para o comum:
 - `com.sistema.common.api.trace.*`
 - `com.sistema.common.api.error.*`
+- `com.sistema.common.api.validation.*`
+- `com.sistema.common.tenant.*` (resolver de tenant por API key compartilhado)
+
+Configuracao de API keys (dev/test):
+- `app.api-keys=key-dev=00000000-0000-0000-0000-000000000000` (pode reaproveitar `wallet.api-keys` se preferir; `app.api-keys` tem precedencia no resolver comum).
 
 ## Testes
 - JUnit 5 + QuarkusTest.
