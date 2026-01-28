@@ -34,7 +34,6 @@ public class RegistarCompraCasoDeUso {
             throw new IllegalArgumentException(("Limite Insuficiente para essa compra!"));
         }
 
-        System.out.println("TESTE###########: " + cartao.getCliente().getDataCadastro());
         transacao.setCartao(cartao);
 
         TransacaoEntity transacaoEntity = transacaoMapper.toEntity(transacao);

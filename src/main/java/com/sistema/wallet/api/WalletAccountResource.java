@@ -10,7 +10,8 @@ import com.sistema.wallet.application.GetWalletBalanceUseCase;
 import com.sistema.wallet.application.GetWalletStatementUseCase;
 import com.sistema.wallet.application.command.CreateWalletAccountCommand;
 import com.sistema.wallet.application.model.WalletStatementPage;
-import com.sistema.wallet.application.tenant.TenantResolver;
+import com.sistema.common.tenant.TenantResolver;
+import com.sistema.wallet.application.exception.WalletUnauthorizedException;
 import com.sistema.wallet.domain.model.WalletOwnerType;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -120,6 +121,10 @@ public class WalletAccountResource {
     }
 
     private UUID requireTenantId(String apiKey) {
-        return tenantResolver.resolveTenantId(apiKey);
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new WalletUnauthorizedException("apiKey is required");
+        }
+        return tenantResolver.resolveTenantId(apiKey)
+                .orElseThrow(() -> new WalletUnauthorizedException("apiKey not recognized"));
     }
 }

@@ -1,14 +1,17 @@
 package com.sistema.customer.domain.repository;
 
 import com.sistema.customer.domain.model.Customer;
+import com.sistema.customer.domain.model.CustomerDocumentType;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface CustomerRepository {
     Customer save(Customer customer);
-    List<Customer> findAllAsList();
-    Customer findById(UUID id);
+
+    Optional<Customer> findById(UUID tenantId, UUID id);
+
+    Optional<Customer> findByDocument(UUID tenantId, CustomerDocumentType documentType, String documentNumber);
 }
 
 
