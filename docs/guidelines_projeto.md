@@ -39,6 +39,9 @@ Pacotes principais:
   - `name` aceita `nome`
   - `phoneNumber` aceita `telefone` e `foneNumber`
 
+Especificação do módulo:
+- Consulte `docs/especificacao_modulo_customer_mvp_wallet.md` (PF/PJ no MVP, obrigatórios mínimos, unicidade por documento por tenant).
+
 ## Wallet API
 - Camada de produto sobre o Ledger.
 - Resolvendo tenant via API key (header `X-API-Key`).
@@ -79,6 +82,15 @@ Pacotes principais:
   - excecoes tipadas do dominio
   - resolver de `type/title` se necessario
 - Objetivo: padrao uniforme com minima duplicacao.
+
+Pacote sugerido para o comum:
+- `com.sistema.common.api.trace.*`
+- `com.sistema.common.api.error.*`
+- `com.sistema.common.api.validation.*`
+- `com.sistema.common.tenant.*` (resolver de tenant por API key compartilhado)
+
+Configuracao de API keys (dev/test):
+- `app.api-keys=key-dev=00000000-0000-0000-0000-000000000000` (pode reaproveitar `wallet.api-keys` se preferir; `app.api-keys` tem precedencia no resolver comum).
 
 ## Testes
 - JUnit 5 + QuarkusTest.

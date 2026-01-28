@@ -1,88 +1,182 @@
 package com.sistema.customer.api;
 
-import com.sistema.customer.api.dto.CustomerDTO;
-import com.sistema.customer.application.CreateCustomerUseCase;
-import com.sistema.customer.application.ListCustomersUseCase;
-import com.sistema.customer.domain.model.Customer;
-import com.sistema.customer.infra.mapper.CustomerMapper;
-import io.quarkus.test.InjectMock;
+import com.sistema.infraestrutura.repositorio.DbCleanIT;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.UUID;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.*;
 
 @QuarkusTest
-public class CustomerResourceTest {
-
-    @InjectMock
-    ListCustomersUseCase listCustomersUseCase;
-
-    @InjectMock
-    CustomerMapper customerMapper;
-
-    @InjectMock
-    CreateCustomerUseCase createCustomerUseCase;
+class CustomerResourceTest extends DbCleanIT {
+    private static final String API_KEY = "key-dev";
 
     @Test
-    public void getAllCustomersReturnsNoContentWhenEmpty() {
-        when(listCustomersUseCase.execute()).thenReturn(List.of());
-
+    void createCustomerReturnsCreated() {
         RestAssured.given()
-                .get("/customers")
-                .then()
-                .statusCode(204);
-    }
-
-    @Test
-    public void getAllCustomersReturnsList() {
-        Customer first = new Customer("11111111111", "Joao Silva", "joao.silva@email.com");
-        first.setId(UUID.fromString("11111111-1111-1111-1111-111111111111"));
-
-        Customer second = new Customer("22222222222", "Maria Souza", "maria.souza@email.com");
-        second.setId(UUID.fromString("22222222-2222-2222-2222-222222222222"));
-
-        when(listCustomersUseCase.execute()).thenReturn(List.of(first, second));
-
-        RestAssured.given()
-                .get("/customers")
-                .then()
-                .statusCode(200)
-                .body("size()", equalTo(2))
-                .body("[0].id", equalTo(first.getId().toString()))
-                .body("[0].name", equalTo("Joao Silva"))
-                .body("[1].id", equalTo(second.getId().toString()))
-                .body("[1].name", equalTo("Maria Souza"));
-    }
-
-    @Test
-    public void createCustomerReturnsCreatedCustomer() {
-        Customer input = new Customer("12345678900", "Joao Silva", "joao.silva@email.com");
-        input.setPhoneNumber("11999999999");
-
-        Customer saved = new Customer("12345678900", "Joao Silva", "joao.silva@email.com");
-        saved.setId(UUID.fromString("33333333-3333-3333-3333-333333333333"));
-        saved.setPhoneNumber("11999999999");
-
-        when(customerMapper.toDomain(any(CustomerDTO.class))).thenReturn(input);
-        when(createCustomerUseCase.execute(input)).thenReturn(saved);
-
-        RestAssured.given()
+                .header("X-API-Key", API_KEY)
                 .contentType("application/json")
-                .body("{\"name\":\"Joao Silva\",\"cpf\":\"12345678900\",\"email\":\"joao.silva@email.com\",\"phoneNumber\":\"11999999999\"}")
+                .body("""
+                        {
+                          "type": "INDIVIDUAL",
+                          "name": "Maria da Silva",
+                          "documentType": "CPF",
+                          "documentNumber": "123.456.789-01"
+                        }
+                        """)
+                .when()
                 .post("/customers")
                 .then()
                 .statusCode(201)
                 .body("id", notNullValue())
-                .body("name", equalTo("Joao Silva"))
-                .body("cpf", equalTo("12345678900"))
-                .body("email", equalTo("joao.silva@email.com"))
-                .body("phoneNumber", equalTo("11999999999"));
+                .body("type", equalTo("INDIVIDUAL"))
+                .body("name", equalTo("Maria da Silva"))
+                .body("documentType", equalTo("CPF"))
+                .body("documentNumber", equalTo("12345678901"))
+                .body("status", equalTo("ACTIVE"))
+                .body("createdAt", notNullValue());
+    }
+
+    @Test
+    void createCustomerReturns409OnDuplicateDocument() {
+        RestAssured.given()
+                .header("X-API-Key", API_KEY)
+                .contentType("application/json")
+                .body("""
+                        {
+                          "type": "INDIVIDUAL",
+                          "name": "Maria da Silva",
+                          "documentType": "CPF",
+                          "documentNumber": "12345678901"
+                        }
+                        """)
+                .when()
+                .post("/customers")
+                .then()
+                .statusCode(201);
+
+        RestAssured.given()
+                .header("X-API-Key", API_KEY)
+                .header("X-Request-Id", "req-dup-1")
+                .contentType("application/json")
+                .body("""
+                        {
+                          "type": "INDIVIDUAL",
+                          "name": "Outra Maria",
+                          "documentType": "CPF",
+                          "documentNumber": "123.456.789-01"
+                        }
+                        """)
+                .when()
+                .post("/customers")
+                .then()
+                .statusCode(409)
+                .header("X-Request-Id", equalTo("req-dup-1"))
+                .body("errorCode", equalTo("CUSTOMER_ALREADY_EXISTS"))
+                .body("traceId", equalTo("req-dup-1"))
+                .body("status", equalTo(409));
+    }
+
+    @Test
+    void createCustomerReturns401WhenApiKeyMissing() {
+        RestAssured.given()
+                .header("X-Request-Id", "req-auth-1")
+                .contentType("application/json")
+                .body("""
+                        {
+                          "type": "INDIVIDUAL",
+                          "name": "Maria da Silva",
+                          "documentType": "CPF",
+                          "documentNumber": "12345678901"
+                        }
+                        """)
+                .when()
+                .post("/customers")
+                .then()
+                .statusCode(401)
+                .header("X-Request-Id", equalTo("req-auth-1"))
+                .body("errorCode", equalTo("CUSTOMER_UNAUTHORIZED"))
+                .body("traceId", equalTo("req-auth-1"))
+                .body("status", equalTo(401));
+    }
+
+    @Test
+    void createCustomerReturns400WithViolations() {
+        RestAssured.given()
+                .header("X-API-Key", API_KEY)
+                .header("X-Request-Id", "req-val-1")
+                .contentType("application/json")
+                .body("""
+                        {
+                          "type": "INVALID",
+                          "name": "",
+                          "documentType": "CPF",
+                          "documentNumber": ""
+                        }
+                        """)
+                .when()
+                .post("/customers")
+                .then()
+                .statusCode(400)
+                .body("errorCode", equalTo("CUSTOMER_VALIDATION_ERROR"))
+                .body("traceId", equalTo("req-val-1"))
+                .body("violations", not(empty()))
+                .body("violations.field", hasItems("type", "name", "documentNumber"));
+    }
+
+    @Test
+    void getCustomerReturns404WhenNotFound() {
+        RestAssured.given()
+                .header("X-API-Key", API_KEY)
+                .when()
+                .get("/customers/11111111-1111-1111-1111-111111111111")
+                .then()
+                .statusCode(404)
+                .body("errorCode", equalTo("CUSTOMER_NOT_FOUND"))
+                .body("status", equalTo(404));
+    }
+
+    @Test
+    void searchByDocumentReturns200WithEmptyItemsWhenNotFound() {
+        RestAssured.given()
+                .header("X-API-Key", API_KEY)
+                .when()
+                .get("/customers?documentType=CPF&documentNumber=123.456.789-01&page=0&size=20")
+                .then()
+                .statusCode(200)
+                .body("items", empty())
+                .body("total", equalTo(0));
+    }
+
+    @Test
+    void searchByDocumentReturnsCustomerWhenFound() {
+        String id = RestAssured.given()
+                .header("X-API-Key", API_KEY)
+                .contentType("application/json")
+                .body("""
+                        {
+                          "type": "INDIVIDUAL",
+                          "name": "Maria da Silva",
+                          "documentType": "CPF",
+                          "documentNumber": "12345678901"
+                        }
+                        """)
+                .when()
+                .post("/customers")
+                .then()
+                .statusCode(201)
+                .extract()
+                .path("id");
+
+        RestAssured.given()
+                .header("X-API-Key", API_KEY)
+                .when()
+                .get("/customers?documentType=CPF&documentNumber=123.456.789-01&page=0&size=20")
+                .then()
+                .statusCode(200)
+                .body("items.size()", equalTo(1))
+                .body("items[0].id", equalTo(id))
+                .body("total", equalTo(1));
     }
 }
+

@@ -9,17 +9,14 @@ import static org.hamcrest.Matchers.equalTo;
 
 @QuarkusTest
 public class TransacaoResourceTest {
+    private static final String API_KEY = "key-dev";
 
     @Tag("e2et")
     @Test
-    public void testCriarTransacaoComCartaoDeCreditoeClienteExistentes(){
-        // Passo 1: Crie um cliente
-        String clienteId = criarCliente("João Silva", "12345678900", "joao.silva@email.com", "11999999999");
+    public void testCriarTransacaoComCartaoDeCreditoeClienteExistentes() {
+        String clienteId = criarCliente("Joao Silva");
+        String cartaoId = criarCartao("1234567890123456", "Joao Silva", clienteId);
 
-        // Passo 2: Crie um cartão com um número válido
-        String cartaoId = criarCartao("1234567890123456", "João Silva", clienteId);
-
-        // Passo 3: Valide a transação vinculada ao cartão criado
         RestAssured.given()
                 .contentType("application/json")
                 .body("{\"descricao\":\"teste compra\",\"valor\":\"500\",\"cartaoId\":\"" + cartaoId + "\"}")
@@ -31,29 +28,33 @@ public class TransacaoResourceTest {
                 .body("valor", equalTo(500));
     }
 
-    private String criarCliente(String nome, String cpf, String email, String telefone){
-
+    private String criarCliente(String nome) {
+        String cpf = uniqueCpf();
         return RestAssured.given()
+                .header("X-API-Key", API_KEY)
                 .contentType("application/json")
-                .body("{\"name\":\"" + nome + "\",\"cpf\":\"" + cpf + "\",\"email\":\"" + email + "\",\"phoneNumber\":\"" + telefone + "\"}")
+                .body("{\"type\":\"INDIVIDUAL\",\"name\":\"" + nome + "\",\"documentType\":\"CPF\",\"documentNumber\":\"" + cpf + "\"}")
                 .post("/customers")
                 .then()
                 .statusCode(201)
                 .extract()
                 .path("id");
-
     }
 
-    private String criarCartao(String numero, String nomeTitular, String clienteId){
-
+    private String criarCartao(String numero, String nomeTitular, String clienteId) {
         return RestAssured.given()
                 .contentType("application/json")
-                .body("{\"numero\":\"1234567890123456\",\"bandeira\":\"Mastercard\",\"nomeTitular\":\"João Silva\",\"clienteId\":\"" + clienteId + "\"}")
+                .body("{\"numero\":\"" + numero + "\",\"bandeira\":\"Mastercard\",\"nomeTitular\":\"" + nomeTitular + "\",\"clienteId\":\"" + clienteId + "\"}")
                 .post("/cartoes")
                 .then()
                 .statusCode(201)
                 .extract()
                 .path("id");
+    }
+
+    private static String uniqueCpf() {
+        long value = Math.abs(System.nanoTime() % 100_000_000_000L);
+        return String.format("%011d", value);
     }
 }
 

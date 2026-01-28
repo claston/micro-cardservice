@@ -1,13 +1,12 @@
 package com.sistema.wallet.infra.tenant;
 
+import com.sistema.common.tenant.ApiKeyTenantResolver;
 import org.junit.jupiter.api.Test;
-import com.sistema.wallet.application.exception.WalletUnauthorizedException;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ApiKeyTenantResolverTest {
 
@@ -15,23 +14,25 @@ public class ApiKeyTenantResolverTest {
     public void shouldResolveTenantId() {
         UUID tenantId = UUID.randomUUID();
         ApiKeyTenantResolver resolver = new ApiKeyTenantResolver(
-                Optional.of("key-1=" + tenantId + ", key-2=" + UUID.randomUUID())
+                Optional.of("key-1=" + tenantId + ", key-2=" + UUID.randomUUID()),
+                Optional.empty()
         );
 
-        assertEquals(tenantId, resolver.resolveTenantId("key-1"));
+        assertEquals(Optional.of(tenantId), resolver.resolveTenantId("key-1"));
     }
 
     @Test
-    public void shouldRejectBlankApiKey() {
-        ApiKeyTenantResolver resolver = new ApiKeyTenantResolver(Optional.of(""));
+    public void shouldReturnEmptyForBlankApiKey() {
+        ApiKeyTenantResolver resolver = new ApiKeyTenantResolver(Optional.of(""), Optional.empty());
 
-        assertThrows(WalletUnauthorizedException.class, () -> resolver.resolveTenantId(" "));
+        assertEquals(Optional.empty(), resolver.resolveTenantId(" "));
     }
 
     @Test
-    public void shouldRejectUnknownApiKey() {
-        ApiKeyTenantResolver resolver = new ApiKeyTenantResolver(Optional.of("key-1=" + UUID.randomUUID()));
+    public void shouldReturnEmptyForUnknownApiKey() {
+        ApiKeyTenantResolver resolver = new ApiKeyTenantResolver(Optional.of("key-1=" + UUID.randomUUID()), Optional.empty());
 
-        assertThrows(WalletUnauthorizedException.class, () -> resolver.resolveTenantId("missing"));
+        assertEquals(Optional.empty(), resolver.resolveTenantId("missing"));
     }
 }
+

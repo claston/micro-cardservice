@@ -1,71 +1,18 @@
 package com.sistema.customer.domain.model;
 
-import java.time.LocalDate;
-import java.util.Objects;
+import java.time.Instant;
 import java.util.UUID;
 
 public class Customer {
-
     private UUID id;
-    private String cpf;
-    private String cnpj;
-
+    private UUID tenantId;
+    private CustomerType type;
     private String name;
-    private LocalDate dataNascimento;
-
-    private String email;
-    private String phoneNumber;
-
-    private boolean ativo;
-    private LocalDate dataCadastro;
-
-   //private List<CartaoDeCredito> cartoes = new ArrayList<>();
-
-    public Customer() {
-        this.ativo = true;
-        this.dataCadastro = LocalDate.now();
-    }
-
-    public Customer(String cpf, String name, String email ) {
-        this.cpf = cpf;
-        this.name = name;
-        this.email = email;
-        this.ativo = true;
-        this.dataCadastro = LocalDate.now();
-    }
-
-    public Customer(String name, String cpf) {
-        this.cpf = cpf;
-        this.name = name;
-        this.ativo = true;
-        this.dataCadastro = LocalDate.now();
-    }
-
-    // Static factory method with validation
-    public static Customer createValidCustomer(String name, String email, LocalDate registrationDate) {
-        Objects.requireNonNull(name, "Name cannot be null");
-        Objects.requireNonNull(email, "Email cannot be null");
-        Objects.requireNonNull(registrationDate, "Registration Date cannot be null");
-
-        if (name.isBlank()) {
-            throw new IllegalArgumentException("Name cannot be blank");
-        }
-
-        if (!isValidEmail(email)) {
-            throw new IllegalArgumentException("Invalid email format");
-        }
-
-        return new Customer(
-                "12345678890",
-                name.trim(),
-                email.toLowerCase().trim()
-        );
-    }
-
-    private static boolean isValidEmail(String email) {
-        return email.matches("^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,4}$");
-    }
-
+    private CustomerDocumentType documentType;
+    private String documentNumber;
+    private CustomerStatus status;
+    private Instant createdAt;
+    private Instant updatedAt;
 
     public UUID getId() {
         return id;
@@ -75,20 +22,20 @@ public class Customer {
         this.id = id;
     }
 
-    public String getCpf() {
-        return cpf;
+    public UUID getTenantId() {
+        return tenantId;
     }
 
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
+    public void setTenantId(UUID tenantId) {
+        this.tenantId = tenantId;
     }
 
-    public String getCnpj() {
-        return cnpj;
+    public CustomerType getType() {
+        return type;
     }
 
-    public void setCnpj(String cnpj) {
-        this.cnpj = cnpj;
+    public void setType(CustomerType type) {
+        this.type = type;
     }
 
     public String getName() {
@@ -99,49 +46,44 @@ public class Customer {
         this.name = name;
     }
 
-    public String getEmail() {
-        return email;
+    public CustomerDocumentType getDocumentType() {
+        return documentType;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setDocumentType(CustomerDocumentType documentType) {
+        this.documentType = documentType;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getDocumentNumber() {
+        return documentNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setDocumentNumber(String documentNumber) {
+        this.documentNumber = documentNumber;
     }
 
-    public boolean isAtivo() {
-        return ativo;
+    public CustomerStatus getStatus() {
+        return status;
     }
 
-    public void setAtivo(boolean ativo) {
-        this.ativo = ativo;
+    public void setStatus(CustomerStatus status) {
+        this.status = status;
     }
 
-    public LocalDate getDataCadastro() {
-        return dataCadastro;
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
-    public void setDataCadastro(LocalDate dataCadastro) {
-        this.dataCadastro = dataCadastro;
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
-//    public List<CartaoDeCredito> getCartoes() {
-//        return cartoes;
-//    }
-//
-//    public void setCartoes(List<CartaoDeCredito> cartoes) {
-//        this.cartoes = cartoes;
-//    }
-//
-//    public void adicionarCartao(CartaoDeCredito cartao) {
-//        this.cartoes.add(cartao);
-//    }
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }
-
 

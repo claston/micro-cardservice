@@ -4,12 +4,13 @@ import com.sistema.wallet.application.TransferBetweenWalletAccountsUseCase;
 import com.sistema.wallet.application.exception.WalletAccountNotFoundException;
 import com.sistema.wallet.application.exception.WalletInsufficientBalanceException;
 import com.sistema.wallet.application.model.WalletTransferResult;
-import com.sistema.wallet.application.tenant.TenantResolver;
+import com.sistema.common.tenant.TenantResolver;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -31,7 +32,7 @@ public class WalletTransferResourceTest {
     public void shouldTransferBetweenAccounts() {
         UUID tenantId = UUID.randomUUID();
         UUID transactionId = UUID.randomUUID();
-        when(tenantResolver.resolveTenantId("api-key")).thenReturn(tenantId);
+        when(tenantResolver.resolveTenantId("api-key")).thenReturn(Optional.of(tenantId));
         when(transferBetweenWalletAccountsUseCase.execute(eq(tenantId), any()))
                 .thenReturn(new WalletTransferResult(transactionId, "POSTED"));
 
@@ -59,7 +60,7 @@ public class WalletTransferResourceTest {
     public void shouldReturnNotFoundWhenAccountMissing() {
         UUID tenantId = UUID.randomUUID();
         UUID missingId = UUID.randomUUID();
-        when(tenantResolver.resolveTenantId("api-key")).thenReturn(tenantId);
+        when(tenantResolver.resolveTenantId("api-key")).thenReturn(Optional.of(tenantId));
         when(transferBetweenWalletAccountsUseCase.execute(eq(tenantId), any()))
                 .thenThrow(new WalletAccountNotFoundException(missingId));
 
@@ -85,7 +86,7 @@ public class WalletTransferResourceTest {
     @Test
     public void shouldReturnConflictWhenInsufficientBalance() {
         UUID tenantId = UUID.randomUUID();
-        when(tenantResolver.resolveTenantId("api-key")).thenReturn(tenantId);
+        when(tenantResolver.resolveTenantId("api-key")).thenReturn(Optional.of(tenantId));
         when(transferBetweenWalletAccountsUseCase.execute(eq(tenantId), any()))
                 .thenThrow(new WalletInsufficientBalanceException("insufficient balance"));
 

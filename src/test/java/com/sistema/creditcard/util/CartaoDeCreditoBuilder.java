@@ -1,9 +1,9 @@
 package com.sistema.creditcard.util;
 
 import com.sistema.creditcard.dominio.entidade.CreditCard;
-import com.sistema.customer.domain.model.Customer;
 import com.sistema.creditcard.dominio.servico.CartaoDeCreditoService;
 import com.sistema.creditcard.dominio.servico.GeradorNumeroCartao;
+import com.sistema.customer.domain.model.Customer;
 import com.sistema.customer.domain.repository.CustomerRepository;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -24,29 +24,28 @@ public class CartaoDeCreditoBuilder {
     @Inject
     private CustomerRepository customerRepository;
 
-    public CartaoDeCreditoBuilder comID(UUID cartaoId){
+    public CartaoDeCreditoBuilder comID(UUID cartaoId) {
         this.cartaoId = cartaoId;
         return this;
     }
 
-    public CartaoDeCreditoBuilder comCliente(Customer customer){
+    public CartaoDeCreditoBuilder comCliente(Customer customer) {
         this.customer = customer;
         return this;
     }
 
-    public CartaoDeCreditoBuilder comGeradorNumeroCartao(GeradorNumeroCartao geradorNumeroCartao){
+    public CartaoDeCreditoBuilder comGeradorNumeroCartao(GeradorNumeroCartao geradorNumeroCartao) {
         this.geradorNumeroCartao = geradorNumeroCartao;
         return this;
     }
 
-    public CartaoDeCreditoBuilder persistindoCliente(){
+    public CartaoDeCreditoBuilder persistindoCliente() {
         this.persistirCliente = true;
         return this;
     }
 
     @Transactional
     public CreditCard build() {
-
         if (persistirCliente && customer != null) {
             this.customer = customerRepository.save(customer);
         }
@@ -58,24 +57,18 @@ public class CartaoDeCreditoBuilder {
 
         CreditCard cartao = cartaoDeCreditoService.criarCartao(
                 "Mastercard",
-                "João da Silva",
+                "Joao da Silva",
                 LocalDate.now().plusYears(5),
                 "123",
                 new BigDecimal("1000.00"),
                 new BigDecimal("1000.00"),
                 customer);
 
-        System.out.println("CARTAO_ID:" + cartao.getId());
-
         if (this.cartaoId != null) {
             cartao.setId(this.cartaoId);
         }
 
-        System.out.println("CARTAO_ID_SET_ID:" + cartao.getId());
-
         return cartao;
     }
 }
-
-
 
