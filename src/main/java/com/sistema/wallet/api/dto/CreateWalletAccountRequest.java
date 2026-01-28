@@ -1,6 +1,6 @@
 package com.sistema.wallet.api.dto;
 
-import com.sistema.wallet.api.validation.ValidEnum;
+import com.sistema.common.api.validation.ValidEnum;
 import com.sistema.wallet.domain.model.WalletOwnerType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

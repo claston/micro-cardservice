@@ -5,6 +5,9 @@ import com.sistema.creditcard.dominio.repository.CartaoRepository;
 import com.sistema.creditcard.dominio.servico.GeradorNumeroCartao;
 import com.sistema.creditcard.util.CartaoDeCreditoBuilder;
 import com.sistema.customer.domain.model.Customer;
+import com.sistema.customer.domain.model.CustomerDocumentType;
+import com.sistema.customer.domain.model.CustomerStatus;
+import com.sistema.customer.domain.model.CustomerType;
 import com.sistema.customer.domain.repository.CustomerRepository;
 import com.sistema.infraestrutura.repositorio.DbCleanIT;
 import io.quarkus.test.junit.QuarkusTest;
@@ -14,13 +17,14 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Instant;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 @QuarkusTest
 class CartaoDeCreditoRepositoryAdapterTest extends DbCleanIT {
 
@@ -34,9 +38,16 @@ class CartaoDeCreditoRepositoryAdapterTest extends DbCleanIT {
     @Transactional
     @Tag("integration-test")
     public void shouldCreateValidCreditCardWhenClientExistsInDatabase() {
-        //Arrange
-        LocalDate registrationDate = LocalDate.now();
-        Customer customer = Customer.createValidCustomer("João da Silva", "joao@teste.com.br", registrationDate);
+        Customer customer = new Customer();
+        customer.setId(UUID.randomUUID());
+        customer.setTenantId(UUID.fromString("00000000-0000-0000-0000-000000000000"));
+        customer.setType(CustomerType.INDIVIDUAL);
+        customer.setName("Joao da Silva");
+        customer.setDocumentType(CustomerDocumentType.CPF);
+        customer.setDocumentNumber("12345678901");
+        customer.setStatus(CustomerStatus.ACTIVE);
+        customer.setCreatedAt(Instant.now());
+        customer.setUpdatedAt(Instant.now());
         Customer customerSaved = customerRepository.save(customer);
 
         GeradorNumeroCartao geradorNumeroCartao = mock(GeradorNumeroCartao.class);
@@ -46,21 +57,15 @@ class CartaoDeCreditoRepositoryAdapterTest extends DbCleanIT {
                 .comCliente(customerSaved)
                 .comGeradorNumeroCartao(geradorNumeroCartao)
                 .build();
-        //Act
+
         CreditCard savedCard = cartaoRepository.save(card);
 
-        //Assert
         assertNotNull(savedCard);
-        assertNotNull(savedCard.getCliente().getDataCadastro());
-        assertTrue((savedCard.getCliente().isAtivo()));
+        assertNotNull(savedCard.getCliente().getId());
         assertEquals("Mastercard", savedCard.getBandeira());
-        assertEquals("João da Silva", savedCard.getNomeTitular());
+        assertEquals("Joao da Silva", savedCard.getNomeTitular());
         assertEquals("1111222233334444", savedCard.getNumero());
         assertEquals(new BigDecimal("1000.00"), savedCard.getLimiteTotal());
         assertEquals(new BigDecimal("1000.00"), savedCard.getLimiteDisponivel());
     }
 }
-
-
-
-

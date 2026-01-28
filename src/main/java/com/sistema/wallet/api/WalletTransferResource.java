@@ -4,7 +4,8 @@ import com.sistema.wallet.api.dto.TransferRequest;
 import com.sistema.wallet.api.dto.TransferResponse;
 import com.sistema.wallet.application.TransferBetweenWalletAccountsUseCase;
 import com.sistema.wallet.application.command.TransferBetweenWalletAccountsCommand;
-import com.sistema.wallet.application.tenant.TenantResolver;
+import com.sistema.common.tenant.TenantResolver;
+import com.sistema.wallet.application.exception.WalletUnauthorizedException;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -47,6 +48,10 @@ public class WalletTransferResource {
     }
 
     private UUID requireTenantId(String apiKey) {
-        return tenantResolver.resolveTenantId(apiKey);
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new WalletUnauthorizedException("apiKey is required");
+        }
+        return tenantResolver.resolveTenantId(apiKey)
+                .orElseThrow(() -> new WalletUnauthorizedException("apiKey not recognized"));
     }
 }

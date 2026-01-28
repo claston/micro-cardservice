@@ -13,13 +13,16 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @QuarkusTest
 class FaturaRepositoryTest extends DbCleanIT {
 
@@ -32,8 +35,6 @@ class FaturaRepositoryTest extends DbCleanIT {
     @Inject
     CustomerRepositoryAdapter customerRepositoryAdapter;
 
-    //TODO: Faz sentido colocar o FaturaEntity para ser injetado?
-
     @Tag("integration-test")
     @Test
     @Transactional
@@ -43,7 +44,6 @@ class FaturaRepositoryTest extends DbCleanIT {
         FaturaEntity fatura = new FaturaEntity();
         fatura.setMesAno(mesAno);
         fatura.setTotal(new BigDecimal("500.00"));
-        //Pagto minimo 15 porcento do total
         fatura.setPagamentoMinimo(new BigDecimal("75.00"));
         fatura.setPaga(false);
 
@@ -56,82 +56,63 @@ class FaturaRepositoryTest extends DbCleanIT {
 
         assertEquals(new BigDecimal("500.00"), faturaRecuperada.getTotal(), "O total da Fatura deve ser 500.00");
         assertEquals(mesAno, faturaRecuperada.getMesAno(), "A data deve corresponder à data definida");
-
     }
 
     @Tag("repository-fatura-2")
     @Test
     @Transactional
     public void testNovaFaturaEntityComNovaTransacaoEntity() {
-
-        //Arrange:
         LocalDate mesAno = LocalDate.of(2024, 12, 1);
         FaturaEntity fatura = new FaturaEntity();
         fatura.setMesAno(mesAno);
         fatura.setTotal(new BigDecimal("500.00"));
-        //Pagto minimo 15 porcento do total
         fatura.setPagamentoMinimo(new BigDecimal("75.00"));
         fatura.setPaga(false);
 
-        // Cria um cliente para o cartão;
-
         CustomerEntity cliente = new CustomerEntity();
-        cliente.setName("João da Silva");
-        cliente.setAtivo(true);
-        cliente.setDataCadastro(LocalDate.now());
-        cliente.setCpf("222.222.222-22");
-        cliente.setEmail("teste@teste.com");
-        cliente.setPhoneNumber("11 99999999");
-
+        cliente.setId(UUID.randomUUID());
+        cliente.setTenantId(UUID.fromString("00000000-0000-0000-0000-000000000000"));
+        cliente.setType("INDIVIDUAL");
+        cliente.setName("Joao da Silva");
+        cliente.setDocumentType("CPF");
+        cliente.setDocumentNumber("22222222222");
+        cliente.setStatus("ACTIVE");
+        cliente.setCreatedAt(Instant.now());
+        cliente.setUpdatedAt(Instant.now());
         customerRepositoryAdapter.persist(cliente);
 
-        // Cria cartão de crédito para a Transação
         CartaoDeCreditoEntity cartao = new CartaoDeCreditoEntity();
         cartao.setBandeira("MasterCard");
         cartao.setDataValidade(LocalDate.now().plusYears(5));
         cartao.setNumero("1234567890");
-        cartao.setNomeTitular("João da Silva");
+        cartao.setNomeTitular("Joao da Silva");
         cartao.setLimiteTotal(new BigDecimal("100.00"));
         cartao.setLimiteDisponivel(new BigDecimal("100.00"));
         cartao.setCvv("123");
         cartao.setBloqueadoPorPerdaOuRoubo(false);
         cartao.setCliente(cliente);
-
         cartaoDeCreditoRepository.persist(cartao);
 
-        // Cria a transação com o cartão de crédito que acabou de ser criado.
         TransacaoEntity transacao = new TransacaoEntity();
         transacao.setDescricao("Compra Supermercado");
         transacao.setValor(new BigDecimal("100.00"));
         transacao.setDataHora(LocalDateTime.now());
         transacao.setCartao(cartao);
 
-        //Adiciona a transacao na fatura
         fatura.addTransacao(transacao);
 
-        //Act
         faturaRepository.persist(fatura);
         Optional<FaturaEntity> result = faturaRepository.findByMesAno(mesAno);
 
-
-        //Assert
-
-        //Fatura
         assertTrue(result.isPresent(), "A fatura deve ser encontrada pelo mês/ano informado");
         FaturaEntity faturaRecuperada = result.get();
         assertNotNull(faturaRecuperada.getId());
         assertEquals(new BigDecimal("500.00"), faturaRecuperada.getTotal(), "O total da Fatura deve ser 500.00");
         assertEquals(mesAno, faturaRecuperada.getMesAno(), "A data deve corresponder à data definida");
 
-        //Transasao
         assertEquals(1, faturaRecuperada.getTransacoes().size());
         assertNotNull(faturaRecuperada.getTransacoes().get(0).getId());
         assertNotNull(faturaRecuperada.getTransacoes().get(0).getFatura());
-        System.out.println("Farura_ID_____________:" + transacao.getFatura().getId());
-
     }
 }
-
-
-
 

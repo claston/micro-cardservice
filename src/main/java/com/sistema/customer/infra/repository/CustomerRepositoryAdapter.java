@@ -1,44 +1,72 @@
 package com.sistema.customer.infra.repository;
 
 import com.sistema.customer.domain.model.Customer;
+import com.sistema.customer.domain.model.CustomerDocumentType;
+import com.sistema.customer.domain.model.CustomerStatus;
+import com.sistema.customer.domain.model.CustomerType;
 import com.sistema.customer.domain.repository.CustomerRepository;
 import com.sistema.customer.infra.entity.CustomerEntity;
-import com.sistema.customer.infra.mapper.CustomerMapper;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class CustomerRepositoryAdapter implements CustomerRepository, PanacheRepository<CustomerEntity> {
 
-    @Inject
-    CustomerMapper customerMapper;
-
     @Override
     public Customer save(Customer customer) {
-        CustomerEntity entity = customerMapper.toEntity(customer);
+        CustomerEntity entity = toEntity(customer);
         persist(entity);
-        return customerMapper.toDomain(entity);
+        return toDomain(entity);
     }
 
     @Override
-    public List<Customer> findAllAsList() {
-        List<CustomerEntity> entities = list("ORDER BY name ASC");
-        return entities.stream()
-                .map(customerMapper::toDomain)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+    public Optional<Customer> findById(UUID tenantId, UUID id) {
+        CustomerEntity entity = find("tenantId = ?1 and id = ?2", tenantId, id).firstResult();
+        return Optional.ofNullable(toDomain(entity));
     }
 
     @Override
-    public Customer findById(UUID id) {
-        CustomerEntity entity = find("id", id).firstResult();
-        return customerMapper.toDomain(entity);
+    public Optional<Customer> findByDocument(UUID tenantId, CustomerDocumentType documentType, String documentNumber) {
+        CustomerEntity entity = find("tenantId = ?1 and documentType = ?2 and documentNumber = ?3",
+                tenantId,
+                documentType.name(),
+                documentNumber
+        ).firstResult();
+        return Optional.ofNullable(toDomain(entity));
+    }
+
+    private CustomerEntity toEntity(Customer customer) {
+        CustomerEntity entity = new CustomerEntity();
+        entity.setId(customer.getId());
+        entity.setTenantId(customer.getTenantId());
+        entity.setType(customer.getType().name());
+        entity.setName(customer.getName());
+        entity.setDocumentType(customer.getDocumentType().name());
+        entity.setDocumentNumber(customer.getDocumentNumber());
+        entity.setStatus(customer.getStatus().name());
+        entity.setCreatedAt(customer.getCreatedAt());
+        entity.setUpdatedAt(customer.getUpdatedAt());
+        return entity;
+    }
+
+    private Customer toDomain(CustomerEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        Customer customer = new Customer();
+        customer.setId(entity.getId());
+        customer.setTenantId(entity.getTenantId());
+        customer.setType(CustomerType.valueOf(entity.getType()));
+        customer.setName(entity.getName());
+        customer.setDocumentType(CustomerDocumentType.valueOf(entity.getDocumentType()));
+        customer.setDocumentNumber(entity.getDocumentNumber());
+        customer.setStatus(CustomerStatus.valueOf(entity.getStatus()));
+        customer.setCreatedAt(entity.getCreatedAt());
+        customer.setUpdatedAt(entity.getUpdatedAt());
+        return customer;
     }
 }
 

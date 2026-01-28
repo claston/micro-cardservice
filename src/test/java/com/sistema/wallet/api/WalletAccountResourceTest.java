@@ -8,7 +8,7 @@ import com.sistema.wallet.application.exception.WalletUnauthorizedException;
 import com.sistema.wallet.application.model.WalletBalance;
 import com.sistema.wallet.application.model.WalletStatementItem;
 import com.sistema.wallet.application.model.WalletStatementPage;
-import com.sistema.wallet.application.tenant.TenantResolver;
+import com.sistema.common.tenant.TenantResolver;
 import com.sistema.wallet.domain.model.WalletAccount;
 import com.sistema.wallet.domain.model.WalletAccountStatus;
 import com.sistema.wallet.domain.model.WalletOwnerType;
@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -47,7 +48,7 @@ public class WalletAccountResourceTest {
     public void shouldCreateWalletAccount() {
         UUID tenantId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
-        when(tenantResolver.resolveTenantId("api-key")).thenReturn(tenantId);
+        when(tenantResolver.resolveTenantId("api-key")).thenReturn(Optional.of(tenantId));
         WalletAccount account = new WalletAccount(
                 accountId,
                 tenantId,
@@ -78,7 +79,7 @@ public class WalletAccountResourceTest {
     @Test
     public void shouldReturnConflictWhenAccountExists() {
         UUID tenantId = UUID.randomUUID();
-        when(tenantResolver.resolveTenantId("api-key")).thenReturn(tenantId);
+        when(tenantResolver.resolveTenantId("api-key")).thenReturn(Optional.of(tenantId));
         when(createWalletAccountUseCase.execute(eq(tenantId), any()))
                 .thenThrow(new WalletAccountAlreadyExistsException());
 
@@ -95,7 +96,7 @@ public class WalletAccountResourceTest {
 
     @Test
     public void shouldRejectInvalidApiKey() {
-        when(tenantResolver.resolveTenantId("bad")).thenThrow(new WalletUnauthorizedException("apiKey not recognized"));
+        when(tenantResolver.resolveTenantId("bad")).thenReturn(Optional.empty());
 
         RestAssured.given()
                 .contentType("application/json")
@@ -111,7 +112,7 @@ public class WalletAccountResourceTest {
     @Test
     public void shouldReturnValidationWhenOwnerTypeInvalid() {
         UUID tenantId = UUID.randomUUID();
-        when(tenantResolver.resolveTenantId("api-key")).thenReturn(tenantId);
+        when(tenantResolver.resolveTenantId("api-key")).thenReturn(Optional.of(tenantId));
 
         RestAssured.given()
                 .contentType("application/json")
@@ -129,7 +130,7 @@ public class WalletAccountResourceTest {
     @Test
     public void shouldReturnValidationWhenOwnerIdMissing() {
         UUID tenantId = UUID.randomUUID();
-        when(tenantResolver.resolveTenantId("api-key")).thenReturn(tenantId);
+        when(tenantResolver.resolveTenantId("api-key")).thenReturn(Optional.of(tenantId));
 
         RestAssured.given()
                 .contentType("application/json")
@@ -146,8 +147,6 @@ public class WalletAccountResourceTest {
 
     @Test
     public void shouldRejectMissingApiKey() {
-        when(tenantResolver.resolveTenantId(null)).thenThrow(new WalletUnauthorizedException("apiKey is required"));
-
         RestAssured.given()
                 .contentType("application/json")
                 .body("{\"ownerType\":\"CUSTOMER\",\"ownerId\":\"user-1\",\"currency\":\"BRL\"}")
@@ -162,7 +161,7 @@ public class WalletAccountResourceTest {
     public void shouldGetWalletBalance() {
         UUID tenantId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
-        when(tenantResolver.resolveTenantId("api-key")).thenReturn(tenantId);
+        when(tenantResolver.resolveTenantId("api-key")).thenReturn(Optional.of(tenantId));
         when(getWalletBalanceUseCase.execute(eq(tenantId), eq(accountId)))
                 .thenReturn(new WalletBalance(accountId, 2000L, "BRL"));
 
@@ -180,7 +179,7 @@ public class WalletAccountResourceTest {
     public void shouldGetWalletStatement() {
         UUID tenantId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
-        when(tenantResolver.resolveTenantId("api-key")).thenReturn(tenantId);
+        when(tenantResolver.resolveTenantId("api-key")).thenReturn(Optional.of(tenantId));
         WalletStatementItem item = new WalletStatementItem(
                 Instant.parse("2026-01-01T10:00:00Z"),
                 UUID.randomUUID(),

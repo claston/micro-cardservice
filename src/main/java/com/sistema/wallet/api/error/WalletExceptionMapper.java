@@ -1,6 +1,9 @@
 package com.sistema.wallet.api.error;
 
-import com.sistema.wallet.api.trace.TraceIdProvider;
+import com.sistema.common.api.error.CommonErrorTypes;
+import com.sistema.common.api.error.ErrorResponse;
+import com.sistema.common.api.error.ErrorResponseFactory;
+import com.sistema.common.api.trace.TraceIdProvider;
 import com.sistema.wallet.application.exception.WalletException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Context;
@@ -37,10 +40,10 @@ public class WalletExceptionMapper implements ExceptionMapper<WalletException> {
 
     private String mapType(int status) {
         return switch (status) {
-            case 401 -> WalletErrorTypes.UNAUTHORIZED;
-            case 404 -> WalletErrorTypes.NOT_FOUND;
-            case 409 -> WalletErrorTypes.CONFLICT;
-            default -> WalletErrorTypes.INTERNAL;
+            case 401 -> CommonErrorTypes.UNAUTHORIZED;
+            case 404 -> CommonErrorTypes.NOT_FOUND;
+            case 409 -> CommonErrorTypes.CONFLICT;
+            default -> CommonErrorTypes.INTERNAL;
         };
     }
 
