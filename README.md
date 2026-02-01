@@ -7,7 +7,7 @@ It also includes a Ledger core (double-entry, idempotent postings) isolated from
 the card domain.
 
 ## Stack
-- Java 17
+- Java 21
 - Quarkus 3.3.1
 - Hibernate ORM + Panache
 - H2 (in-memory)
@@ -15,7 +15,7 @@ the card domain.
 - Maven
 
 ## Requirements
-- Java 17+
+- Java 21+
 - Maven (or use the repo Maven Wrapper)
 
 ## Run (dev)
