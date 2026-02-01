@@ -43,7 +43,7 @@ public class CreateWalletAccountUseCase {
         });
 
         String ledgerAccountName = "WalletAccount " + command.getOwnerType() + ":" + command.getOwnerId();
-        boolean allowNegative = command.getOwnerType() == WalletOwnerType.INTERNAL;
+        boolean allowNegative = command.getOwnerType() == WalletOwnerType.FUNDING;
         LedgerAccount ledgerAccount = createAccountUseCase.execute(
                 new CreateAccountCommand(
                         tenantId,
