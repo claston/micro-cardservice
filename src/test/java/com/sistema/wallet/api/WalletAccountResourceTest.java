@@ -1,5 +1,8 @@
 package com.sistema.wallet.api;
 
+import com.sistema.customer.application.GetCustomerUseCase;
+import com.sistema.customer.application.exception.CustomerNotFoundException;
+import com.sistema.customer.domain.model.Customer;
 import com.sistema.wallet.application.CreateWalletAccountUseCase;
 import com.sistema.wallet.application.GetWalletBalanceUseCase;
 import com.sistema.wallet.application.GetWalletStatementUseCase;
@@ -44,16 +47,21 @@ public class WalletAccountResourceTest {
     @InjectMock
     GetWalletStatementUseCase getWalletStatementUseCase;
 
+    @InjectMock
+    GetCustomerUseCase getCustomerUseCase;
+
     @Test
     public void shouldCreateWalletAccount() {
         UUID tenantId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
         when(tenantResolver.resolveTenantId("api-key")).thenReturn(Optional.of(tenantId));
+        when(getCustomerUseCase.execute(eq(tenantId), eq(ownerId))).thenReturn(buildCustomer(tenantId, ownerId));
         WalletAccount account = new WalletAccount(
                 accountId,
                 tenantId,
                 WalletOwnerType.CUSTOMER,
-                "user-1",
+                ownerId.toString(),
                 "BRL",
                 WalletAccountStatus.ACTIVE,
                 "Main",
@@ -65,13 +73,13 @@ public class WalletAccountResourceTest {
         RestAssured.given()
                 .contentType("application/json")
                 .header("X-API-Key", "api-key")
-                .body("{\"ownerType\":\"CUSTOMER\",\"ownerId\":\"user-1\",\"currency\":\"BRL\",\"label\":\"Main\"}")
+                .body("{\"ownerType\":\"CUSTOMER\",\"ownerId\":\"" + ownerId + "\",\"currency\":\"BRL\",\"label\":\"Main\"}")
                 .post("/accounts")
                 .then()
                 .statusCode(201)
                 .body("accountId", equalTo(accountId.toString()))
                 .body("ownerType", equalTo("CUSTOMER"))
-                .body("ownerId", equalTo("user-1"))
+                .body("ownerId", equalTo(ownerId.toString()))
                 .body("currency", equalTo("BRL"))
                 .body("status", equalTo("ACTIVE"));
     }
@@ -79,14 +87,16 @@ public class WalletAccountResourceTest {
     @Test
     public void shouldReturnConflictWhenAccountExists() {
         UUID tenantId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
         when(tenantResolver.resolveTenantId("api-key")).thenReturn(Optional.of(tenantId));
+        when(getCustomerUseCase.execute(eq(tenantId), eq(ownerId))).thenReturn(buildCustomer(tenantId, ownerId));
         when(createWalletAccountUseCase.execute(eq(tenantId), any()))
                 .thenThrow(new WalletAccountAlreadyExistsException());
 
         RestAssured.given()
                 .contentType("application/json")
                 .header("X-API-Key", "api-key")
-                .body("{\"ownerType\":\"CUSTOMER\",\"ownerId\":\"user-1\",\"currency\":\"BRL\"}")
+                .body("{\"ownerType\":\"CUSTOMER\",\"ownerId\":\"" + ownerId + "\",\"currency\":\"BRL\"}")
                 .post("/accounts")
                 .then()
                 .statusCode(409)
@@ -101,7 +111,7 @@ public class WalletAccountResourceTest {
         RestAssured.given()
                 .contentType("application/json")
                 .header("X-API-Key", "bad")
-                .body("{\"ownerType\":\"CUSTOMER\",\"ownerId\":\"user-1\",\"currency\":\"BRL\"}")
+                .body("{\"ownerType\":\"CUSTOMER\",\"ownerId\":\"" + UUID.randomUUID() + "\",\"currency\":\"BRL\"}")
                 .post("/accounts")
                 .then()
                 .statusCode(401)
@@ -149,11 +159,30 @@ public class WalletAccountResourceTest {
     public void shouldRejectMissingApiKey() {
         RestAssured.given()
                 .contentType("application/json")
-                .body("{\"ownerType\":\"CUSTOMER\",\"ownerId\":\"user-1\",\"currency\":\"BRL\"}")
+                .body("{\"ownerType\":\"CUSTOMER\",\"ownerId\":\"" + UUID.randomUUID() + "\",\"currency\":\"BRL\"}")
                 .post("/accounts")
                 .then()
                 .statusCode(401)
                 .body("errorCode", equalTo("WALLET_UNAUTHORIZED"))
+                .body("traceId", notNullValue());
+    }
+
+    @Test
+    public void shouldReturnNotFoundWhenCustomerMissing() {
+        UUID tenantId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        when(tenantResolver.resolveTenantId("api-key")).thenReturn(Optional.of(tenantId));
+        when(getCustomerUseCase.execute(eq(tenantId), eq(ownerId)))
+                .thenThrow(new CustomerNotFoundException(ownerId));
+
+        RestAssured.given()
+                .contentType("application/json")
+                .header("X-API-Key", "api-key")
+                .body("{\"ownerType\":\"CUSTOMER\",\"ownerId\":\"" + ownerId + "\",\"currency\":\"BRL\"}")
+                .post("/accounts")
+                .then()
+                .statusCode(404)
+                .body("errorCode", equalTo("WALLET_OWNER_NOT_FOUND"))
                 .body("traceId", notNullValue());
     }
 
@@ -200,5 +229,12 @@ public class WalletAccountResourceTest {
                 .body("accountId", equalTo(accountId.toString()))
                 .body("items[0].direction", equalTo("DEBIT"))
                 .body("items[0].amountMinor", equalTo(500));
+    }
+
+    private Customer buildCustomer(UUID tenantId, UUID customerId) {
+        Customer customer = new Customer();
+        customer.setId(customerId);
+        customer.setTenantId(tenantId);
+        return customer;
     }
 }
