@@ -5,12 +5,15 @@ import com.sistema.wallet.api.dto.CreateWalletAccountResponse;
 import com.sistema.wallet.api.dto.WalletBalanceResponse;
 import com.sistema.wallet.api.dto.WalletStatementItemResponse;
 import com.sistema.wallet.api.dto.WalletStatementResponse;
+import com.sistema.customer.application.GetCustomerUseCase;
+import com.sistema.customer.application.exception.CustomerNotFoundException;
 import com.sistema.wallet.application.CreateWalletAccountUseCase;
 import com.sistema.wallet.application.GetWalletBalanceUseCase;
 import com.sistema.wallet.application.GetWalletStatementUseCase;
 import com.sistema.wallet.application.command.CreateWalletAccountCommand;
 import com.sistema.wallet.application.model.WalletStatementPage;
 import com.sistema.common.tenant.TenantResolver;
+import com.sistema.wallet.application.exception.WalletOwnerNotFoundException;
 import com.sistema.wallet.application.exception.WalletUnauthorizedException;
 import com.sistema.wallet.domain.model.WalletOwnerType;
 import jakarta.inject.Inject;
@@ -47,11 +50,17 @@ public class WalletAccountResource {
     @Inject
     GetWalletStatementUseCase getWalletStatementUseCase;
 
+    @Inject
+    GetCustomerUseCase getCustomerUseCase;
+
     @POST
     public Response createAccount(@HeaderParam("X-API-Key") String apiKey,
                                   @Valid CreateWalletAccountRequest request) {
         UUID tenantId = requireTenantId(apiKey);
         WalletOwnerType ownerType = WalletOwnerType.valueOf(request.getOwnerType());
+        if (ownerType == WalletOwnerType.CUSTOMER) {
+            validateCustomerExists(tenantId, request.getOwnerId());
+        }
         var command = new CreateWalletAccountCommand(
                 ownerType,
                 request.getOwnerId(),
@@ -126,5 +135,19 @@ public class WalletAccountResource {
         }
         return tenantResolver.resolveTenantId(apiKey)
                 .orElseThrow(() -> new WalletUnauthorizedException("apiKey not recognized"));
+    }
+
+    private void validateCustomerExists(UUID tenantId, String ownerId) {
+        UUID customerId;
+        try {
+            customerId = UUID.fromString(ownerId);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("ownerId must be a valid UUID for CUSTOMER");
+        }
+        try {
+            getCustomerUseCase.execute(tenantId, customerId);
+        } catch (CustomerNotFoundException ex) {
+            throw new WalletOwnerNotFoundException(ownerId);
+        }
     }
 }
