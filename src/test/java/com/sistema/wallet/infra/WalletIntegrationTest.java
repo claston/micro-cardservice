@@ -100,10 +100,10 @@ class WalletIntegrationTest extends DbCleanIT {
 
     @Tag("integration-test")
     @Test
-    void shouldAllowInternalOwnerTypeForFundingWalletTransfers() {
+    void shouldAllowFundingOwnerTypeForFundingWalletTransfers() {
         var fundingWallet = createWalletAccountUseCase.execute(
                 DEFAULT_TENANT,
-                new CreateWalletAccountCommand(WalletOwnerType.INTERNAL, "funding", "BRL", "Funding Wallet")
+                new CreateWalletAccountCommand(WalletOwnerType.FUNDING, "funding", "BRL", "Funding Wallet")
         );
         var customerWallet = createWalletAccountUseCase.execute(
                 DEFAULT_TENANT,
@@ -116,9 +116,9 @@ class WalletIntegrationTest extends DbCleanIT {
 
         postLedgerTransactionUseCase.execute(new PostLedgerTransactionCommand(
                 DEFAULT_TENANT,
-                "fund-internal-wallet",
-                "fund-internal-wallet",
-                "Fund internal wallet",
+                "fund-funding-wallet",
+                "fund-funding-wallet",
+                "Fund funding wallet",
                 Instant.now(),
                 java.util.List.of(
                         new PostingEntryCommand(fundingAccount.getId(), EntryDirection.DEBIT, 20000, "BRL"),
@@ -129,12 +129,12 @@ class WalletIntegrationTest extends DbCleanIT {
         transferBetweenWalletAccountsUseCase.execute(
                 DEFAULT_TENANT,
                 new TransferBetweenWalletAccountsCommand(
-                        "internal-to-customer-1",
+                        "funding-to-customer-1",
                         fundingWallet.getId(),
                         customerWallet.getId(),
                         7000,
                         "BRL",
-                        "Funding via internal wallet"
+                        "Funding via funding wallet"
                 )
         );
 

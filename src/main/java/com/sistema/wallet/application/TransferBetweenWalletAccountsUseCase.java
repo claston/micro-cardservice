@@ -65,7 +65,7 @@ public class TransferBetweenWalletAccountsUseCase {
         }
 
         var fromBalance = getAccountBalanceUseCase.execute(tenantId, fromAccount.getLedgerAccountId());
-        if (fromAccount.getOwnerType() != com.sistema.wallet.domain.model.WalletOwnerType.INTERNAL
+        if (fromAccount.getOwnerType() != com.sistema.wallet.domain.model.WalletOwnerType.FUNDING
                 && fromBalance.getBalanceMinor() < command.getAmountMinor()) {
             System.out.println("TransferBetweenWalletAccounts: insufficient balance " + fromBalance.getBalanceMinor()
                     + " < " + command.getAmountMinor());
