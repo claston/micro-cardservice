@@ -2,6 +2,7 @@ package com.sistema.ledger.application;
 
 import com.sistema.ledger.application.command.PostLedgerTransactionCommand;
 import com.sistema.ledger.application.command.PostingEntryCommand;
+import com.sistema.ledger.application.model.PostLedgerTransactionResult;
 import com.sistema.ledger.domain.model.AccountStatus;
 import com.sistema.ledger.domain.model.Entry;
 import com.sistema.ledger.domain.model.EntryDirection;
@@ -42,12 +43,21 @@ public class PostLedgerTransactionUseCase {
 
     @Transactional
     public LedgerTransaction execute(PostLedgerTransactionCommand command) {
+        return executeInternal(command).getTransaction();
+    }
+
+    @Transactional
+    public PostLedgerTransactionResult executeWithResult(PostLedgerTransactionCommand command) {
+        return executeInternal(command);
+    }
+
+    private PostLedgerTransactionResult executeInternal(PostLedgerTransactionCommand command) {
         Objects.requireNonNull(command, "command");
 
         Optional<LedgerTransaction> existing =
                 ledgerTransactionRepository.findByIdempotencyKey(command.getTenantId(), command.getIdempotencyKey());
         if (existing.isPresent()) {
-            return existing.get();
+            return new PostLedgerTransactionResult(existing.get(), true);
         }
 
         if (command.getEntries() == null || command.getEntries().size() < 2) {
@@ -111,7 +121,8 @@ public class PostLedgerTransactionUseCase {
                 fixedEntries
         );
 
-        return ledgerTransactionRepository.save(transaction);
+        LedgerTransaction saved = ledgerTransactionRepository.save(transaction);
+        return new PostLedgerTransactionResult(saved, false);
     }
 
     private Map<UUID, LedgerAccount> loadAccounts(UUID tenantId, List<PostingEntryCommand> entries) {

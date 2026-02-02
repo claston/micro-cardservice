@@ -7,6 +7,7 @@ import com.sistema.ledger.application.command.PostingEntryCommand;
 import com.sistema.ledger.domain.model.EntryDirection;
 import com.sistema.wallet.application.command.TransferBetweenWalletAccountsCommand;
 import com.sistema.wallet.application.exception.WalletAccountNotFoundException;
+import com.sistema.wallet.application.exception.WalletIdempotencyConflictException;
 import com.sistema.wallet.application.exception.WalletInsufficientBalanceException;
 import com.sistema.wallet.application.model.WalletTransferResult;
 import com.sistema.wallet.domain.model.WalletAccount;
@@ -85,8 +86,14 @@ public class TransferBetweenWalletAccountsUseCase {
         );
 
         try {
-            var transaction = postLedgerTransactionUseCase.execute(ledgerCommand);
-            return new WalletTransferResult(transaction.getId(), "POSTED");
+            var result = postLedgerTransactionUseCase.executeWithResult(ledgerCommand);
+            if (result.isIdempotentReplay()) {
+                throw new WalletIdempotencyConflictException(
+                        command.getIdempotencyKey(),
+                        result.getTransaction().getId()
+                );
+            }
+            return new WalletTransferResult(result.getTransaction().getId(), "POSTED");
         } catch (RuntimeException ex) {
             System.out.println("TransferBetweenWalletAccounts: ledger transfer failed idempotencyKey="
                     + command.getIdempotencyKey() + " message=" + ex.getMessage());

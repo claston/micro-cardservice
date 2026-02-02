@@ -1,8 +1,8 @@
-# Especificação — Fase 1: Wallet API sobre Ledger (MVP Vendável)
+﻿# EspecificaÃ§Ã£o â€” Fase 1: Wallet API sobre Ledger (MVP VendÃ¡vel)
 
-> Objetivo: transformar o Ledger Core já existente em um **produto utilizável via API**, através de um módulo de **Wallet**, permitindo que plataformas criem contas para seus usuários, movimentem saldo entre eles e consultem saldo/extrato de forma segura e multi-tenant.
+> Objetivo: transformar o Ledger Core jÃ¡ existente em um **produto utilizÃ¡vel via API**, atravÃ©s de um mÃ³dulo de **Wallet**, permitindo que plataformas criem contas para seus usuÃ¡rios, movimentem saldo entre eles e consultem saldo/extrato de forma segura e multi-tenant.
 
-O Ledger continua sendo o **motor contábil interno**. A Wallet API é a **camada de produto** exposta a clientes externos.
+O Ledger continua sendo o **motor contÃ¡bil interno**. A Wallet API Ã© a **camada de produto** exposta a clientes externos.
 
 ---
 
@@ -10,14 +10,14 @@ O Ledger continua sendo o **motor contábil interno**. A Wallet API é a **camad
 
 Este MVP permite que uma plataforma terceira tenha:
 
-- Contas virtuais para seus usuários finais
-- Transferências internas entre usuários
-- Saldo confiável e auditável
-- Extrato de movimentações
+- Contas virtuais para seus usuÃ¡rios finais
+- TransferÃªncias internas entre usuÃ¡rios
+- Saldo confiÃ¡vel e auditÃ¡vel
+- Extrato de movimentaÃ§Ãµes
 
-Sem precisar construir um motor contábil próprio.
+Sem precisar construir um motor contÃ¡bil prÃ³prio.
 
-Produto posicionável como:
+Produto posicionÃ¡vel como:
 
 > **Wallet / Ledger API para plataformas digitais**
 
@@ -27,38 +27,38 @@ Produto posicionável como:
 
 ### Em escopo
 
-- Módulo **Wallet** como camada sobre o Ledger
-- API para criação de contas de usuários (WalletAccounts)
+- MÃ³dulo **Wallet** como camada sobre o Ledger
+- API para criaÃ§Ã£o de contas de usuÃ¡rios (WalletAccounts)
 - API de consulta de saldo (derivado do Ledger)
 - API de extrato (derivado do Ledger)
-- API de transferência entre contas
-- Idempotência em transferências
+- API de transferÃªncia entre contas
+- IdempotÃªncia em transferÃªncias
 - Multi-tenant via API Key
 
 ### Fora de escopo
 
-- Cartão de crédito
+- CartÃ£o de crÃ©dito
 - Juros e taxas
-- Integração bancária real
-- Split entre múltiplas partes
+- IntegraÃ§Ã£o bancÃ¡ria real
+- Split entre mÃºltiplas partes
 - Webhooks
 
 ---
 
-## 3. Arquitetura Lógica
+## 3. Arquitetura LÃ³gica
 
 ```
 Cliente da API
-       │
-       ▼
+       â”‚
+       â–¼
    Wallet API  (produto)
-       │
-       ▼
-   Ledger Core (motor contábil)
+       â”‚
+       â–¼
+   Ledger Core (motor contÃ¡bil)
 ```
 
 - A Wallet **nunca altera saldo diretamente**.
-- Toda movimentação financeira é feita via **LedgerTransaction**.
+- Toda movimentaÃ§Ã£o financeira Ã© feita via **LedgerTransaction**.
 
 ---
 
@@ -66,55 +66,55 @@ Cliente da API
 
 ### 4.1 LedgerAccount
 
-Conta contábil real do núcleo do ledger que participa de lançamentos (entries) e cálculo de saldo.
+Conta contÃ¡bil real do nÃºcleo do ledger que participa de lanÃ§amentos (entries) e cÃ¡lculo de saldo.
 
-Características:
+CaracterÃ­sticas:
 
 - Pertence a um `tenantId`
 - Possui `currency`, `type`, `allowNegative`
-- Não conhece usuário, produto ou wallet
+- NÃ£o conhece usuÃ¡rio, produto ou wallet
 
 ---
 
-### 4.2 WalletAccount (novo — camada de produto)
+### 4.2 WalletAccount (novo â€” camada de produto)
 
 Representa a conta exposta ao cliente da API.
 
-Ela é um **espelho funcional** de uma `LedgerAccount`.
+Ela Ã© um **espelho funcional** de uma `LedgerAccount`.
 
 Campos principais:
 
 - `accountId` (UUID da Wallet)
 - `tenantId`
 - `ownerType` (ex: CUSTOMER)
-- `ownerId` (ID do usuário no sistema do cliente)
+- `ownerId` (ID do usuÃ¡rio no sistema do cliente)
 - `currency`
 - `status`
 - `label` (opcional)
-- `ledgerAccountId` (FK lógica para LedgerAccount)
+- `ledgerAccountId` (FK lÃ³gica para LedgerAccount)
 
-**Regra:** WalletAccount não armazena saldo. Saldo e extrato são sempre consultados no Ledger.
+**Regra:** WalletAccount nÃ£o armazena saldo. Saldo e extrato sÃ£o sempre consultados no Ledger.
 
-Restrição inicial:
+RestriÃ§Ã£o inicial:
 
 > 1 WalletAccount principal por (tenantId, ownerType, ownerId, currency)
 
 ---
 
-### 4.3 Transferência
+### 4.3 TransferÃªncia
 
-Movimentação de saldo entre duas WalletAccounts do mesmo tenant.
+MovimentaÃ§Ã£o de saldo entre duas WalletAccounts do mesmo tenant.
 
-A Wallet traduz a operação para o Ledger como:
+A Wallet traduz a operaÃ§Ã£o para o Ledger como:
 
 - DEBIT na LedgerAccount de origem
 - CREDIT na LedgerAccount de destino
 
 ---
 
-### 4.4 Resolução de Tenant
+### 4.4 ResoluÃ§Ã£o de Tenant
 
-Cada requisição deve conter:
+Cada requisiÃ§Ã£o deve conter:
 
 ```
 X-API-Key: <apiKey>
@@ -122,15 +122,15 @@ X-API-Key: <apiKey>
 
 Fluxo:
 
-1. API Key → resolve `tenantId`
-2. `tenantId` é propagado para todos os use cases do Ledger
-3. É proibida qualquer operação entre tenants diferentes
+1. API Key â†’ resolve `tenantId`
+2. `tenantId` Ã© propagado para todos os use cases do Ledger
+3. Ã‰ proibida qualquer operaÃ§Ã£o entre tenants diferentes
 
 ---
 
 ## 5. Requisitos Funcionais
 
-### RF-01 — Criar Conta (WalletAccount)
+### RF-01 â€” Criar Conta (WalletAccount)
 
 **POST /accounts**
 
@@ -170,14 +170,14 @@ Response:
 
 ---
 
-### RF-02 — Consultar Saldo
+### RF-02 â€” Consultar Saldo
 
 **GET /accounts/{accountId}/balance**
 
 Processo:
 
 - Resolver `tenantId`
-- Buscar WalletAccount → obter `ledgerAccountId`
+- Buscar WalletAccount â†’ obter `ledgerAccountId`
 - Chamar Ledger: `GetBalance(tenantId, ledgerAccountId)`
 
 Response:
@@ -192,14 +192,14 @@ Response:
 
 ---
 
-### RF-03 — Extrato da Conta
+### RF-03 â€” Extrato da Conta
 
 **GET /accounts/{accountId}/statement**
 
 Processo:
 
 - Resolver `tenantId`
-- Buscar WalletAccount → `ledgerAccountId`
+- Buscar WalletAccount â†’ `ledgerAccountId`
 - Consultar Ledger por entries da conta
 
 Response:
@@ -222,7 +222,7 @@ Response:
 
 ---
 
-### RF-04 — Transferência entre Contas
+### RF-04 â€” TransferÃªncia entre Contas
 
 **POST /transfers**
 
@@ -259,28 +259,51 @@ Resposta:
 }
 ```
 
+Em caso de `idempotencyKey` ja usado no mesmo tenant, retornar **409 Conflict** com:
+- `errorCode`: `WALLET_IDEMPOTENCY_CONFLICT`
+- `meta.transactionId`: ID da transacao existente
+- `meta.idempotencyKey`: chave enviada
+
+Exemplo de resposta 409:
+
+```json
+{
+  "type": "https://errors.yourdomain.com/conflict",
+  "title": "Conflict",
+  "status": 409,
+  "detail": "idempotencyKey already used for this tenant",
+  "instance": "/transfers",
+  "errorCode": "WALLET_IDEMPOTENCY_CONFLICT",
+  "meta": {
+    "transactionId": "existing-transaction-uuid",
+    "idempotencyKey": "txn-123"
+  },
+  "traceId": "request-trace-id"
+}
+```
+
 ---
 
-## 6. Segurança
+## 6. SeguranÃ§a
 
-- Autenticação via API Key
-- Todas as operações isoladas por `tenantId`
+- AutenticaÃ§Ã£o via API Key
+- Todas as operaÃ§Ãµes isoladas por `tenantId`
 - Proibido acesso a contas de outro tenant
 
 ---
 
-## 7. Requisitos Não Funcionais
+## 7. Requisitos NÃ£o Funcionais
 
-- Operações financeiras atômicas
-- Ledger permanece imutável
+- OperaÃ§Ãµes financeiras atÃ´micas
+- Ledger permanece imutÃ¡vel
 - Logs com tenantId + idempotencyKey
 - Rate limit por API Key
 
 ---
 
-## 8. Estrutura Técnica Esperada
+## 8. Estrutura TÃ©cnica Esperada
 
-Novos módulos:
+Novos mÃ³dulos:
 
 ```
 /wallet/api
@@ -296,21 +319,22 @@ Reutilizando:
 
 ---
 
-## 9. Entregáveis da Fase 1
+## 9. EntregÃ¡veis da Fase 1
 
 - Entidade WalletAccount
-- Integração Wallet → LedgerAccount
+- IntegraÃ§Ã£o Wallet â†’ LedgerAccount
 - Endpoints REST de accounts e transfers
 - Use case TransferBetweenAccounts
-- Testes de integração multi-tenant
+- Testes de integraÃ§Ã£o multi-tenant
 
 ---
 
 ## 10. Resultado Esperado
 
-Ao final da Fase 1 será possível demonstrar:
+Ao final da Fase 1 serÃ¡ possÃ­vel demonstrar:
 
-> “Criar contas de usuários, movimentar saldo entre eles e consultar extratos via API multi-tenant.”
+> â€œCriar contas de usuÃ¡rios, movimentar saldo entre eles e consultar extratos via API multi-tenant.â€
 
-Base pronta para monetização como **Wallet / Ledger API**.
+Base pronta para monetizaÃ§Ã£o como **Wallet / Ledger API**.
+
 
