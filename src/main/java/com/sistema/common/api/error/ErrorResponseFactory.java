@@ -4,6 +4,7 @@ import com.sistema.common.api.trace.TraceIdProvider;
 import jakarta.ws.rs.core.UriInfo;
 
 import java.util.List;
+import java.util.Map;
 
 public final class ErrorResponseFactory {
     private ErrorResponseFactory() {
@@ -17,6 +18,18 @@ public final class ErrorResponseFactory {
                                       String errorCode,
                                       List<ErrorViolation> violations,
                                       TraceIdProvider traceIdProvider) {
+        return build(type, title, status, detail, instance, errorCode, violations, null, traceIdProvider);
+    }
+
+    public static ErrorResponse build(String type,
+                                      String title,
+                                      int status,
+                                      String detail,
+                                      String instance,
+                                      String errorCode,
+                                      List<ErrorViolation> violations,
+                                      Map<String, Object> meta,
+                                      TraceIdProvider traceIdProvider) {
         ErrorResponse response = new ErrorResponse();
         response.setType(type);
         response.setTitle(title);
@@ -25,6 +38,7 @@ public final class ErrorResponseFactory {
         response.setInstance(instance);
         response.setErrorCode(errorCode);
         response.setViolations(violations);
+        response.setMeta(meta);
         response.setTraceId(traceIdProvider.getTraceId());
         return response;
     }

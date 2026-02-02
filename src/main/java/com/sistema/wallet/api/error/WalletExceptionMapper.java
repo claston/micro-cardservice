@@ -33,6 +33,7 @@ public class WalletExceptionMapper implements ExceptionMapper<WalletException> {
                 ErrorResponseFactory.resolveInstance(uriInfo),
                 exception.getErrorCode(),
                 null,
+                exception.getMeta(),
                 traceIdProvider
         );
         return Response.status(status).entity(response).build();

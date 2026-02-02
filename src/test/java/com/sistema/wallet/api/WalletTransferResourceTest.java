@@ -2,6 +2,7 @@ package com.sistema.wallet.api;
 
 import com.sistema.wallet.application.TransferBetweenWalletAccountsUseCase;
 import com.sistema.wallet.application.exception.WalletAccountNotFoundException;
+import com.sistema.wallet.application.exception.WalletIdempotencyConflictException;
 import com.sistema.wallet.application.exception.WalletInsufficientBalanceException;
 import com.sistema.wallet.application.model.WalletTransferResult;
 import com.sistema.common.tenant.TenantResolver;
@@ -106,6 +107,35 @@ public class WalletTransferResourceTest {
                 .then()
                 .statusCode(409)
                 .body("errorCode", equalTo("WALLET_INSUFFICIENT_BALANCE"))
+                .body("traceId", notNullValue());
+    }
+
+    @Test
+    public void shouldReturnConflictWhenIdempotencyKeyExists() {
+        UUID tenantId = UUID.randomUUID();
+        UUID transactionId = UUID.randomUUID();
+        when(tenantResolver.resolveTenantId("api-key")).thenReturn(Optional.of(tenantId));
+        when(transferBetweenWalletAccountsUseCase.execute(eq(tenantId), any()))
+                .thenThrow(new WalletIdempotencyConflictException("txn-duplicate", transactionId));
+
+        RestAssured.given()
+                .contentType("application/json")
+                .header("X-API-Key", "api-key")
+                .body("""
+                        {
+                          "idempotencyKey":"txn-duplicate",
+                          "fromAccountId":"%s",
+                          "toAccountId":"%s",
+                          "amountMinor":500,
+                          "currency":"BRL"
+                        }
+                        """.formatted(UUID.randomUUID(), UUID.randomUUID()))
+                .post("/transfers")
+                .then()
+                .statusCode(409)
+                .body("errorCode", equalTo("WALLET_IDEMPOTENCY_CONFLICT"))
+                .body("meta.transactionId", equalTo(transactionId.toString()))
+                .body("meta.idempotencyKey", equalTo("txn-duplicate"))
                 .body("traceId", notNullValue());
     }
 }

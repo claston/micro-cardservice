@@ -2,6 +2,7 @@ package com.sistema.common.api.error;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.Map;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -15,6 +16,8 @@ public class ErrorResponse {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<ErrorViolation> violations;
     private String traceId;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private Map<String, Object> meta;
 
     public String getType() {
         return type;
@@ -78,6 +81,14 @@ public class ErrorResponse {
 
     public void setTraceId(String traceId) {
         this.traceId = traceId;
+    }
+
+    public Map<String, Object> getMeta() {
+        return meta;
+    }
+
+    public void setMeta(Map<String, Object> meta) {
+        this.meta = meta;
     }
 }
 

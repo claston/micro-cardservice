@@ -3,12 +3,14 @@ package com.sistema.wallet.application;
 import com.sistema.ledger.application.GetAccountBalanceUseCase;
 import com.sistema.ledger.application.PostLedgerTransactionUseCase;
 import com.sistema.ledger.application.model.AccountBalance;
+import com.sistema.ledger.application.model.PostLedgerTransactionResult;
 import com.sistema.ledger.domain.model.Entry;
 import com.sistema.ledger.domain.model.EntryDirection;
 import com.sistema.ledger.domain.model.IdempotencyKey;
 import com.sistema.ledger.domain.model.LedgerTransaction;
 import com.sistema.ledger.domain.model.Money;
 import com.sistema.wallet.application.command.TransferBetweenWalletAccountsCommand;
+import com.sistema.wallet.application.exception.WalletIdempotencyConflictException;
 import com.sistema.wallet.application.exception.WalletAccountNotFoundException;
 import com.sistema.wallet.application.exception.WalletInsufficientBalanceException;
 import com.sistema.wallet.application.model.WalletTransferResult;
@@ -66,7 +68,8 @@ class TransferBetweenWalletAccountsUseCaseTest {
                         entry(toLedgerId, tenantId, EntryDirection.CREDIT, 5000)
                 )
         );
-        when(postLedgerTransactionUseCase.execute(any())).thenReturn(ledgerTransaction);
+        when(postLedgerTransactionUseCase.executeWithResult(any()))
+                .thenReturn(new PostLedgerTransactionResult(ledgerTransaction, false));
 
         TransferBetweenWalletAccountsUseCase useCase =
                 new TransferBetweenWalletAccountsUseCase(walletAccountRepository, getAccountBalanceUseCase, postLedgerTransactionUseCase);
@@ -84,6 +87,62 @@ class TransferBetweenWalletAccountsUseCaseTest {
 
         assertEquals(ledgerTransaction.getId(), result.getTransactionId());
         assertEquals("POSTED", result.getStatus());
+    }
+
+    @Test
+    void shouldRejectIdempotentReplay() {
+        WalletAccountRepository walletAccountRepository = Mockito.mock(WalletAccountRepository.class);
+        GetAccountBalanceUseCase getAccountBalanceUseCase = Mockito.mock(GetAccountBalanceUseCase.class);
+        PostLedgerTransactionUseCase postLedgerTransactionUseCase = Mockito.mock(PostLedgerTransactionUseCase.class);
+
+        UUID tenantId = UUID.randomUUID();
+        UUID fromWalletId = UUID.randomUUID();
+        UUID toWalletId = UUID.randomUUID();
+        UUID fromLedgerId = UUID.randomUUID();
+        UUID toLedgerId = UUID.randomUUID();
+
+        when(walletAccountRepository.findById(tenantId, fromWalletId))
+                .thenReturn(Optional.of(walletAccount(fromWalletId, tenantId, fromLedgerId, "BRL")));
+        when(walletAccountRepository.findById(tenantId, toWalletId))
+                .thenReturn(Optional.of(walletAccount(toWalletId, tenantId, toLedgerId, "BRL")));
+
+        when(getAccountBalanceUseCase.execute(tenantId, fromLedgerId))
+                .thenReturn(new AccountBalance(fromLedgerId, 10000, "BRL"));
+
+        UUID transactionId = UUID.randomUUID();
+        LedgerTransaction ledgerTransaction = new LedgerTransaction(
+                transactionId,
+                tenantId,
+                new IdempotencyKey("idemp-replay"),
+                null,
+                "transfer",
+                Instant.now(),
+                Instant.now(),
+                List.of(
+                        entry(fromLedgerId, tenantId, EntryDirection.DEBIT, 5000),
+                        entry(toLedgerId, tenantId, EntryDirection.CREDIT, 5000)
+                )
+        );
+        when(postLedgerTransactionUseCase.executeWithResult(any()))
+                .thenReturn(new PostLedgerTransactionResult(ledgerTransaction, true));
+
+        TransferBetweenWalletAccountsUseCase useCase =
+                new TransferBetweenWalletAccountsUseCase(walletAccountRepository, getAccountBalanceUseCase, postLedgerTransactionUseCase);
+
+        TransferBetweenWalletAccountsCommand command = new TransferBetweenWalletAccountsCommand(
+                "idemp-replay",
+                fromWalletId,
+                toWalletId,
+                5000,
+                "BRL",
+                "transfer"
+        );
+
+        WalletIdempotencyConflictException exception =
+                assertThrows(WalletIdempotencyConflictException.class, () -> useCase.execute(tenantId, command));
+
+        assertEquals(409, exception.getStatus());
+        assertEquals(transactionId.toString(), exception.getMeta().get("transactionId"));
     }
 
     @Test
