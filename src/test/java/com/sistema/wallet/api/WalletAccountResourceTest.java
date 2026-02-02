@@ -231,6 +231,20 @@ public class WalletAccountResourceTest {
                 .body("items[0].amountMinor", equalTo(500));
     }
 
+    @Test
+    public void shouldReturnValidationWhenAccountIdInvalid() {
+        UUID tenantId = UUID.randomUUID();
+        when(tenantResolver.resolveTenantId("api-key")).thenReturn(Optional.of(tenantId));
+
+        RestAssured.given()
+                .header("X-API-Key", "api-key")
+                .get("/accounts/{id}/statement", "1234")
+                .then()
+                .statusCode(400)
+                .body("errorCode", equalTo("WALLET_VALIDATION_ERROR"))
+                .body("traceId", notNullValue());
+    }
+
     private Customer buildCustomer(UUID tenantId, UUID customerId) {
         Customer customer = new Customer();
         customer.setId(customerId);

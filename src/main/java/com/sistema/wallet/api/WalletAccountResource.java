@@ -80,9 +80,10 @@ public class WalletAccountResource {
     @GET
     @Path("/{accountId}/balance")
     public WalletBalanceResponse getBalance(@HeaderParam("X-API-Key") String apiKey,
-                                            @PathParam("accountId") UUID accountId) {
+                                            @PathParam("accountId") String accountId) {
         UUID tenantId = requireTenantId(apiKey);
-        var balance = getWalletBalanceUseCase.execute(tenantId, accountId);
+        UUID walletAccountId = parseAccountId(accountId);
+        var balance = getWalletBalanceUseCase.execute(tenantId, walletAccountId);
         WalletBalanceResponse response = new WalletBalanceResponse();
         response.setAccountId(balance.getAccountId().toString());
         response.setBalanceMinor(balance.getBalanceMinor());
@@ -93,15 +94,16 @@ public class WalletAccountResource {
     @GET
     @Path("/{accountId}/statement")
     public WalletStatementResponse getStatement(@HeaderParam("X-API-Key") String apiKey,
-                                                @PathParam("accountId") UUID accountId,
+                                                @PathParam("accountId") String accountId,
                                                 @QueryParam("from") Instant from,
                                                 @QueryParam("to") Instant to,
                                                 @QueryParam("page") Integer page,
                                                 @QueryParam("size") Integer size) {
         UUID tenantId = requireTenantId(apiKey);
+        UUID walletAccountId = parseAccountId(accountId);
         WalletStatementPage statement = getWalletStatementUseCase.execute(
                 tenantId,
-                accountId,
+                walletAccountId,
                 from,
                 to,
                 page == null ? 0 : page,
@@ -135,6 +137,14 @@ public class WalletAccountResource {
         }
         return tenantResolver.resolveTenantId(apiKey)
                 .orElseThrow(() -> new WalletUnauthorizedException("apiKey not recognized"));
+    }
+
+    private UUID parseAccountId(String accountId) {
+        try {
+            return UUID.fromString(accountId);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("accountId must be a valid UUID");
+        }
     }
 
     private void validateCustomerExists(UUID tenantId, String ownerId) {
