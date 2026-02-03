@@ -21,7 +21,7 @@ class DoubleEntryValidatorTest {
                 entry(EntryDirection.CREDIT, 1000, "BRL")
         );
 
-        assertDoesNotThrow(() -> DoubleEntryValidator.validate(entries));
+        assertDoesNotThrow(() -> new LedgerPostingPolicy().validateDoubleEntry(entries));
     }
 
     @Test
@@ -33,7 +33,7 @@ class DoubleEntryValidatorTest {
                 entry(EntryDirection.CREDIT, 500, "USD")
         );
 
-        assertDoesNotThrow(() -> DoubleEntryValidator.validate(entries));
+        assertDoesNotThrow(() -> new LedgerPostingPolicy().validateDoubleEntry(entries));
     }
 
     @Test
@@ -43,7 +43,7 @@ class DoubleEntryValidatorTest {
                 entry(EntryDirection.CREDIT, 900, "BRL")
         );
 
-        assertThrows(IllegalArgumentException.class, () -> DoubleEntryValidator.validate(entries));
+        assertThrows(IllegalArgumentException.class, () -> new LedgerPostingPolicy().validateDoubleEntry(entries));
     }
 
     @Test
@@ -54,7 +54,7 @@ class DoubleEntryValidatorTest {
                 entry(EntryDirection.DEBIT, 200, "USD")
         );
 
-        assertThrows(IllegalArgumentException.class, () -> DoubleEntryValidator.validate(entries));
+        assertThrows(IllegalArgumentException.class, () -> new LedgerPostingPolicy().validateDoubleEntry(entries));
     }
 
     private Entry entry(EntryDirection direction, long amountMinor, String currency) {

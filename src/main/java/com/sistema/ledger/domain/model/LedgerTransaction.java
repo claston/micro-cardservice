@@ -1,5 +1,7 @@
 package com.sistema.ledger.domain.model;
 
+import com.sistema.ledger.domain.validation.LedgerPostingPolicy;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -31,9 +33,7 @@ public class LedgerTransaction {
         this.occurredAt = Objects.requireNonNull(occurredAt, "occurredAt");
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt");
         this.entries = List.copyOf(Objects.requireNonNull(entries, "entries"));
-        if (this.entries.size() < 2) {
-            throw new IllegalArgumentException("entries must have at least 2 items");
-        }
+        new LedgerPostingPolicy().validateDoubleEntry(this.entries);
     }
 
     public UUID getId() {
