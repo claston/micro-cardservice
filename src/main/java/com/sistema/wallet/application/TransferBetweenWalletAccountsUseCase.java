@@ -6,11 +6,13 @@ import com.sistema.ledger.application.command.PostLedgerTransactionCommand;
 import com.sistema.ledger.application.command.PostingEntryCommand;
 import com.sistema.ledger.domain.model.EntryDirection;
 import com.sistema.wallet.application.command.TransferBetweenWalletAccountsCommand;
-import com.sistema.wallet.application.exception.WalletAccountNotFoundException;
 import com.sistema.wallet.application.exception.WalletIdempotencyConflictException;
-import com.sistema.wallet.application.exception.WalletInsufficientBalanceException;
 import com.sistema.wallet.application.model.WalletTransferResult;
+import com.sistema.wallet.application.rules.WalletTransferRuleContext;
+import com.sistema.wallet.application.rules.WalletTransferRuleContextFactory;
+import com.sistema.wallet.application.rules.WalletTransferRulesPipeline;
 import com.sistema.wallet.domain.model.WalletAccount;
+import com.sistema.wallet.domain.validation.WalletTransferPolicy;
 import com.sistema.wallet.domain.repository.WalletAccountRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
@@ -22,56 +24,30 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class TransferBetweenWalletAccountsUseCase {
-    private final WalletAccountRepository walletAccountRepository;
-    private final GetAccountBalanceUseCase getAccountBalanceUseCase;
     private final PostLedgerTransactionUseCase postLedgerTransactionUseCase;
+    private final WalletTransferRuleContextFactory ruleContextFactory;
+    private final WalletTransferRulesPipeline rulesPipeline;
 
     public TransferBetweenWalletAccountsUseCase(WalletAccountRepository walletAccountRepository,
                                                 GetAccountBalanceUseCase getAccountBalanceUseCase,
                                                 PostLedgerTransactionUseCase postLedgerTransactionUseCase) {
-        this.walletAccountRepository = walletAccountRepository;
-        this.getAccountBalanceUseCase = getAccountBalanceUseCase;
         this.postLedgerTransactionUseCase = postLedgerTransactionUseCase;
+        this.ruleContextFactory = new WalletTransferRuleContextFactory(walletAccountRepository);
+        this.rulesPipeline = new WalletTransferRulesPipeline(getAccountBalanceUseCase);
     }
 
     @Transactional
     public WalletTransferResult execute(UUID tenantId, TransferBetweenWalletAccountsCommand command) {
         Objects.requireNonNull(tenantId, "tenantId");
         Objects.requireNonNull(command, "command");
-        if (command.getAmountMinor() <= 0) {
-            System.out.println("TransferBetweenWalletAccounts: invalid amount " + command.getAmountMinor());
-            throw new IllegalArgumentException("amount must be greater than zero");
-        }
-        if (command.getIdempotencyKey() == null || command.getIdempotencyKey().isBlank()) {
-            System.out.println("TransferBetweenWalletAccounts: missing idempotencyKey");
-            throw new IllegalArgumentException("idempotencyKey is required");
-        }
+        WalletTransferPolicy policy = new WalletTransferPolicy();
+        policy.validateAmountPositive(command.getAmountMinor());
+        policy.validateIdempotencyKey(command.getIdempotencyKey());
+        WalletTransferRuleContext context = ruleContextFactory.build(tenantId, command);
+        rulesPipeline.validate(context);
 
-        WalletAccount fromAccount = walletAccountRepository.findById(tenantId, command.getFromAccountId())
-                .orElseThrow(() -> {
-                    System.out.println("TransferBetweenWalletAccounts: fromAccount not found " + command.getFromAccountId());
-                    return new WalletAccountNotFoundException(command.getFromAccountId());
-                });
-        WalletAccount toAccount = walletAccountRepository.findById(tenantId, command.getToAccountId())
-                .orElseThrow(() -> {
-                    System.out.println("TransferBetweenWalletAccounts: toAccount not found " + command.getToAccountId());
-                    return new WalletAccountNotFoundException(command.getToAccountId());
-                });
-
-        if (!fromAccount.getCurrency().equals(command.getCurrency())
-                || !toAccount.getCurrency().equals(command.getCurrency())) {
-            System.out.println("TransferBetweenWalletAccounts: currency mismatch from=" + fromAccount.getCurrency()
-                    + " to=" + toAccount.getCurrency() + " requested=" + command.getCurrency());
-            throw new IllegalArgumentException("currency mismatch");
-        }
-
-        var fromBalance = getAccountBalanceUseCase.execute(tenantId, fromAccount.getLedgerAccountId());
-        if (fromAccount.getOwnerType() != com.sistema.wallet.domain.model.WalletOwnerType.FUNDING
-                && fromBalance.getBalanceMinor() < command.getAmountMinor()) {
-            System.out.println("TransferBetweenWalletAccounts: insufficient balance " + fromBalance.getBalanceMinor()
-                    + " < " + command.getAmountMinor());
-            throw new WalletInsufficientBalanceException("insufficient balance");
-        }
+        WalletAccount fromAccount = context.getFromAccount();
+        WalletAccount toAccount = context.getToAccount();
 
         PostLedgerTransactionCommand ledgerCommand = new PostLedgerTransactionCommand(
                 tenantId,
@@ -85,19 +61,13 @@ public class TransferBetweenWalletAccountsUseCase {
                 )
         );
 
-        try {
-            var result = postLedgerTransactionUseCase.executeWithResult(ledgerCommand);
-            if (result.isIdempotentReplay()) {
-                throw new WalletIdempotencyConflictException(
-                        command.getIdempotencyKey(),
-                        result.getTransaction().getId()
-                );
-            }
-            return new WalletTransferResult(result.getTransaction().getId(), "POSTED");
-        } catch (RuntimeException ex) {
-            System.out.println("TransferBetweenWalletAccounts: ledger transfer failed idempotencyKey="
-                    + command.getIdempotencyKey() + " message=" + ex.getMessage());
-            throw ex;
+        var result = postLedgerTransactionUseCase.executeWithResult(ledgerCommand);
+        if (result.isIdempotentReplay()) {
+            throw new WalletIdempotencyConflictException(
+                    command.getIdempotencyKey(),
+                    result.getTransaction().getId()
+            );
         }
+        return new WalletTransferResult(result.getTransaction().getId(), "POSTED");
     }
 }
