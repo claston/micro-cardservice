@@ -12,7 +12,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class DoubleEntryValidatorTest {
+class LedgerPostingPolicyTest {
 
     @Test
     void shouldValidateWhenDebitsEqualCreditsSameCurrency() {
