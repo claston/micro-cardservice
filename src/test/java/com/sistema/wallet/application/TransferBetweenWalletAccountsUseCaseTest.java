@@ -215,6 +215,35 @@ class TransferBetweenWalletAccountsUseCaseTest {
     }
 
     @Test
+    void shouldRejectSameWalletAccountTransfer() {
+        WalletAccountRepository walletAccountRepository = Mockito.mock(WalletAccountRepository.class);
+        GetAccountBalanceUseCase getAccountBalanceUseCase = Mockito.mock(GetAccountBalanceUseCase.class);
+        PostLedgerTransactionUseCase postLedgerTransactionUseCase = Mockito.mock(PostLedgerTransactionUseCase.class);
+
+        UUID tenantId = UUID.randomUUID();
+        UUID walletId = UUID.randomUUID();
+        UUID ledgerId = UUID.randomUUID();
+
+        when(walletAccountRepository.findById(tenantId, walletId))
+                .thenReturn(Optional.of(walletAccount(walletId, tenantId, ledgerId, "BRL")));
+
+        TransferBetweenWalletAccountsUseCase useCase =
+                new TransferBetweenWalletAccountsUseCase(walletAccountRepository, getAccountBalanceUseCase, postLedgerTransactionUseCase);
+
+        TransferBetweenWalletAccountsCommand command = new TransferBetweenWalletAccountsCommand(
+                "idemp-same",
+                walletId,
+                walletId,
+                5000,
+                "BRL",
+                "transfer"
+        );
+
+        assertThrows(IllegalArgumentException.class, () -> useCase.execute(tenantId, command));
+        verify(postLedgerTransactionUseCase, never()).execute(any());
+    }
+
+    @Test
     void shouldRejectInvalidInput() {
         WalletAccountRepository walletAccountRepository = Mockito.mock(WalletAccountRepository.class);
         GetAccountBalanceUseCase getAccountBalanceUseCase = Mockito.mock(GetAccountBalanceUseCase.class);

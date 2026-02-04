@@ -13,6 +13,7 @@ public class WalletTransferRulesPipeline {
         this.rules = List.of(
                 new AmountPositiveRule(),
                 new IdempotencyKeyPresentRule(),
+                new DifferentAccountsRule(),
                 new WalletCurrencyMatchRule(),
                 new SufficientBalanceRule(getAccountBalanceUseCase)
         );
