@@ -12,6 +12,7 @@ public class PostingRulesPipeline {
     public PostingRulesPipeline(EntryRepository entryRepository) {
         this.rules = List.of(
                 new EntriesCountRule(),
+                new DistinctAccountsRule(),
                 new AccountStatusActiveRule(),
                 new CrossTenantRule(),
                 new CurrencyMatchRule(),

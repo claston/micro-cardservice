@@ -6,8 +6,10 @@ import com.sistema.ledger.domain.model.EntryDirection;
 import com.sistema.ledger.domain.model.LedgerAccount;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class LedgerPostingPolicy {
@@ -65,6 +67,19 @@ public class LedgerPostingPolicy {
             long debits = debitByCurrency.getOrDefault(credit.getKey(), 0L);
             if (!credit.getValue().equals(debits)) {
                 throw new IllegalArgumentException("double-entry validation failed for currency " + credit.getKey());
+            }
+        }
+    }
+
+    public void validateDistinctAccounts(List<Entry> entries) {
+        if (entries == null || entries.isEmpty()) {
+            return;
+        }
+        Set<UUID> accounts = new HashSet<>();
+        for (Entry entry : entries) {
+            UUID accountId = entry.getLedgerAccountId();
+            if (accountId != null && !accounts.add(accountId)) {
+                throw new IllegalArgumentException("entries must target distinct accounts");
             }
         }
     }

@@ -2,6 +2,8 @@ package com.sistema.wallet.domain.validation;
 
 import com.sistema.wallet.domain.model.WalletOwnerType;
 
+import java.util.UUID;
+
 public class WalletTransferPolicy {
     public void validateAmountPositive(long amountMinor) {
         if (amountMinor <= 0) {
@@ -27,6 +29,12 @@ public class WalletTransferPolicy {
         }
         if (balanceMinor < amountMinor) {
             throw new IllegalArgumentException("insufficient balance");
+        }
+    }
+
+    public void validateDifferentAccounts(UUID fromAccountId, UUID toAccountId) {
+        if (fromAccountId != null && fromAccountId.equals(toAccountId)) {
+            throw new IllegalArgumentException("fromAccountId must be different from toAccountId");
         }
     }
 }
