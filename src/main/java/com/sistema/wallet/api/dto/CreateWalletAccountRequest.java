@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Pattern;
 
 public class CreateWalletAccountRequest {
     @NotBlank(message = "ownerType is required")
-    @ValidEnum(enumClass = WalletOwnerType.class, message = "ownerType must be one of: CUSTOMER, FUNDING")
+    @ValidEnum(enumClass = WalletOwnerType.class, message = "ownerType must be one of: CUSTOMER, FUNDING, INTERNAL")
     private String ownerType;
 
     @NotBlank(message = "ownerId is required")
