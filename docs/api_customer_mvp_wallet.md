@@ -1,35 +1,23 @@
-# API — Customer (MVP para Wallet)
+# API - Customer (MVP para Wallet)
 
 > Ambiente dev: `http://localhost:8080`
 >
-> Escopo: endpoints mínimos para criar/consultar Customer e suportar Wallet (`ownerType=CUSTOMER`, `ownerId=<customerId>`).
-
----
-
-## Headers
-
-- `X-API-Key: <apiKey>` (obrigatório) — resolve `tenantId`
-- `Content-Type: application/json` (quando houver body)
-- `X-Request-Id: <id>` (opcional) — correlação; volta em respostas de erro como `traceId`
-
-Decisão do MVP:
-- Todas as rotas exigem `X-API-Key` (mesmo padrão da Wallet).
-- Em dev/test o exemplo usa `key-dev` (config `app.api-keys=key-dev=00000000-0000-0000-0000-000000000000`).
+> Escopo: endpoints minimos para criar/consultar Customer e suportar Wallet (ownerType=CUSTOMER, ownerId=<customerId>).
 
 ---
 
 ## Modelo (MVP)
 
-- `type`: `INDIVIDUAL` | `BUSINESS`
-- `documentType`: `CPF` | `CNPJ`
-- `documentNumber`: string (a API normaliza e retorna somente dígitos)
-- `status`: `ACTIVE` | `INACTIVE`
+- type: INDIVIDUAL | BUSINESS
+- documentType: CPF | CNPJ
+- documentNumber: string (a API normaliza e retorna somente digitos)
+- status: ACTIVE | INACTIVE
 
 ---
 
 ## 1) Criar Customer
 
-### `POST /customers`
+### POST /customers
 
 #### Request
 ```json
@@ -67,7 +55,7 @@ curl -i -X POST "http://localhost:8080/customers" \
 
 ## 2) Buscar Customer por id
 
-### `GET /customers/{customerId}`
+### GET /customers/{customerId}
 
 #### Response 200
 ```json
@@ -91,11 +79,11 @@ curl -i "http://localhost:8080/customers/6f1bf0b6-5c53-4f65-9e31-ff7c31d629c7" \
 
 ## 3) Buscar por documento (evitar duplicidade)
 
-### `GET /customers?documentType=CPF&documentNumber=12345678901`
+### GET /customers?documentType=CPF&documentNumber=12345678901
 
-Decisão do MVP:
-- Não existe listagem geral de customers sem filtros.
-- Quando não houver resultados, retornar `200` com `items=[]` (não usar `204`).
+Decisao do MVP:
+- Nao existe listagem geral de customers sem filtros.
+- Quando nao houver resultados, retornar 200 com items=[], nao usar 204.
 
 #### Response 200
 ```json
@@ -126,7 +114,7 @@ curl -i "http://localhost:8080/customers?documentType=CPF&documentNumber=123.456
 
 ## 4) (Opcional) Inativar Customer (sem delete)
 
-### `PATCH /customers/{customerId}`
+### PATCH /customers/{customerId}
 
 #### Request
 ```json
@@ -139,27 +127,4 @@ curl -i -X PATCH "http://localhost:8080/customers/6f1bf0b6-5c53-4f65-9e31-ff7c31
   -H "Content-Type: application/json" \
   -H "X-API-Key: test-api-key" \
   -d '{"status":"INACTIVE"}'
-```
-
----
-
-## Erros (Problem Details + extensões)
-
-Todas as respostas de erro seguem o contrato (alinhado ao ADR de Wallet):
-- `type`, `title`, `status`, `detail`, `instance`
-- `errorCode`
-- `violations[]` (somente validação)
-- `traceId` (sempre presente)
-
-### Exemplo 409 — Customer já existe
-```json
-{
-  "type": "https://errors.yourdomain.com/customer/conflict",
-  "title": "Conflict",
-  "status": 409,
-  "detail": "Customer already exists for this document.",
-  "instance": "/customers",
-  "errorCode": "CUSTOMER_ALREADY_EXISTS",
-  "traceId": "req-001"
-}
 ```

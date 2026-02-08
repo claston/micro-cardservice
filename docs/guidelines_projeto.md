@@ -5,15 +5,9 @@ Este documento consolida as principais diretrizes, padroes e aprendizados observ
 ## Visao geral
 - Projeto em Java com Quarkus.
 - Dominio principal: **Ledger Core** (contabil) e **Wallet API**.
-- Multi-tenancy obrigatorio: todas as operacoes devem respeitar `tenantId`.
 - Modulo **Customer** em padrao ingles: API/Application/Domain/Infra.
 
-## Principios de negocio (Ledger)
-- **Imutabilidade**: transacoes e entries sao append-only.
-- **Double-entry**: DEBIT e CREDIT devem fechar por moeda.
-- **Idempotencia**: `idempotencyKey` evita duplicidade.
-- **Rastreabilidade**: timestamps e referencia externa quando aplicavel.
-- **Isolamento por tenant**: nenhuma operacao cruza tenants.
+Regras gerais do projeto estao na pasta `rules/`.
 
 ## Camadas e organizacao
 - **API** (resources/controllers + DTOs)
@@ -42,38 +36,12 @@ Pacotes principais:
 Especificação do módulo:
 - Consulte `docs/especificacao_modulo_customer_mvp_wallet.md` (PF/PJ no MVP, obrigatórios mínimos, unicidade por documento por tenant).
 
-## Wallet API
-- Camada de produto sobre o Ledger.
-- Resolvendo tenant via API key (header `X-API-Key`).
-- Operacoes principais: criar conta, saldo, extrato, transferencia.
-- Erros padronizados no formato Problem Details (RFC 7807 + extensoes).
-- Validacao declarativa via Bean Validation nos DTOs.
-- `traceId` sempre presente nas respostas; reutiliza `X-Request-Id` quando enviado.
-
-## Regras tecnicas importantes
-- **Saldo negativo**: respeitar `allowNegative`.
-- **Moeda**: consistencia obrigatoria por conta/entry.
-- **Tenant**: propagacao obrigatoria a todos os use cases.
-- **Erros HTTP**:
-  - 400 para validacoes
-  - 401 para API key invalida
-  - 404 para entidades nao encontradas
-  - 409 para conflitos de idempotencia/duplicidade e regras de negocio (ex.: saldo insuficiente)
-
 ## Observacoes recentes de testes
 - `LedgerAccountResource` deve retornar **400** quando `X-Tenant-Id` esta ausente.
 - Testes de wallet esperam excecoes tipadas:
   - `WalletAccountAlreadyExistsException`
   - `WalletAccountNotFoundException`
   - `WalletInsufficientBalanceException`
-
-## Padrao de erros (Problem Details)
-- Respostas de erro devem seguir o contrato:
-  - `type`, `title`, `status`, `detail`, `instance`
-  - `errorCode` estavel por modulo
-  - `violations[]` para erros de validacao
-  - `traceId` sempre presente
-- Preferir excecoes tipadas no Application para erros de negocio.
 
 ## Reuso entre modulos (Wallet/Ledger/CreditCard)
 - Separar componentes genericos (ErrorResponse, traceId filter, mappers base) em um pacote comum.
