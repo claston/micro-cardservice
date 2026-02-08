@@ -75,10 +75,9 @@ public class ProcessPspWebhookUseCase {
             payment.setStatus(PaymentStatus.CONFIRMED);
             payment.setConfirmedAt(Instant.now());
             payment.setUpdatedAt(Instant.now());
-            paymentRepository.save(payment);
 
             var cashAccount = walletAccountsService.getOrCreateCashAtPsp(payment.getTenantId(), payment.getCurrency());
-            transferUseCase.execute(payment.getTenantId(), new TransferBetweenWalletAccountsCommand(
+            var transferResult = transferUseCase.execute(payment.getTenantId(), new TransferBetweenWalletAccountsCommand(
                     "pay_" + payment.getId() + "_confirm",
                     cashAccount.getId(),
                     payment.getWalletToAccountId(),
@@ -86,6 +85,9 @@ public class ProcessPspWebhookUseCase {
                     payment.getCurrency(),
                     "Pix cash-in confirmed"
             ));
+            payment.setLedgerTransactionId(transferResult.getTransactionId());
+            payment.setUpdatedAt(Instant.now());
+            paymentRepository.save(payment);
             return;
         }
 
@@ -106,10 +108,9 @@ public class ProcessPspWebhookUseCase {
             payment.setStatus(PaymentStatus.CONFIRMED);
             payment.setConfirmedAt(Instant.now());
             payment.setUpdatedAt(Instant.now());
-            paymentRepository.save(payment);
 
             var cashAccount = walletAccountsService.getOrCreateCashAtPsp(payment.getTenantId(), payment.getCurrency());
-            transferUseCase.execute(payment.getTenantId(), new TransferBetweenWalletAccountsCommand(
+            var transferResult = transferUseCase.execute(payment.getTenantId(), new TransferBetweenWalletAccountsCommand(
                     "pay_" + payment.getId() + "_settle",
                     payment.getWalletToAccountId(),
                     cashAccount.getId(),
@@ -117,6 +118,9 @@ public class ProcessPspWebhookUseCase {
                     payment.getCurrency(),
                     "Pix payout confirmed"
             ));
+            payment.setLedgerTransactionId(transferResult.getTransactionId());
+            payment.setUpdatedAt(Instant.now());
+            paymentRepository.save(payment);
             return;
         }
 

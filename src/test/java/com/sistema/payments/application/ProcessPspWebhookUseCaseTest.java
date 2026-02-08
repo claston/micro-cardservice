@@ -8,6 +8,7 @@ import com.sistema.payments.domain.repository.PaymentRepository;
 import com.sistema.payments.domain.repository.PaymentWebhookEventRepository;
 import com.sistema.wallet.application.TransferBetweenWalletAccountsUseCase;
 import com.sistema.wallet.application.command.TransferBetweenWalletAccountsCommand;
+import com.sistema.wallet.application.model.WalletTransferResult;
 import com.sistema.wallet.domain.model.WalletAccount;
 import com.sistema.wallet.domain.model.WalletAccountStatus;
 import com.sistema.wallet.domain.model.WalletOwnerType;
@@ -22,6 +23,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,6 +40,7 @@ class ProcessPspWebhookUseCaseTest {
         UUID paymentId = UUID.randomUUID();
         UUID cashWalletId = UUID.randomUUID();
         UUID creditWalletId = UUID.randomUUID();
+        UUID ledgerTransactionId = UUID.randomUUID();
         Payment payment = new Payment(
                 paymentId,
                 tenantId,
@@ -67,6 +70,8 @@ class ProcessPspWebhookUseCaseTest {
         when(paymentRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(walletAccountsService.getOrCreateCashAtPsp(tenantId, "BRL"))
                 .thenReturn(walletAccount(cashWalletId, tenantId, WalletOwnerType.FUNDING));
+        when(transferUseCase.execute(eq(tenantId), any()))
+                .thenReturn(new WalletTransferResult(ledgerTransactionId, "POSTED"));
 
         ProcessPspWebhookUseCase useCase = new ProcessPspWebhookUseCase(
                 paymentRepository,
@@ -89,6 +94,11 @@ class ProcessPspWebhookUseCaseTest {
         assertEquals(cashWalletId, command.getFromAccountId());
         assertEquals(creditWalletId, command.getToAccountId());
         assertEquals("pay_" + paymentId + "_confirm", command.getIdempotencyKey());
+
+        ArgumentCaptor<Payment> paymentCaptor = ArgumentCaptor.forClass(Payment.class);
+        verify(paymentRepository, atLeastOnce()).save(paymentCaptor.capture());
+        Payment savedPayment = paymentCaptor.getValue();
+        assertEquals(ledgerTransactionId, savedPayment.getLedgerTransactionId());
     }
 
     @Test
