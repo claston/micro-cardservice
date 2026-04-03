@@ -169,3 +169,6 @@ The database is H2 in-memory with `drop-and-create`.
 ## Docs
 - Ledger specification: `docs/especificacao_nucleo_ledger_separado_do_dominio_de_cartao.md`
 - Multi-tenant extension: `docs/especificacao_extensao_multi_tenant_para_o_ledger_core.md`
+
+## Sync Test Marker
+- Change created on 2026-04-03 to validate incremental sync behavior.
